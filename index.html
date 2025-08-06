@@ -45,13 +45,17 @@
             font-size: larger;
             background-color: var(--scq-grey);
             overflow: hidden;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            min-height: 100vh;
+            /* Fallback for browsers that don't support dvh */
+            min-height: 100dvh;
+            /* Dynamic viewport height - adjusts for mobile browser chrome */
             display: flex;
             justify-content: center;
             align-items: center;
             margin: 0;
-            padding: 0;
+            padding: 0.5rem;
+            box-sizing: border-box;
         }
 
         h1,
@@ -647,6 +651,8 @@
             root.style.setProperty('--scq-font-heading', CONFIG.fonts.heading);
         }
         setThemeVars();
+
+        
 
         document.addEventListener('DOMContentLoaded', () => {
             // --- CONFIGURATION ---
