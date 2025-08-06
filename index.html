@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug & Moss</title>
+    <!-- Podcast Player Config: Edit this block for your podcast! -->
+    <script id="podcast-config">
+        window.PODCAST_CONFIG = {
+            name: "Waking Up with Bug & Moss",
+            rssFeed: "https://pinecast.com/jsonfeed/bug-and-moss",
+            rssButton: "https://pinecast.com/feed/bug-and-moss",
+            colors: {
+                white: "#f7fafc",      // backgrounds
+                beige: "#e3f0ff",     // panels/lists
+                haint: "#3bb273",     // accent/green
+                pink: "#ff914d",      // orange/highlight
+                grey: "#234e70"       // deep blue
+            },
+            fonts: {
+                body: "'Fredoka', sans-serif",
+                heading: "'Fredoka', cursive, sans-serif"
+            },
+            artFallback: "https://placehold.co/200x200/e2e8f0/475569?text=Podcast"
+        };
+    </script>
+    
+    <style>
+
+        /* General Styles */
+        body {
+            font-family: var(--scq-font-body);
+            font-size: larger;
+            background-color: var(--scq-grey);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2, h3, .now-playing-title, .episode-list-title {
+            font-family: var(--scq-font-heading);
+        }
+
+        .subscribe-section {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            justify-content:space-between;
+            gap: 0.5rem;
+        }
+        .subscribe-buttons {
+            width:100%;
+            justify-content:space-between;
+            display: flex;
+            gap: 0.75rem;
+        }
+        .subscribe-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.4em;
+            background: var(--scq-pink);
+            color: var(--scq-white);
+            font-family: var(--scq-font-body);
+            font-weight: bold;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: 999px;
+            padding: 0.5rem 1.1rem;
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            text-decoration: none;
+        }
+        .subscribe-btn:hover {
+            background: var(--scq-haint);
+            color: var(--scq-white);
+        }
+
+        #container {
+            width: min(95vw, 95vh);
+            height: 95vh;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            background: var(--scq-white);
+            border-radius: 1.25rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        .player-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 1.5rem;
+            height: 100%;
+            min-height: 0;
+        }
+
+        /* Audio Player Styles */
+        .audio-player-section {
+            padding: 0rem;
+            border-radius: 0.75rem;
+        }
+
+        .now-playing-art {
+            max-width: 70%;
+            min-width: 80px;
+            max-height: 35vh;
+            aspect-ratio: 1/1;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 4px solid var(--scq-pink);
+            object-fit: cover;
+            transition: all 0.3s;
+        }
+
+        .now-playing-info {
+            margin-bottom: 0.5rem;
+            margin-top:0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .now-playing-title {
+            font-size: clamp(1rem, 2vw + 1rem, 3rem);
+            font-weight: bold;
+            color: var(--scq-grey);
+            text-align: center;
+            margin: 0;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            max-width: 100%;
+        }
+
+        .controls-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .controls-container button.control-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25em;
+        }
+
+        .control-button {
+            background-color: var(--scq-pink);
+            color: var(--scq-white);
+            font-weight: bold;
+            font-size: 0.75rem;
+            font-family: var(--scq-font-body);
+            padding: 0.5rem 0.75rem;
+            border-radius: 9999px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: all 0.15s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .control-button:hover {
+            background-color: var(--scq-grey);
+        }
+
+        .play-pause-button {
+            background-color: var(--scq-haint);
+            color: var(--scq-grey);
+            padding: 0.5rem 1rem;
+        }
+
+        .play-pause-button:hover {
+            background-color: var(--scq-grey);
+            color: var(--scq-pink);
+        }
+
+        .play-pause-button:hover #play-pause-icon svg polygon,
+        .play-pause-button:hover #play-pause-icon svg rect {
+            fill: var(--scq-pink);
+        }
+
+        .progress-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0rem;
+        }
+
+        .time-label {
+            font-size: 0.75rem;
+            color: #718096;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        .progress-bar-container {
+            flex: 1;
+            height: 0.5rem;
+            background-color: var(--scq-beige);
+            border-radius: 0.25rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 0.5rem;
+            background-color: var(--scq-pink);
+            border-radius: 0.25rem;
+            transition: all 0.1s;
+            width: 0;
+        }
+
+        .progress-knob {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--scq-pink);
+            border: 2px solid var(--scq-grey);
+            border-radius: 50%;
+            width: 1rem;
+            height: 1rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            left: 0;
+        }
+
+        .audio-element {
+            width: 100%;
+            border-radius: 0.75rem;
+            border: 2px solid var(--scq-pink);
+            background-color: var(--scq-beige);
+            outline: none;
+        }
+
+        /* Loading and Error Styles */
+        .loading-container,
+        .error-container {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+            height: 2rem;
+            width: 2rem;
+            color: var(--scq-haint);
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            margin-top: 0.5rem;
+            color: var(--scq-grey);
+        }
+
+        .error-container {
+            background-color: #FEE2E2;
+            color: #C53030;
+            border-radius: 0.5rem;
+        }
+
+        .error-title {
+            font-weight: bold;
+        }
+
+        .error-text {
+            font-size: 0.875rem;
+        }
+
+        /* Episode List Styles */
+        .episode-list-section {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 0%;
+            min-height: 0;
+        }
+
+        .episode-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0rem;
+            margin-bottom: 0rem;
+        }
+
+        .episode-list-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--scq-grey);
+        }
+
+        .autoplay-toggle {
+            font-family: var(--scq-font-body);
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            transition: all 0.2s;
+            background-color: var(--scq-white);
+            color: var(--scq-pink);
+            font-weight: bold;
+            font-size: 0.7rem;
+            outline: none;
+            cursor: pointer;
+            gap: 0.5em;
+            border: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .autoplay-checkbox {
+            width: 1em;
+            height: 1em;
+            border: 2px solid var(--scq-pink);
+            border-radius: 0.25em;
+            background: var(--scq-white);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .autoplay-checkbox.checked {
+            background: var(--scq-pink);
+            border-color: var(--scq-pink);
+        }
+
+        .autoplay-checkbox svg {
+            display: block;
+            width: 0.8em;
+            height: 0.8em;
+            color: var(--scq-white);
+        }
+
+        .sort-toggle {
+            background-color: var(--scq-pink);
+            color: var(--scq-white);
+            font-family: var(--scq-font-body);
+            font-size: 0.7rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: all 0.15s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .sort-toggle:hover {
+            background-color: var(--scq-grey);
+        }
+
+        .episode-list {
+            background-color: var(--scq-beige);
+            border-radius: 0.75rem;
+            padding-right: 0.5rem;
+            min-height: 0;
+            height: 0;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        /* Custom scrollbar for webkit browsers */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: var(--scq-white);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: var(--scq-pink);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: var(--scq-grey);
+        }
+
+        .episode-item {
+            padding: 0.2rem;
+            padding-left: 1rem;
+            border-radius: 0;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .episode-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .episode-item:hover {
+            background-color: var(--scq-haint);
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .episode-item-active {
+            background-color: var(--scq-haint);
+            border-left: 4px solid var(--scq-pink);
+        }
+
+        .episode-item-title {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: var(--scq-grey);
+            margin: 0
+        }
+
+        .episode-item-date {
+            font-size: 0.5rem;
+            color: var(--scq-pink);
+            margin: 0
+        }
+
+        /* Footer Styles */
+        .footer {
+            margin-top: 0.5rem;
+            text-align: right;
+            font-family: var(--scq-font-heading);
+            color: #1768da;
+            font-style: italic;
+            font-size: 0.625rem;
+            flex-shrink: 0;
+            text-decoration: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .controls-container svg {
+            vertical-align: middle;
+            position: static;
+            top: 0;
+            /* Remove previous top adjustment */
+        }
+
+        @media (max-width: 600px) {
+            .autoplay-toggle {
+                font-size: 0.55rem;
+                padding: 0.4rem 0.5rem;
+            }
+
+            .autoplay-checkbox {
+                width: 0.9em;
+                height: 0.9em;
+            }
+
+            #autoplay-label {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div class="player-container">
+            <!-- Audio Player Section -->
+            <div class="audio-player-section">
+                <!-- Now Playing Art and Title -->
+                <div class="now-playing-info">
+                    
+                    <img id="now-playing-art" src="" alt="Now Playing Art" class="now-playing-art">
+                    <h2 id="now-playing-title" class="now-playing-title"></h2>
+                </div>
+                <!-- Audio Controls -->
+                <div class="controls-container">
+                    <button id="jump-back" title="Jump Back" class="control-button">
+                        <!-- SVG for rewind -->
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="vertical-align:middle">
+                            <path d="M11 18V6L2 12l9 6zm1-6l9 6V6l-9 6z" fill="currentColor" />
+                        </svg>
+                        <span id="jump-back-label"></span>
+                    </button>
+                    <button id="play-pause" title="Play/Pause" class="control-button play-pause-button">
+                        <!-- SVG for play (default, JS will swap for pause as needed) -->
+                        <span id="play-pause-icon">
+                            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" style="vertical-align:middle">
+                                <polygon points="7,5 23,14 7,23" fill="currentColor" />
+                            </svg>
+                        </span>
+                    </button>
+                    <button id="jump-forward" title="Jump Forward" class="control-button">
+                        <!-- SVG for fast forward -->
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="vertical-align:middle">
+                            <path d="M13 6v12l9-6-9-6zm-1 6L3 6v12l9-6z" fill="currentColor" />
+                        </svg>
+                        <span id="jump-forward-label"></span>
+                    </button>
+                </div>
+
+                <!-- Progress Bar -->
+                <div id="progress-container" class="progress-container">
+                    <span id="current-time" class="time-label">0:00</span>
+                    <div class="progress-bar-container">
+                        <div id="progress-bar" class="progress-bar"></div>
+                        <div id="progress-knob" class="progress-knob"></div>
+                    </div>
+                    <span id="duration" class="time-label">0:00</span>
+                </div>
+                <audio id="audio-player" class="audio-element">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+            <!-- Loading Spinner -->
+            <div id="loading" class="loading-container hidden">
+                <svg class="loading-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+                <p class="loading-text">Loading episodes...</p>
+            </div>
+            <!-- Error Message -->
+            <div id="error-message" class="error-container hidden">
+                <h3 class="error-title">Oops! Something went wrong.</h3>
+                <p id="error-text" class="error-text">Could not fetch the podcast feed. Please check the RSS URL and your
+                    network connection.</p>
+            </div>
+            <!-- Episode List Section -->
+            <div class="episode-list-section">
+                <div class="episode-list-header">
+                    <div class="flex items-center gap-3">
+                        <h3 class="episode-list-title">Episodes</h3>
+
+                    </div>
+                    <button id="autoplay-toggle" class="autoplay-toggle" aria-pressed="false" type="button">
+                        <span id="autoplay-checkbox" class="autoplay-checkbox">
+                            <!-- SVG checkmark will be injected here if checked -->
+                        </span>
+                        <span id="autoplay-label">Autoplay Next</span>
+                    </button>
+                    <button id="sort-toggle" class="sort-toggle">
+                        Sort: Most Recent
+                    </button>
+                </div>
+                <div id="episode-list" class="episode-list custom-scrollbar">
+                    <!-- Episodes will be dynamically inserted here -->
+                </div>
+                <div class="subscribe-section" style="margin-top:0.5rem; margin-bottom:0; align-items: center;">
+                    <div class="subscribe-buttons">
+                        <a id="rss-btn" class="subscribe-btn" href="#" target="_blank" rel="noopener noreferrer" title="Subscribe via RSS">
+                            
+                            Subscribe via RSS
+                        </a>
+                        
+                <a href="https://poweredbypodcube.com/" class="footer">Player by PodCube™</a>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Google Fonts: Dynamically loaded based on config -->
+    <script>
+        // Dynamically load Google Fonts based on config
+        (function() {
+            const config = window.PODCAST_CONFIG;
+            if (!config || !config.fonts) return;
+            // Helper to extract font names from CSS font-family string
+            function extractFontNames(fontString) {
+                return fontString.split(',').map(f => f.trim().replace(/^['"]|['"]$/g, ''));
+            }
+            // Only add Google Fonts for fonts that are not generic families
+            const generic = ["serif","sans-serif","cursive","monospace","fantasy","system-ui","ui-sans-serif","ui-serif","ui-monospace","ui-rounded","emoji","math","fangsong"];
+            let fontSet = new Set();
+            ['body','heading'].forEach(key => {
+                if (config.fonts[key]) {
+                    extractFontNames(config.fonts[key]).forEach(f => {
+                        if (f && !generic.includes(f.toLowerCase())) fontSet.add(f);
+                    });
+                }
+            });
+            if (fontSet.size > 0) {
+                // Build Google Fonts URL
+                const families = Array.from(fontSet).map(f => f.replace(/ /g, '+')+':wght@400;700').join('&family=');
+                const url = `https://fonts.googleapis.com/css2?family=${families}&display=swap`;
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = url;
+                document.head.appendChild(link);
+            }
+        })();
+    </script>
+
+    <script>
+        // --- CONFIGURATION FROM PODCAST_CONFIG ---
+        const CONFIG = window.PODCAST_CONFIG;
+        // Set CSS variables for colors and fonts
+        function setThemeVars() {
+            const root = document.documentElement;
+            root.style.setProperty('--scq-white', CONFIG.colors.white);
+            root.style.setProperty('--scq-beige', CONFIG.colors.beige);
+            root.style.setProperty('--scq-haint', CONFIG.colors.haint);
+            root.style.setProperty('--scq-pink', CONFIG.colors.pink);
+            root.style.setProperty('--scq-grey', CONFIG.colors.grey);
+            root.style.setProperty('--scq-font-body', CONFIG.fonts.body);
+            root.style.setProperty('--scq-font-heading', CONFIG.fonts.heading);
+        }
+        setThemeVars();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONFIGURATION ---
+            const RSS_FEED_URL = CONFIG.rssFeed;
+            const PODCAST_NAME = CONFIG.name;
+            const ART_FALLBACK = CONFIG.artFallback;
+            const RSS_BUTTON_URL = CONFIG.rssButton;
+            const JUMP_SECONDS = 15;
+
+            // --- ELEMENT REFERENCES ---
+            const audioPlayer = document.getElementById('audio-player');
+            const episodeList = document.getElementById('episode-list');
+            const nowPlayingTitle = document.getElementById('now-playing-title');
+            const loadingIndicator = document.getElementById('loading');
+            const errorMessage = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            const sortToggle = document.getElementById('sort-toggle');
+            const jumpBackBtn = document.getElementById('jump-back');
+            const jumpForwardBtn = document.getElementById('jump-forward');
+            const playPauseBtn = document.getElementById('play-pause');
+            const jumpBackLabel = document.getElementById('jump-back-label');
+            const jumpForwardLabel = document.getElementById('jump-forward-label');
+            const nowPlayingArt = document.getElementById('now-playing-art');
+            const autoplayToggle = document.getElementById('autoplay-toggle');
+            const autoplayLabel = document.getElementById('autoplay-label');
+            const autoplayCheckbox = document.getElementById('autoplay-checkbox');
+            const rssBtn = document.getElementById('rss-btn');
+            let showArtUrl = ART_FALLBACK;
+
+            // --- STATE ---
+            let feedData = null;
+            let sortDescending = true; // Newest first by default
+            let chronologicalEpisodes = []; // Always oldest-to-newest for autoplay
+            let currentEpisodeId = null; // Use episode id for reliable lookup
+            let autoplayEnabled = false; // Added
+
+            // --- INIT JUMP LABELS ---
+            jumpBackLabel.textContent = `-${JUMP_SECONDS}s`;
+            jumpForwardLabel.textContent = `+${JUMP_SECONDS}s`;
+
+            // --- SET PODCAST NAME, ART, RSS BUTTON ---
+            nowPlayingTitle.textContent = PODCAST_NAME;
+            nowPlayingArt.src = ART_FALLBACK;
+            rssBtn.href = RSS_BUTTON_URL;
+
+            // --- HELPER FUNCTIONS ---
+            const formatTime = (sec) => {
+                if (isNaN(sec)) return '0:00';
+                const minutes = Math.floor(sec / 60);
+                const seconds = Math.floor(sec % 60).toString().padStart(2, '0');
+                return `${minutes}:${seconds}`;
+            };
+
+            const clearEpisodeHighlight = () => {
+                document.querySelectorAll('.episode-item').forEach(el => el.classList.remove('episode-item-active'));
+            };
+
+            const highlightNowPlaying = (episodeId) => {
+                clearEpisodeHighlight();
+                const episodeElement = document.querySelector(`.episode-item[data-episode-id="${episodeId}"]`);
+                if (episodeElement) {
+                    episodeElement.classList.add('episode-item-active');
+                }
+            };
+
+            function updateAutoplayCheckbox() {
+                if (autoplayEnabled) {
+                    autoplayCheckbox.classList.add('checked');
+                    autoplayCheckbox.innerHTML = `<svg viewBox="0 0 16 16" fill="none"><polyline points="3,8 7,12 13,4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+                    autoplayToggle.setAttribute('aria-pressed', 'true');
+                } else {
+                    autoplayCheckbox.classList.remove('checked');
+                    autoplayCheckbox.innerHTML = '';
+                    autoplayToggle.setAttribute('aria-pressed', 'false');
+                }
+            }
+
+            // --- CORE FUNCTIONS ---
+            async function fetchPodcastFeed() {
+                loadingIndicator.classList.remove('hidden');
+                errorMessage.classList.add('hidden');
+                episodeList.innerHTML = '';
+
+                try {
+                    const response = await fetch(RSS_FEED_URL);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const data = await response.json();
+                    feedData = data;
+                    updatePodcastInfo(data);
+                    populateEpisodeList(data);
+                } catch (error) {
+                    console.error('Error fetching or parsing feed:', error);
+                    errorText.textContent = error.message;
+                    errorMessage.classList.remove('hidden');
+                } finally {
+                    loadingIndicator.classList.add('hidden');
+                }
+            }
+
+            function updatePodcastInfo(feed) {
+                showArtUrl = feed.icon || ART_FALLBACK;
+                nowPlayingArt.src = showArtUrl;
+                nowPlayingTitle.textContent = PODCAST_NAME;
+            }
+
+            function populateEpisodeList(feed) {
+                let items = feed.items || [];
+                chronologicalEpisodes = [...items].sort((a, b) => new Date(a.date_published) - new Date(b.date_published));
+                let displayItems = sortDescending ? [...items] : [...items].reverse();
+
+                if (displayItems.length === 0) {
+                    episodeList.innerHTML = '<p class="text-gray-500 text-center">No episodes found.</p>';
+                    return;
+                }
+
+                episodeList.innerHTML = '';
+                const fragment = document.createDocumentFragment();
+
+                displayItems.forEach(item => {
+                    const {
+                        title = 'Untitled Episode',
+                        attachments,
+                        date_published,
+                        image,
+                        id
+                    } = item;
+                    const audioUrl = attachments?.[0]?.url;
+                    const formattedDate = date_published ? new Date(date_published).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    }) : '';
+                    const episodeArt = image || attachments?.[0]?.image || showArtUrl;
+
+                    if (audioUrl) {
+                        const episodeElement = document.createElement('div');
+                        episodeElement.className = 'episode-item';
+                        episodeElement.dataset.episodeId = id;
+                        episodeElement.innerHTML = `
+                            <p class="episode-item-title">${title}</p>
+                            <p class="episode-item-date">${formattedDate}</p>
+                        `;
+                        episodeElement.addEventListener('click', () => {
+                            playEpisode(title, audioUrl, episodeArt, id);
+                        });
+
+                        if (id === currentEpisodeId) {
+                            episodeElement.classList.add('episode-item-active');
+                        }
+                        fragment.appendChild(episodeElement);
+                    }
+                });
+                episodeList.appendChild(fragment);
+            }
+
+            function playEpisode(title, audioUrl, episodeArt, episodeId = null) {
+                nowPlayingTitle.textContent = title;
+                audioPlayer.src = audioUrl;
+                audioPlayer.play();
+                updatePlayPauseIcon();
+                nowPlayingArt.src = episodeArt || showArtUrl;
+                nowPlayingArt.onerror = () => {
+                    nowPlayingArt.src = showArtUrl;
+                };
+                currentEpisodeId = episodeId;
+                highlightNowPlaying(episodeId);
+            }
+
+            function updatePlayPauseIcon() {
+                if (audioPlayer.paused) {
+                    playPauseBtn.innerHTML = `
+                <span id="play-pause-icon">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" style="vertical-align:middle"><polygon points="7,5 23,14 7,23" fill="currentColor"/></svg>
+                </span>
+            `;
+                } else {
+                    playPauseBtn.innerHTML = `
+                <span id="play-pause-icon">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" style="vertical-align:middle"><rect x="6" y="5" width="5" height="18" fill="currentColor"/><rect x="17" y="5" width="5" height="18" fill="currentColor"/></svg>
+                </span>
+            `;
+                }
+            }
+
+            // --- EVENT LISTENERS ---
+
+            sortToggle.addEventListener('click', () => {
+                sortDescending = !sortDescending;
+                sortToggle.textContent = sortDescending ? 'Sort: Most Recent' : 'Sort: Release Order';
+                if (feedData) populateEpisodeList(feedData);
+            });
+
+            jumpBackBtn.addEventListener('click', () => {
+                audioPlayer.currentTime = Math.max(0, audioPlayer.currentTime - JUMP_SECONDS);
+            });
+
+            jumpForwardBtn.addEventListener('click', () => {
+                audioPlayer.currentTime = Math.min(audioPlayer.duration || 0, audioPlayer.currentTime + JUMP_SECONDS);
+            });
+
+            playPauseBtn.addEventListener('click', () => {
+                if (audioPlayer.src) {
+                    if (audioPlayer.paused) {
+                        audioPlayer.play();
+                    } else {
+                        audioPlayer.pause();
+                    }
+                }
+            });
+
+            audioPlayer.addEventListener('play', updatePlayPauseIcon);
+            audioPlayer.addEventListener('pause', updatePlayPauseIcon);
+
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            const progressKnob = document.getElementById('progress-knob');
+            const currentTimeEl = document.getElementById('current-time');
+            const durationEl = document.getElementById('duration');
+
+            function updateProgress() {
+                const duration = audioPlayer.duration || 0;
+                const current = audioPlayer.currentTime || 0;
+                const percent = duration ? (current / duration) * 100 : 0;
+                progressBar.style.width = percent + '%';
+                progressKnob.style.left = `calc(${percent}% - 8px)`;
+                currentTimeEl.textContent = formatTime(current);
+                durationEl.textContent = formatTime(duration);
+            }
+
+            let isSeeking = false;
+            progressContainer.addEventListener('mousedown', (e) => {
+                isSeeking = true;
+                seekAudio(e);
+            });
+            document.addEventListener('mousemove', (e) => {
+                if (isSeeking) seekAudio(e);
+            });
+            document.addEventListener('mouseup', () => {
+                isSeeking = false;
+            });
+            progressContainer.addEventListener('click', seekAudio);
+
+            function seekAudio(e) {
+                const rect = progressContainer.getBoundingClientRect();
+                const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+                const percent = Math.max(0, Math.min(1, x / rect.width));
+                audioPlayer.currentTime = percent * (audioPlayer.duration || 0);
+            }
+
+            audioPlayer.addEventListener('timeupdate', updateProgress);
+            audioPlayer.addEventListener('loadedmetadata', updateProgress);
+            audioPlayer.addEventListener('ended', updateProgress);
+
+            // --- AUTOPLAY LOGIC ---
+
+            autoplayToggle.addEventListener('click', () => {
+                autoplayEnabled = !autoplayEnabled;
+                updateAutoplayCheckbox();
+            });
+
+            audioPlayer.addEventListener('ended', () => {
+                if (!autoplayEnabled || !currentEpisodeId) return;
+                const idx = chronologicalEpisodes.findIndex(ep => ep.id === currentEpisodeId);
+                if (idx !== -1 && idx + 1 < chronologicalEpisodes.length) {
+                    const next = chronologicalEpisodes[idx + 1];
+                    const {
+                        title = 'Untitled Episode',
+                        attachments,
+                        image,
+                        id
+                    } = next;
+                    const nextAudioUrl = attachments?.[0]?.url;
+                    const nextArt = image || attachments?.[0]?.image || showArtUrl;
+                    if (nextAudioUrl) {
+                        playEpisode(title, nextAudioUrl, nextArt, id);
+                    }
+                }
+            });
+
+            // --- INITIALIZATION ---
+            fetchPodcastFeed();
+        });
+    </script>
+</body>
+
+</html>
