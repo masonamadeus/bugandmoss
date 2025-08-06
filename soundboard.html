@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soundboard</title>
+    <style>
+        /* Custom styles for better aesthetics and responsiveness */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Dark background */
+            color: #e2e8f0; /* Light text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        .soundboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem; /* Increased gap for better spacing */
+            max-width: 900px; /* Max width for larger screens */
+            width: 100%;
+            padding: 2rem;
+            background-color: #2d3748; /* Slightly lighter dark background for the board */
+            border-radius: 1rem; /* More rounded corners */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); /* Deeper shadow */
+        }
+
+        .sound-button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #4a5568; /* Even lighter dark background for containers */
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .sound-button-container:hover {
+            transform: translateY(-5px); /* Slight lift on hover */
+        }
+
+        .sound-button {
+            width: 100%;
+            padding: 1.5rem 1rem; /* Increased padding for larger touch target */
+            background-color: #63b3ed; /* Brighter blue */
+            color: white;
+            font-size: 1.25rem; /* Larger font size */
+            font-weight: bold;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative; /* For positioning the input inside */
+            display: flex; /* To center content */
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Hide overflow when input is active */
+        }
+
+        .sound-button-text {
+            text-overflow: ellipsis; /* Handle long names */
+            white-space: nowrap;
+            overflow: hidden;
+            display: block; /* Ensure it takes full width */
+            width: 100%;
+            text-align: center;
+        }
+
+        .sound-button:hover {
+            background-color: #4299e1; /* Darker blue on hover */
+        }
+
+        .sound-button:active {
+            transform: scale(0.98); /* Slight press effect */
+        }
+
+        .volume-slider {
+            width: 100%;
+            -webkit-appearance: none; /* Override default slider styles */
+            appearance: none;
+            height: 8px; /* Thicker slider track */
+            background: #a0aec0; /* Lighter grey track */
+            outline: none;
+            border-radius: 4px;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+            margin-top: 0.75rem; /* Space between file input and slider */
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px; /* Larger thumb */
+            height: 20px; /* Larger thumb */
+            background: #63b3ed; /* Blue thumb */
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #63b3ed;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 0.75rem;
+        }
+
+        .file-input-label {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: #718096; /* Greyish background */
+            color: white;
+            text-align: center;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            font-size: 0.9rem;
+        }
+
+        .file-input-label:hover {
+            background-color: #5a677e; /* Darker grey on hover */
+        }
+
+        .file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .button-name-edit-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Dark overlay for editing */
+            color: white;
+            font-size: 1.25rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 0.5rem;
+            text-align: center;
+            padding: 0 1rem; /* Match button padding */
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        /* Utility classes for toggling visibility */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .soundboard-grid {
+                grid-template-columns: repeat(2, 1fr); /* 2 columns on tablets */
+                padding: 1.5rem;
+                gap: 1rem;
+            }
+            .sound-button {
+                font-size: 1.1rem;
+                padding: 1.2rem 0.8rem;
+            }
+            .file-input-label {
+                font-size: 0.85rem;
+                padding: 0.6rem 0.8rem;
+            }
+            .button-name-edit-input {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .soundboard-grid {
+                grid-template-columns: 1fr; /* Single column on mobile */
+                padding: 1rem;
+                gap: 0.75rem;
+            }
+            .sound-button {
+                font-size: 1rem;
+                padding: 1rem 0.7rem;
+            }
+            .file-input-label {
+                font-size: 0.8rem;
+                padding: 0.5rem 0.7rem;
+            }
+            .button-name-edit-input {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="soundboard-grid">
+        <!-- Buttons will be dynamically generated here -->
+    </div>
+
+    <script>
+        // Get the soundboard grid container
+        const soundboardGrid = document.querySelector('.soundboard-grid');
+        const NUM_BUTTONS = 9; // 3x3 grid
+
+        // Array to hold Audio objects and their states
+        const audioPlayers = [];
+
+        // Function to save sound data to localStorage
+        const saveSoundData = (index, data) => {
+            try {
+                localStorage.setItem(`soundboard_button_data_${index}`, data);
+            } catch (e) {
+                console.error("Error saving sound data to localStorage:", e);
+                displayMessageBox("Could not save sound. Local storage might be full or blocked.");
+            }
+        };
+
+        // Function to save volume data to localStorage
+        const saveVolumeData = (index, volume) => {
+            try {
+                localStorage.setItem(`soundboard_volume_${index}`, volume);
+            } catch (e) {
+                console.error("Error saving volume to localStorage:", e);
+            }
+        };
+
+        // Function to save button name to localStorage
+        const saveButtonName = (index, name) => {
+            try {
+                localStorage.setItem(`soundboard_button_name_${index}`, name);
+                console.log(`Saved name for button ${index}: "${name}"`); // Log save action
+            } catch (e) {
+                console.error("Error saving button name to localStorage:", e);
+            }
+        };
+
+        // Function to load sound data from localStorage
+        const loadSoundData = (index) => {
+            try {
+                return localStorage.getItem(`soundboard_button_data_${index}`);
+            } catch (e) {
+                console.error("Error loading sound data from localStorage:", e);
+                return null;
+            }
+        };
+
+        // Function to load volume data from localStorage
+        const loadVolumeData = (index) => {
+            try {
+                const volume = localStorage.getItem(`soundboard_volume_${index}`);
+                return volume !== null ? parseFloat(volume) : 1.0; // Default to full volume
+            } catch (e) {
+                console.error("Error loading volume from localStorage:", e);
+                return 1.0;
+            }
+        };
+
+        // Function to load button name from localStorage
+        const loadButtonName = (index) => {
+            try {
+                const name = localStorage.getItem(`soundboard_button_name_${index}`);
+                console.log(`Loaded name for button ${index}: "${name}"`); // Log load action
+                return name;
+            } catch (e) {
+                console.error("Error loading button name from localStorage:", e);
+                return null;
+            }
+        };
+
+        // Helper function to update button text based on state
+        const updateButtonText = (buttonTextSpan, player) => {
+            let text = player.baseName;
+            if (player.fileLoaded && player.isPlaying) {
+                text = `${player.baseName} (Playing)`;
+            }
+            // No "Play" prefix when file is loaded but not playing
+            buttonTextSpan.textContent = text;
+            console.log(`Button ${buttonTextSpan.dataset.index} text updated to: "${text}"`); // Added log
+        };
+
+        // Custom message box function (replaces alert)
+        const displayMessageBox = (message) => {
+            const messageBox = document.createElement('div');
+            messageBox.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: #333;
+                color: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+                font-family: 'Inter', sans-serif;
+                text-align: center;
+                max-width: 80%;
+            `;
+            messageBox.textContent = message;
+            document.body.appendChild(messageBox);
+
+            setTimeout(() => {
+                document.body.removeChild(messageBox);
+            }, 3000); // Remove after 3 seconds
+        };
+
+
+        // Initialize each button
+        for (let i = 0; i < NUM_BUTTONS; i++) {
+            // Create container for each button
+            const container = document.createElement('div');
+            container.classList.add('sound-button-container');
+
+            // Create sound button
+            const button = document.createElement('button');
+            button.classList.add('sound-button');
+            button.dataset.index = i; // Store index for easy reference
+
+            // Create span for button text
+            const buttonTextSpan = document.createElement('span');
+            buttonTextSpan.classList.add('sound-button-text');
+            buttonTextSpan.dataset.index = i;
+            button.appendChild(buttonTextSpan);
+
+            // Create hidden input for renaming
+            const buttonNameEditInput = document.createElement('input');
+            buttonNameEditInput.type = 'text';
+            buttonNameEditInput.classList.add('button-name-edit-input', 'hidden');
+            buttonNameEditInput.placeholder = 'Enter name';
+            buttonNameEditInput.dataset.index = i;
+            button.appendChild(buttonNameEditInput);
+
+
+            // Create file input wrapper and label
+            const fileInputWrapper = document.createElement('div');
+            fileInputWrapper.classList.add('file-input-wrapper');
+
+            const fileInputLabel = document.createElement('label');
+            fileInputLabel.classList.add('file-input-label');
+            fileInputLabel.textContent = 'Load Sound File';
+            fileInputLabel.htmlFor = `file-input-${i}`;
+
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'audio/*'; // Accept only audio files
+            fileInput.id = `file-input-${i}`;
+            fileInput.classList.add('file-input');
+            fileInput.dataset.index = i;
+
+            fileInputWrapper.appendChild(fileInputLabel);
+            fileInputWrapper.appendChild(fileInput);
+
+            // Create volume slider
+            const volumeSlider = document.createElement('input');
+            volumeSlider.type = 'range';
+            volumeSlider.min = '0';
+            volumeSlider.max = '1';
+            volumeSlider.step = '0.01';
+            volumeSlider.value = loadVolumeData(i); // Load initial volume
+            volumeSlider.classList.add('volume-slider');
+            volumeSlider.dataset.index = i;
+
+            // Append elements to container
+            container.appendChild(button);
+            container.appendChild(fileInputWrapper);
+            container.appendChild(volumeSlider);
+            soundboardGrid.appendChild(container);
+
+            // Initialize Audio object for this button
+            const audio = new Audio();
+            audio.volume = volumeSlider.value; // Set initial volume
+
+            // Load saved button name
+            const savedName = loadButtonName(i);
+            const baseName = savedName || `Sound ${i + 1}`;
+
+            audioPlayers[i] = {
+                audio: audio,
+                isPlaying: false,
+                fileLoaded: false, // Track if a file has been loaded
+                baseName: baseName, // Store the base name (custom or default)
+                elements: {
+                    button: button,
+                    buttonTextSpan: buttonTextSpan,
+                    buttonNameEditInput: buttonNameEditInput,
+                    fileInputLabel: fileInputLabel
+                },
+                // Add a flag to prevent click/double-click conflicts during rename
+                isRenaming: false
+            };
+
+            // Set initial display name
+            buttonTextSpan.textContent = baseName;
+
+            // Load saved sound data on page load
+            const savedSoundData = loadSoundData(i);
+            if (savedSoundData) {
+                audio.src = savedSoundData;
+                audioPlayers[i].fileLoaded = true;
+                fileInputLabel.textContent = 'Change Sound File';
+            }
+            updateButtonText(buttonTextSpan, audioPlayers[i]); // Initial button text update
+
+            // Event listener for file input change
+            fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                const buttonIndex = event.target.dataset.index;
+                const player = audioPlayers[buttonIndex];
+
+                if (file) {
+                    // Check if it's an audio file
+                    if (!file.type.startsWith('audio/')) {
+                        displayMessageBox('Please select an audio file.');
+                        event.target.value = ''; // Clear the input
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const base64Data = e.target.result;
+                        player.audio.src = base64Data;
+                        player.fileLoaded = true;
+                        player.elements.fileInputLabel.textContent = 'Change Sound File';
+                        saveSoundData(buttonIndex, base64Data); // Save Base64 data to localStorage
+                        updateButtonText(player.elements.buttonTextSpan, player);
+                    };
+                    reader.readAsDataURL(file); // Read file as Base64 Data URL
+                } else {
+                    // If file is cleared, reset
+                    player.audio.src = '';
+                    player.fileLoaded = false;
+                    player.elements.fileInputLabel.textContent = 'Load Sound File';
+                    saveSoundData(buttonIndex, ''); // Clear data from localStorage
+                    updateButtonText(player.elements.buttonTextSpan, player);
+                }
+            });
+
+            // Event listener for button click (play/stop)
+            button.addEventListener('click', (event) => {
+                const buttonIndex = event.target.dataset.index;
+                const player = audioPlayers[buttonIndex];
+
+                // Prevent playing if currently in renaming mode
+                if (player.isRenaming) {
+                    console.log(`Click on button ${buttonIndex} ignored: currently renaming.`);
+                    return;
+                }
+
+                if (!player.fileLoaded) {
+                    displayMessageBox('Please load a sound file first!');
+                    return;
+                }
+
+                if (player.isPlaying) {
+                    player.audio.pause();
+                    player.audio.currentTime = 0; // Reset to start
+                    player.isPlaying = false;
+                    console.log(`Sound ${buttonIndex} stopped.`);
+                } else {
+                    player.audio.play().catch(e => console.error("Error playing sound:", e));
+                    player.isPlaying = true;
+                    console.log(`Sound ${buttonIndex} started playing.`);
+                }
+                updateButtonText(player.elements.buttonTextSpan, player);
+            });
+
+            // Event listener for button double-click (rename)
+            button.addEventListener('dblclick', (event) => {
+                const buttonIndex = event.currentTarget.dataset.index; // Use currentTarget as event.target might be the span/input
+                const player = audioPlayers[buttonIndex];
+
+                console.log(`Double-clicked button ${buttonIndex} - initiating rename.`);
+                player.isRenaming = true; // Set renaming flag
+
+                player.elements.buttonTextSpan.classList.add('hidden');
+                player.elements.buttonNameEditInput.classList.remove('hidden');
+                player.elements.buttonNameEditInput.value = player.baseName;
+                player.elements.buttonNameEditInput.focus();
+                // Select all text for easy editing
+                player.elements.buttonNameEditInput.select();
+            });
+
+
+            // Event listener for volume slider change
+            volumeSlider.addEventListener('input', (event) => {
+                const buttonIndex = event.target.dataset.index;
+                const newVolume = parseFloat(event.target.value);
+                audioPlayers[buttonIndex].audio.volume = newVolume;
+                saveVolumeData(buttonIndex, newVolume); // Save volume to localStorage
+            });
+
+            // Listen for when the audio finishes playing naturally
+            audio.addEventListener('ended', () => {
+                const buttonIndex = Array.from(soundboardGrid.children).indexOf(container); // Find index
+                if (audioPlayers[buttonIndex]) {
+                    audioPlayers[buttonIndex].isPlaying = false;
+                    updateButtonText(audioPlayers[buttonIndex].elements.buttonTextSpan, audioPlayers[buttonIndex]);
+                    console.log(`Sound ${buttonIndex} finished playing naturally.`);
+                }
+            });
+
+            // Event listener for name input blur (when focus leaves the input)
+            buttonNameEditInput.addEventListener('blur', (event) => {
+                const buttonIndex = event.target.dataset.index;
+                const player = audioPlayers[buttonIndex];
+                const newName = event.target.value.trim();
+
+                console.log(`Blur event triggered for button ${buttonIndex}. New name proposed: "${newName}"`);
+
+                if (newName) {
+                    player.baseName = newName;
+                    saveButtonName(buttonIndex, newName);
+                } else {
+                    // If name is cleared, revert to default
+                    player.baseName = `Sound ${parseInt(buttonIndex) + 1}`;
+                    saveButtonName(buttonIndex, ''); // Clear from storage
+                }
+
+                player.elements.buttonTextSpan.textContent = player.baseName;
+                player.elements.buttonTextSpan.classList.remove('hidden');
+                player.elements.buttonNameEditInput.classList.add('hidden');
+                updateButtonText(player.elements.buttonTextSpan, player);
+
+                // Reset renaming flag after a very short delay to avoid immediate re-triggering issues
+                setTimeout(() => {
+                    player.isRenaming = false;
+                    console.log(`Renaming flag for button ${buttonIndex} reset to false.`);
+                }, 50); // Small delay
+            });
+
+            // Event listener for name input keypress (for Enter key)
+            buttonNameEditInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); // Prevent form submission
+                    console.log(`Enter key pressed for button ${event.target.dataset.index}. Triggering blur.`);
+                    event.target.blur(); // Trigger blur event to save the name
+                }
+            });
+        }
+    </script>
+</body>
+</html>
