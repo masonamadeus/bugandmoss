@@ -841,7 +841,32 @@
             });
 
             playPauseBtn.addEventListener('click', () => {
-                if (audioPlayer.src) {
+                // If no audio source is set, find the first episode and play it
+                if (!audioPlayer.src || audioPlayer.src === window.location.href) {
+                    // Find the first episode item in the list
+                    const firstEpisode = document.querySelector('.episode-item');
+                    if (firstEpisode) {
+                        // Get the ID of the first episode
+                        const firstEpisodeId = firstEpisode.dataset.episodeId;
+                        // Find the corresponding episode data from the feed
+                        const episodeData = feedData.items.find(item => item.id === firstEpisodeId);
+                        if (episodeData) {
+                            // Play the first episode using the existing playEpisode function
+                            const {
+                                title = 'Untitled Episode',
+                                attachments,
+                                image,
+                                id
+                            } = episodeData;
+                            const audioUrl = attachments?.[0]?.url;
+                            const episodeArt = image || attachments?.[0]?.image || showArtUrl;
+                            if (audioUrl) {
+                                playEpisode(title, audioUrl, episodeArt, id);
+                            }
+                        }
+                    }
+                } else {
+                    // If an episode is already loaded, just toggle play/pause as normal
                     if (audioPlayer.paused) {
                         audioPlayer.play();
                     } else {
