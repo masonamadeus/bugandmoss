@@ -19,8 +19,8 @@
                 grey: "#234e70"       // deep blue
             },
             fonts: {
-                body: "'Fredoka', sans-serif",
-                heading: "'Fredoka', cursive, sans-serif"
+                body: "'Wellfleet', sans-serif",
+                heading: "'Love Ya Like A Sister', cursive, sans-serif"
             },
             artFallback: "https://placehold.co/200x200/e2e8f0/475569?text=Podcast"
         };
@@ -585,7 +585,7 @@
                             Subscribe via RSS
                         </a>
 
-                        <a href="https://poweredbypodcube.com/" class="footer">Player by PodCube™</a>
+                        <a href="https://poweredbypodcube.com/" class="footer" style="font-family:'Nova Square'">Player by PodCube™</a>
                     </div>
 
                 </div>
@@ -616,7 +616,7 @@
             if (fontSet.size > 0) {
                 // Build Google Fonts URL
                 const families = Array.from(fontSet).map(f => f.replace(/ /g, '+') + ':wght@400;700').join('&family=');
-                const url = `https://fonts.googleapis.com/css2?family=${families}&display=swap`;
+                const url = `https://fonts.googleapis.com/css2?family=${families}&family=Nova+Square&display=swap`;
                 const link = document.createElement('link');
                 link.rel = 'stylesheet';
                 link.href = url;
