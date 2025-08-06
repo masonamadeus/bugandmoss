@@ -8,7 +8,7 @@
         /* Custom styles for better aesthetics and responsiveness */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #1a202c; /* Dark background */
+            background-color: #152238; /* Darker blue background */
             color: #e2e8f0; /* Light text */
             display: flex;
             justify-content: center;
@@ -25,7 +25,7 @@
             max-width: 900px; /* Max width for larger screens */
             width: 100%;
             padding: 2rem;
-            background-color: #2d3748; /* Slightly lighter dark background for the board */
+            background-color: #2A3B53; /* Slightly lighter blue background for the board */
             border-radius: 1rem; /* More rounded corners */
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); /* Deeper shadow */
         }
@@ -48,38 +48,51 @@
         .sound-button {
             width: 100%;
             padding: 1.5rem 1rem; /* Increased padding for larger touch target */
-            background-color: #63b3ed; /* Brighter blue */
             color: white;
             font-size: 1.25rem; /* Larger font size */
             font-weight: bold;
             border: none;
             border-radius: 0.5rem;
             cursor: pointer;
-            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            transition: transform 0.1s ease-in-out; /* Only transform transition */
             margin-bottom: 1rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            position: relative; /* For positioning the input inside */
-            display: flex; /* To center content */
+            position: relative; /* For positioning the progress overlay */
+            display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden; /* Hide overflow when input is active */
+            overflow: hidden; /* Hide overflow of progress bar */
+            background-color: var(--unplayed-color); /* Set by JavaScript to green */
+        }
+
+        .sound-button:hover {
+            /* No direct background-color change on hover, progress overlay handles it */
+        }
+
+        .sound-button:active {
+            transform: scale(0.98); /* Slight press effect */
+        }
+
+        .progress-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%; /* Controlled by JavaScript */
+            background-color: var(--played-color); /* Set by JavaScript to orange */
+            z-index: 1; /* Below text, above button background */
+            transition: width 0.1s linear; /* Smooth transition for progress */
         }
 
         .sound-button-text {
+            position: relative;
+            z-index: 2; /* Ensure text is above the progress overlay */
             text-overflow: ellipsis; /* Handle long names */
             white-space: nowrap;
             overflow: hidden;
             display: block; /* Ensure it takes full width */
             width: 100%;
             text-align: center;
-        }
-
-        .sound-button:hover {
-            background-color: #4299e1; /* Darker blue on hover */
-        }
-
-        .sound-button:active {
-            transform: scale(0.98); /* Slight press effect */
         }
 
         .volume-slider {
@@ -166,6 +179,7 @@
             padding: 0 1rem; /* Match button padding */
             box-sizing: border-box;
             outline: none;
+            z-index: 3; /* Ensure it's above everything else when active */
         }
 
         /* Utility classes for toggling visibility */
@@ -226,17 +240,208 @@
         // Array to hold Audio objects and their states
         const audioPlayers = [];
 
-        // Function to save sound data to localStorage
-        const saveSoundData = (index, data) => {
-            try {
-                localStorage.setItem(`soundboard_button_data_${index}`, data);
-            } catch (e) {
-                console.error("Error saving sound data to localStorage:", e);
-                displayMessageBox("Could not save sound. Local storage might be full or blocked.");
-            }
+        // IndexedDB variables
+        const DB_NAME = 'SoundboardDB';
+        const DB_VERSION = 3; // Increment this to force a database upgrade
+        const OBJECT_STORE_NAME = 'sounds';
+        let db = null; // Holds the IndexedDB database instance
+        let dbPromise = null; // To store the promise of the database opening
+
+        // Define the single color scheme for buttons (green) and progress bars (orange)
+        const buttonAndProgressColorScheme = {
+            played: '#FF9800',   // Vibrant orange for the progress bar fill
+            unplayed: '#4CAF50'  // Standard green for the button background
         };
 
-        // Function to save volume data to localStorage
+        /**
+         * Ensures the IndexedDB database is open and returns the DB instance.
+         * This function handles opening the DB and upgrades.
+         * @returns {Promise<IDBDatabase>} A promise that resolves with the database instance.
+         */
+        const getDb = () => {
+            if (db && db.readyState === 'open') {
+                // If db is already assigned and open, return a resolved promise with it
+                return Promise.resolve(db);
+            }
+            if (dbPromise) {
+                // If there's already an ongoing request to open the DB, return that promise
+                return dbPromise;
+            }
+
+            // Otherwise, initiate the database opening process
+            dbPromise = new Promise((resolve, reject) => {
+                console.log('IndexedDB: Initiating database open request...');
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result; // Set global db here during upgrade
+                    console.log('IndexedDB: onupgradeneeded triggered. Database version:', event.oldVersion, '->', event.newVersion);
+                    if (!db.objectStoreNames.contains(OBJECT_STORE_NAME)) {
+                        db.createObjectStore(OBJECT_STORE_NAME, { keyPath: 'id' });
+                        console.log(`IndexedDB: Object store '${OBJECT_STORE_NAME}' created.`);
+                    } else {
+                        console.log(`IndexedDB: Object store '${OBJECT_STORE_NAME}' already exists.`);
+                    }
+                };
+
+                request.onsuccess = (event) => {
+                    db = event.target.result; // Set global db here after successful open
+                    console.log('IndexedDB: Database opened successfully. DB instance:', db);
+
+                    // Global IndexedDB event handlers for robustness
+                    db.onversionchange = (event) => {
+                        console.warn('IndexedDB: Database version change detected. Closing database to allow upgrade.', event);
+                        db.close();
+                        displayMessageBox("Database updated in another tab. Please refresh this page.");
+                        db = null; // Clear global db to force re-open
+                        dbPromise = null; // Clear promise
+                    };
+
+                    db.onclose = () => {
+                        console.warn('IndexedDB: Database connection closed unexpectedly.');
+                        db = null; // Clear global db to force re-open
+                        dbPromise = null; // Clear promise
+                    };
+
+                    db.onerror = (event) => {
+                        console.error('IndexedDB: Unhandled database error:', event.target.error);
+                        displayMessageBox(`Unhandled IndexedDB error: ${event.target.error.message}`);
+                        db = null; // Clear global db
+                        dbPromise = null; // Clear promise
+                        reject(event.target.error);
+                    };
+
+                    resolve(db);
+                };
+
+                request.onerror = (event) => {
+                    console.error('IndexedDB: Database error:', event.target.error);
+                    displayMessageBox(`IndexedDB error: ${event.target.error.message}. Sound persistence might not work.`);
+                    db = null; // Clear global db
+                    dbPromise = null; // Clear promise
+                    reject(event.target.error);
+                };
+            });
+            return dbPromise;
+        };
+
+        /**
+         * Saves sound data (ArrayBuffer and mimeType) to IndexedDB.
+         * @param {number} index The index of the button (used as the ID).
+         * @param {ArrayBuffer} arrayBuffer The audio ArrayBuffer to save.
+         * @param {string} mimeType The MIME type of the audio file.
+         * @returns {Promise<void>} A promise that resolves when the sound is saved.
+         */
+        const saveSoundData = (index, arrayBuffer, mimeType) => {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const currentDb = await getDb(); // Always get a ready DB instance
+                    console.log(`IndexedDB: Starting transaction 'readwrite' for button ${index} (save).`);
+                    const transaction = currentDb.transaction([OBJECT_STORE_NAME], 'readwrite');
+                    const objectStore = transaction.objectStore(OBJECT_STORE_NAME);
+
+                    const request = objectStore.put({ id: Number(index), audioArrayBuffer: arrayBuffer, mimeType: mimeType });
+
+                    request.onsuccess = () => {
+                        console.log(`IndexedDB: Put operation for button ${index} succeeded.`);
+                    };
+
+                    request.onerror = (event) => {
+                        console.error('IndexedDB: Error during put operation for button', index, ':', event.target.error);
+                        displayMessageBox(`Error saving sound: ${event.target.error.message}`);
+                        reject(event.target.error);
+                    };
+
+                    transaction.oncomplete = () => {
+                        console.log(`IndexedDB: Transaction 'readwrite' for button ${index} completed successfully.`);
+                        resolve();
+                    };
+
+                    transaction.onerror = (event) => {
+                        console.error(`IndexedDB: Transaction 'readwrite' for button ${index} failed:`, event.target.error);
+                        displayMessageBox(`Transaction error saving sound: ${event.target.error.message}`);
+                        reject(event.target.error);
+                    };
+                } catch (e) {
+                    console.error('IndexedDB: Failed to get DB for saving:', e);
+                    displayMessageBox("Database not ready for saving. Please refresh.");
+                    reject(e);
+                }
+            });
+        };
+
+        /**
+         * Loads sound data (ArrayBuffer and mimeType) from IndexedDB.
+         * @param {number} index The index of the button (used as the ID).
+         * @returns {Promise<{arrayBuffer: ArrayBuffer, mimeType: string}|null>} A promise that resolves with the audio data or null if not found.
+         */
+        const loadSoundData = (index) => {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const currentDb = await getDb(); // Always get a ready DB instance
+                    console.log(`IndexedDB: Starting transaction 'readonly' for button ${index} (load).`);
+                    const transaction = currentDb.transaction([OBJECT_STORE_NAME], 'readonly');
+                    const objectStore = transaction.objectStore(OBJECT_STORE_NAME);
+
+                    const request = objectStore.get(Number(index));
+
+                    request.onsuccess = () => {
+                        if (request.result && request.result.audioArrayBuffer && request.result.mimeType) {
+                            console.log(`IndexedDB: Sound for button ${index} loaded successfully. ArrayBuffer size: ${request.result.audioArrayBuffer.byteLength} bytes, MIME type: ${request.result.mimeType}.`);
+                            resolve({ arrayBuffer: request.result.audioArrayBuffer, mimeType: request.result.mimeType });
+                        } else {
+                            console.log(`IndexedDB: No sound data found for button ${index} after get operation. Result:`, request.result);
+                            resolve(null);
+                        }
+                    };
+
+                    request.onerror = (event) => {
+                        console.error('IndexedDB: Error loading sound:', event.target.error);
+                        displayMessageBox(`Error loading sound: ${event.target.error.message}`);
+                        resolve(null);
+                    };
+                } catch (e) {
+                    console.error('IndexedDB: Failed to get DB for loading:', e);
+                    displayMessageBox("Database not ready for loading. Please refresh.");
+                    resolve(null); // Resolve with null as we can't load
+                }
+            });
+        };
+
+        /**
+         * Deletes a sound from IndexedDB.
+         * @param {number} index The index of the button (used as the ID).
+         * @returns {Promise<void>} A promise that resolves when the sound is deleted.
+         */
+        const deleteSoundData = (index) => {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const currentDb = await getDb(); // Always get a ready DB instance
+                    console.log(`IndexedDB: Starting transaction to delete sound for button ${index}.`);
+                    const transaction = currentDb.transaction([OBJECT_STORE_NAME], 'readwrite');
+                    const objectStore = transaction.objectStore(OBJECT_STORE_NAME);
+
+                    const request = objectStore.delete(Number(index));
+
+                    request.onsuccess = () => {
+                        console.log(`IndexedDB: Sound for button ${index} deleted successfully.`);
+                        resolve();
+                    };
+
+                    request.onerror = (event) => {
+                        console.error('IndexedDB: Error deleting sound:', event.target.error);
+                        displayMessageBox(`Error deleting sound: ${event.target.error.message}`);
+                        reject(event.target.error);
+                    };
+                } catch (e) {
+                    console.error('IndexedDB: Failed to get DB for deleting:', e);
+                    displayMessageBox("Database not ready for deleting. Please refresh.");
+                    reject(e);
+                }
+            });
+        };
+
+        // Functions to save/load volume and button name (still using localStorage for simplicity as they are small strings)
         const saveVolumeData = (index, volume) => {
             try {
                 localStorage.setItem(`soundboard_volume_${index}`, volume);
@@ -245,42 +450,29 @@
             }
         };
 
-        // Function to save button name to localStorage
-        const saveButtonName = (index, name) => {
-            try {
-                localStorage.setItem(`soundboard_button_name_${index}`, name);
-                console.log(`Saved name for button ${index}: "${name}"`); // Log save action
-            } catch (e) {
-                console.error("Error saving button name to localStorage:", e);
-            }
-        };
-
-        // Function to load sound data from localStorage
-        const loadSoundData = (index) => {
-            try {
-                return localStorage.getItem(`soundboard_button_data_${index}`);
-            } catch (e) {
-                console.error("Error loading sound data from localStorage:", e);
-                return null;
-            }
-        };
-
-        // Function to load volume data from localStorage
         const loadVolumeData = (index) => {
             try {
                 const volume = localStorage.getItem(`soundboard_volume_${index}`);
-                return volume !== null ? parseFloat(volume) : 1.0; // Default to full volume
+                return volume !== null ? parseFloat(volume) : 1.0;
             } catch (e) {
                 console.error("Error loading volume from localStorage:", e);
                 return 1.0;
             }
         };
 
-        // Function to load button name from localStorage
+        const saveButtonName = (index, name) => {
+            try {
+                localStorage.setItem(`soundboard_button_name_${index}`, name);
+                console.log(`Saved name for button ${index}: "${name}"`);
+            } catch (e) {
+                console.error("Error saving button name to localStorage:", e);
+            }
+        };
+
         const loadButtonName = (index) => {
             try {
                 const name = localStorage.getItem(`soundboard_button_name_${index}`);
-                console.log(`Loaded name for button ${index}: "${name}"`); // Log load action
+                console.log(`Loaded name for button ${index}: "${name}"`);
                 return name;
             } catch (e) {
                 console.error("Error loading button name from localStorage:", e);
@@ -294,9 +486,8 @@
             if (player.fileLoaded && player.isPlaying) {
                 text = `${player.baseName} (Playing)`;
             }
-            // No "Play" prefix when file is loaded but not playing
             buttonTextSpan.textContent = text;
-            console.log(`Button ${buttonTextSpan.dataset.index} text updated to: "${text}"`); // Added log
+            console.log(`Button ${buttonTextSpan.dataset.index} text updated to: "${text}"`);
         };
 
         // Custom message box function (replaces alert)
@@ -325,239 +516,344 @@
             }, 3000); // Remove after 3 seconds
         };
 
-
-        // Initialize each button
-        for (let i = 0; i < NUM_BUTTONS; i++) {
-            // Create container for each button
-            const container = document.createElement('div');
-            container.classList.add('sound-button-container');
-
-            // Create sound button
-            const button = document.createElement('button');
-            button.classList.add('sound-button');
-            button.dataset.index = i; // Store index for easy reference
-
-            // Create span for button text
-            const buttonTextSpan = document.createElement('span');
-            buttonTextSpan.classList.add('sound-button-text');
-            buttonTextSpan.dataset.index = i;
-            button.appendChild(buttonTextSpan);
-
-            // Create hidden input for renaming
-            const buttonNameEditInput = document.createElement('input');
-            buttonNameEditInput.type = 'text';
-            buttonNameEditInput.classList.add('button-name-edit-input', 'hidden');
-            buttonNameEditInput.placeholder = 'Enter name';
-            buttonNameEditInput.dataset.index = i;
-            button.appendChild(buttonNameEditInput);
-
-
-            // Create file input wrapper and label
-            const fileInputWrapper = document.createElement('div');
-            fileInputWrapper.classList.add('file-input-wrapper');
-
-            const fileInputLabel = document.createElement('label');
-            fileInputLabel.classList.add('file-input-label');
-            fileInputLabel.textContent = 'Load Sound File';
-            fileInputLabel.htmlFor = `file-input-${i}`;
-
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = 'audio/*'; // Accept only audio files
-            fileInput.id = `file-input-${i}`;
-            fileInput.classList.add('file-input');
-            fileInput.dataset.index = i;
-
-            fileInputWrapper.appendChild(fileInputLabel);
-            fileInputWrapper.appendChild(fileInput);
-
-            // Create volume slider
-            const volumeSlider = document.createElement('input');
-            volumeSlider.type = 'range';
-            volumeSlider.min = '0';
-            volumeSlider.max = '1';
-            volumeSlider.step = '0.01';
-            volumeSlider.value = loadVolumeData(i); // Load initial volume
-            volumeSlider.classList.add('volume-slider');
-            volumeSlider.dataset.index = i;
-
-            // Append elements to container
-            container.appendChild(button);
-            container.appendChild(fileInputWrapper);
-            container.appendChild(volumeSlider);
-            soundboardGrid.appendChild(container);
-
-            // Initialize Audio object for this button
-            const audio = new Audio();
-            audio.volume = volumeSlider.value; // Set initial volume
-
-            // Load saved button name
-            const savedName = loadButtonName(i);
-            const baseName = savedName || `Sound ${i + 1}`;
-
-            audioPlayers[i] = {
-                audio: audio,
-                isPlaying: false,
-                fileLoaded: false, // Track if a file has been loaded
-                baseName: baseName, // Store the base name (custom or default)
-                elements: {
-                    button: button,
-                    buttonTextSpan: buttonTextSpan,
-                    buttonNameEditInput: buttonNameEditInput,
-                    fileInputLabel: fileInputLabel
-                },
-                // Add a flag to prevent click/double-click conflicts during rename
-                isRenaming: false
-            };
-
-            // Set initial display name
-            buttonTextSpan.textContent = baseName;
-
-            // Load saved sound data on page load
-            const savedSoundData = loadSoundData(i);
-            if (savedSoundData) {
-                audio.src = savedSoundData;
-                audioPlayers[i].fileLoaded = true;
-                fileInputLabel.textContent = 'Change Sound File';
-            }
-            updateButtonText(buttonTextSpan, audioPlayers[i]); // Initial button text update
-
-            // Event listener for file input change
-            fileInput.addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                const buttonIndex = event.target.dataset.index;
-                const player = audioPlayers[buttonIndex];
-
-                if (file) {
-                    // Check if it's an audio file
-                    if (!file.type.startsWith('audio/')) {
-                        displayMessageBox('Please select an audio file.');
-                        event.target.value = ''; // Clear the input
-                        return;
+        // Function to list all entries in IndexedDB for debugging
+        const listIndexedDBEntries = async () => {
+            try {
+                const currentDb = await getDb(); // Use getDb to ensure it's open
+                console.log('IndexedDB: Attempting to list all entries in sounds object store...');
+                const transaction = currentDb.transaction([OBJECT_STORE_NAME], 'readonly');
+                const objectStore = transaction.objectStore(OBJECT_STORE_NAME);
+                const request = objectStore.openCursor();
+                let count = 0;
+                request.onsuccess = (event) => {
+                    const cursor = event.target.result;
+                    if (cursor) {
+                        console.log(`IndexedDB: Found entry - ID: ${cursor.value.id}, MIME Type: ${cursor.value.mimeType}, Size: ${cursor.value.audioArrayBuffer ? cursor.value.audioArrayBuffer.byteLength : 'N/A'} bytes`);
+                        count++;
+                        cursor.continue();
+                    } else {
+                        console.log(`IndexedDB: Finished listing entries. Total found: ${count}.`);
                     }
+                };
+                request.onerror = (event) => {
+                    console.error('IndexedDB: Error listing entries:', event.target.error);
+                };
+            } catch (e) {
+                console.error('IndexedDB: Failed to get DB for listing entries:', e);
+            }
+        };
 
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const base64Data = e.target.result;
-                        player.audio.src = base64Data;
-                        player.fileLoaded = true;
-                        player.elements.fileInputLabel.textContent = 'Change Sound File';
-                        saveSoundData(buttonIndex, base64Data); // Save Base64 data to localStorage
-                        updateButtonText(player.elements.buttonTextSpan, player);
+
+        // Initialize IndexedDB when the page loads
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!window.indexedDB) {
+                displayMessageBox("Your browser doesn't support IndexedDB. Sound persistence will not work.");
+                console.error("IndexedDB not supported by browser.");
+                return;
+            }
+
+            try {
+                // Ensure db is set globally and ready by calling getDb
+                await getDb();
+                console.log("IndexedDB: Database is ready. Proceeding with button initialization.");
+
+                listIndexedDBEntries(); // Now it uses the global `db` via getDb internally
+
+                // After DB is open and settled, initialize buttons
+                for (let i = 0; i < NUM_BUTTONS; i++) {
+                    // Create container for each button
+                    const container = document.createElement('div');
+                    container.classList.add('sound-button-container');
+
+                    // Create sound button
+                    const button = document.createElement('button');
+                    button.classList.add('sound-button');
+                    button.dataset.index = i; // Store index for easy reference
+
+                    // Create span for button text
+                    const buttonTextSpan = document.createElement('span');
+                    buttonTextSpan.classList.add('sound-button-text');
+                    buttonTextSpan.dataset.index = i;
+                    button.appendChild(buttonTextSpan);
+
+                    // Create progress overlay
+                    const progressOverlay = document.createElement('div');
+                    progressOverlay.classList.add('progress-overlay');
+                    button.insertBefore(progressOverlay, buttonTextSpan); // Insert before text span
+
+                    // Create hidden input for renaming
+                    const buttonNameEditInput = document.createElement('input');
+                    buttonNameEditInput.type = 'text';
+                    buttonNameEditInput.classList.add('button-name-edit-input', 'hidden');
+                    buttonNameEditInput.placeholder = 'Enter name';
+                    buttonNameEditInput.dataset.index = i;
+                    button.appendChild(buttonNameEditInput);
+
+                    // Create file input wrapper and label
+                    const fileInputWrapper = document.createElement('div');
+                    fileInputWrapper.classList.add('file-input-wrapper');
+
+                    const fileInputLabel = document.createElement('label');
+                    fileInputLabel.classList.add('file-input-label');
+                    fileInputLabel.textContent = 'Load Sound File';
+                    fileInputLabel.htmlFor = `file-input-${i}`;
+
+                    const fileInput = document.createElement('input');
+                    fileInput.type = 'file';
+                    fileInput.accept = 'audio/*'; // Accept only audio files
+                    fileInput.id = `file-input-${i}`;
+                    fileInput.classList.add('file-input');
+                    fileInput.dataset.index = i;
+
+                    fileInputWrapper.appendChild(fileInputLabel);
+                    fileInputWrapper.appendChild(fileInput);
+
+                    // Create volume slider
+                    const volumeSlider = document.createElement('input');
+                    volumeSlider.type = 'range';
+                    volumeSlider.min = '0';
+                    volumeSlider.max = '1';
+                    volumeSlider.step = '0.01';
+                    volumeSlider.value = loadVolumeData(i); // Load initial volume
+                    volumeSlider.classList.add('volume-slider');
+                    volumeSlider.dataset.index = i;
+
+                    // Append elements to container
+                    container.appendChild(button);
+                    container.appendChild(fileInputWrapper);
+                    container.appendChild(volumeSlider);
+                    soundboardGrid.appendChild(container);
+
+                    // Initialize Audio object for this button
+                    const audio = new Audio();
+                    audio.volume = volumeSlider.value; // Set initial volume
+
+                    // Load saved button name
+                    const savedName = loadButtonName(i);
+                    const baseName = savedName || `Sound ${i + 1}`;
+
+                    // Assign fixed green for button and orange for progress bar
+                    button.style.setProperty('--played-color', buttonAndProgressColorScheme.played);
+                    button.style.setProperty('--unplayed-color', buttonAndProgressColorScheme.unplayed);
+                    button.style.backgroundColor = buttonAndProgressColorScheme.unplayed; // Set base unplayed color
+
+                    audioPlayers[i] = {
+                        audio: audio,
+                        isPlaying: false,
+                        fileLoaded: false, // Track if a file has been loaded
+                        baseName: baseName, // Store the base name (custom or default)
+                        elements: {
+                            button: button,
+                            buttonTextSpan: buttonTextSpan,
+                            buttonNameEditInput: buttonNameEditInput,
+                            fileInputLabel: fileInputLabel,
+                            progressOverlay: progressOverlay // Store reference to the progress overlay
+                        },
+                        isRenaming: false,
+                        objectUrl: null // To store the URL.createObjectURL for cleanup
                     };
-                    reader.readAsDataURL(file); // Read file as Base64 Data URL
-                } else {
-                    // If file is cleared, reset
-                    player.audio.src = '';
-                    player.fileLoaded = false;
-                    player.elements.fileInputLabel.textContent = 'Load Sound File';
-                    saveSoundData(buttonIndex, ''); // Clear data from localStorage
-                    updateButtonText(player.elements.buttonTextSpan, player);
+
+                    // Set initial display name
+                    buttonTextSpan.textContent = baseName;
+
+                    // Load saved sound data from IndexedDB
+                    loadSoundData(i).then(data => {
+                        if (data && data.arrayBuffer && data.mimeType) {
+                            const blob = new Blob([data.arrayBuffer], { type: data.mimeType });
+                            const objectUrl = URL.createObjectURL(blob);
+                            audioPlayers[i].audio.src = objectUrl;
+                            audioPlayers[i].fileLoaded = true;
+                            audioPlayers[i].objectUrl = objectUrl; // Store for revocation
+                            fileInputLabel.textContent = 'Change Sound File';
+                        } else {
+                            // If no sound is loaded, ensure the audio source is clear
+                            audioPlayers[i].audio.src = '';
+                            audioPlayers[i].fileLoaded = false;
+                            fileInputLabel.textContent = 'Load Sound File';
+                        }
+                        updateButtonText(buttonTextSpan, audioPlayers[i]); // Initial button text update
+                    });
+
+                    // Event listener for file input change
+                    fileInput.addEventListener('change', (event) => {
+                        const file = event.target.files[0];
+                        const buttonIndex = event.target.dataset.index;
+                        const player = audioPlayers[buttonIndex];
+
+                        // Revoke previous object URL if it exists
+                        if (player.objectUrl) {
+                            URL.revokeObjectURL(player.objectUrl);
+                            player.objectUrl = null;
+                        }
+
+                        if (file) {
+                            if (!file.type.startsWith('audio/')) {
+                                displayMessageBox('Please select an audio file.');
+                                event.target.value = ''; // Clear the input
+                                return;
+                            }
+
+                            // Read the file as an ArrayBuffer
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                const arrayBuffer = e.target.result;
+                                const mimeType = file.type;
+                                const blob = new Blob([arrayBuffer], { type: mimeType }); // Create Blob for immediate playback
+                                const objectUrl = URL.createObjectURL(blob);
+
+                                player.audio.src = objectUrl;
+                                player.fileLoaded = true;
+                                player.objectUrl = objectUrl; // Store for revocation
+                                player.elements.fileInputLabel.textContent = 'Change Sound File';
+                                saveSoundData(buttonIndex, arrayBuffer, mimeType);
+                                updateButtonText(player.elements.buttonTextSpan, player);
+                            };
+                            reader.readAsArrayBuffer(file); // Read file as ArrayBuffer
+                        } else {
+                            // If file is cleared, reset
+                            player.audio.src = '';
+                            player.fileLoaded = false;
+                            player.elements.fileInputLabel.textContent = 'Load Sound File';
+                            deleteSoundData(buttonIndex);
+                            updateButtonText(player.elements.buttonTextSpan, player);
+                        }
+                    });
+
+                    // Event listener for button click (play/stop)
+                    button.addEventListener('click', (event) => {
+                        const buttonIndex = event.target.dataset.index;
+                        const player = audioPlayers[buttonIndex];
+
+                        if (player.isRenaming) {
+                            console.log(`Click on button ${buttonIndex} ignored: currently renaming.`);
+                            return;
+                        }
+
+                        if (!player.fileLoaded) {
+                            displayMessageBox('Please load a sound file first!');
+                            return;
+                        }
+
+                        if (player.isPlaying) {
+                            player.audio.pause();
+                            player.audio.currentTime = 0; // Reset to start
+                            player.isPlaying = false;
+                            player.elements.progressOverlay.style.width = '0%'; // Reset progress
+                            console.log(`Sound ${buttonIndex} stopped.`);
+                        } else {
+                            player.audio.play().catch(e => console.error("Error playing sound:", e));
+                            player.isPlaying = true;
+                            console.log(`Sound ${buttonIndex} started playing.`);
+                        }
+                        updateButtonText(player.elements.buttonTextSpan, player);
+                    });
+
+                    // Event listener for button double-click (rename)
+                    button.addEventListener('dblclick', (event) => {
+                        const buttonIndex = event.currentTarget.dataset.index;
+                        const player = audioPlayers[buttonIndex];
+
+                        console.log(`Double-clicked button ${buttonIndex} - initiating rename.`);
+                        player.isRenaming = true;
+                        player.elements.progressOverlay.style.width = '0%'; // Hide progress during rename
+
+                        player.elements.buttonTextSpan.classList.add('hidden');
+                        player.elements.buttonNameEditInput.classList.remove('hidden');
+                        player.elements.buttonNameEditInput.value = player.baseName;
+                        player.elements.buttonNameEditInput.focus();
+                        player.elements.buttonNameEditInput.select();
+                    });
+
+                    // Event listener for volume slider change
+                    volumeSlider.addEventListener('input', (event) => {
+                        const buttonIndex = event.target.dataset.index;
+                        const newVolume = parseFloat(event.target.value);
+                        audioPlayers[buttonIndex].audio.volume = newVolume;
+                        saveVolumeData(buttonIndex, newVolume);
+                    });
+
+                    // Listen for when the audio finishes playing naturally
+                    audio.addEventListener('ended', () => {
+                        const buttonIndex = Array.from(soundboardGrid.children).indexOf(container);
+                        if (audioPlayers[buttonIndex]) {
+                            audioPlayers[buttonIndex].isPlaying = false;
+                            audioPlayers[buttonIndex].elements.progressOverlay.style.width = '0%'; // Reset progress
+                            updateButtonText(audioPlayers[buttonIndex].elements.buttonTextSpan, audioPlayers[buttonIndex]);
+                            console.log(`Sound ${buttonIndex} finished playing naturally.`);
+                        }
+                    });
+
+                    // Listen for time updates to control the progress bar
+                    audio.addEventListener('timeupdate', () => {
+                        const buttonIndex = Array.from(soundboardGrid.children).indexOf(container);
+                        const player = audioPlayers[buttonIndex];
+                        if (player && player.audio.duration > 0 && player.isPlaying && !player.isRenaming) {
+                            const progress = (player.audio.currentTime / player.audio.duration) * 100;
+                            player.elements.progressOverlay.style.width = `${progress}%`;
+                        }
+                    });
+
+
+                    // Event listener for name input blur (when focus leaves the input)
+                    buttonNameEditInput.addEventListener('blur', (event) => {
+                        const buttonIndex = event.target.dataset.index;
+                        const player = audioPlayers[buttonIndex];
+                        const newName = event.target.value.trim();
+
+                        console.log(`Blur event triggered for button ${buttonIndex}. New name proposed: "${newName}"`);
+
+                        if (newName) {
+                            player.baseName = newName;
+                            saveButtonName(buttonIndex, newName);
+                        } else {
+                            player.baseName = `Sound ${parseInt(buttonIndex) + 1}`;
+                            saveButtonName(buttonIndex, '');
+                        }
+
+                        player.elements.buttonTextSpan.textContent = player.baseName;
+                        player.elements.buttonTextSpan.classList.remove('hidden');
+                        player.elements.buttonNameEditInput.classList.add('hidden');
+                        updateButtonText(player.elements.buttonTextSpan, player);
+
+                        setTimeout(() => {
+                            player.isRenaming = false;
+                            // Restore progress bar if sound was playing
+                            if (player.isPlaying && player.audio.duration > 0) {
+                                const progress = (player.audio.currentTime / player.audio.duration) * 100;
+                                player.elements.progressOverlay.style.width = `${progress}%`;
+                            }
+                            console.log(`Renaming flag for button ${buttonIndex} reset to false.`);
+                        }, 50);
+                    });
+
+                    // Event listener for name input keypress (for Enter key)
+                    buttonNameEditInput.addEventListener('keypress', (event) => {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            console.log(`Enter key pressed for button ${event.target.dataset.index}. Triggering blur.`);
+                            event.target.blur();
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("Failed to initialize soundboard due to IndexedDB error:", error);
+                displayMessageBox("Could not initialize soundboard. Please check browser console for details.");
+            }
+        });
+
+        // Add a global event listener to revoke all object URLs when the page unloads
+        window.addEventListener('beforeunload', () => {
+            audioPlayers.forEach(player => {
+                if (player.objectUrl) {
+                    URL.revokeObjectURL(player.objectUrl);
+                    console.log(`Revoked object URL: ${player.objectUrl}`);
                 }
             });
-
-            // Event listener for button click (play/stop)
-            button.addEventListener('click', (event) => {
-                const buttonIndex = event.target.dataset.index;
-                const player = audioPlayers[buttonIndex];
-
-                // Prevent playing if currently in renaming mode
-                if (player.isRenaming) {
-                    console.log(`Click on button ${buttonIndex} ignored: currently renaming.`);
-                    return;
-                }
-
-                if (!player.fileLoaded) {
-                    displayMessageBox('Please load a sound file first!');
-                    return;
-                }
-
-                if (player.isPlaying) {
-                    player.audio.pause();
-                    player.audio.currentTime = 0; // Reset to start
-                    player.isPlaying = false;
-                    console.log(`Sound ${buttonIndex} stopped.`);
-                } else {
-                    player.audio.play().catch(e => console.error("Error playing sound:", e));
-                    player.isPlaying = true;
-                    console.log(`Sound ${buttonIndex} started playing.`);
-                }
-                updateButtonText(player.elements.buttonTextSpan, player);
-            });
-
-            // Event listener for button double-click (rename)
-            button.addEventListener('dblclick', (event) => {
-                const buttonIndex = event.currentTarget.dataset.index; // Use currentTarget as event.target might be the span/input
-                const player = audioPlayers[buttonIndex];
-
-                console.log(`Double-clicked button ${buttonIndex} - initiating rename.`);
-                player.isRenaming = true; // Set renaming flag
-
-                player.elements.buttonTextSpan.classList.add('hidden');
-                player.elements.buttonNameEditInput.classList.remove('hidden');
-                player.elements.buttonNameEditInput.value = player.baseName;
-                player.elements.buttonNameEditInput.focus();
-                // Select all text for easy editing
-                player.elements.buttonNameEditInput.select();
-            });
-
-
-            // Event listener for volume slider change
-            volumeSlider.addEventListener('input', (event) => {
-                const buttonIndex = event.target.dataset.index;
-                const newVolume = parseFloat(event.target.value);
-                audioPlayers[buttonIndex].audio.volume = newVolume;
-                saveVolumeData(buttonIndex, newVolume); // Save volume to localStorage
-            });
-
-            // Listen for when the audio finishes playing naturally
-            audio.addEventListener('ended', () => {
-                const buttonIndex = Array.from(soundboardGrid.children).indexOf(container); // Find index
-                if (audioPlayers[buttonIndex]) {
-                    audioPlayers[buttonIndex].isPlaying = false;
-                    updateButtonText(audioPlayers[buttonIndex].elements.buttonTextSpan, audioPlayers[buttonIndex]);
-                    console.log(`Sound ${buttonIndex} finished playing naturally.`);
-                }
-            });
-
-            // Event listener for name input blur (when focus leaves the input)
-            buttonNameEditInput.addEventListener('blur', (event) => {
-                const buttonIndex = event.target.dataset.index;
-                const player = audioPlayers[buttonIndex];
-                const newName = event.target.value.trim();
-
-                console.log(`Blur event triggered for button ${buttonIndex}. New name proposed: "${newName}"`);
-
-                if (newName) {
-                    player.baseName = newName;
-                    saveButtonName(buttonIndex, newName);
-                } else {
-                    // If name is cleared, revert to default
-                    player.baseName = `Sound ${parseInt(buttonIndex) + 1}`;
-                    saveButtonName(buttonIndex, ''); // Clear from storage
-                }
-
-                player.elements.buttonTextSpan.textContent = player.baseName;
-                player.elements.buttonTextSpan.classList.remove('hidden');
-                player.elements.buttonNameEditInput.classList.add('hidden');
-                updateButtonText(player.elements.buttonTextSpan, player);
-
-                // Reset renaming flag after a very short delay to avoid immediate re-triggering issues
-                setTimeout(() => {
-                    player.isRenaming = false;
-                    console.log(`Renaming flag for button ${buttonIndex} reset to false.`);
-                }, 50); // Small delay
-            });
-
-            // Event listener for name input keypress (for Enter key)
-            buttonNameEditInput.addEventListener('keypress', (event) => {
-                if (event.key === 'Enter') {
-                    event.preventDefault(); // Prevent form submission
-                    console.log(`Enter key pressed for button ${event.target.dataset.index}. Triggering blur.`);
-                    event.target.blur(); // Trigger blur event to save the name
-                }
-            });
-        }
+            if (db && db.readyState === 'open') {
+                db.close();
+                console.log('IndexedDB: Database connection explicitly closed on unload.');
+            }
+        });
     </script>
 </body>
 </html>
