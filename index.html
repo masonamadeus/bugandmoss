@@ -25,9 +25,8 @@
             artFallback: "https://placehold.co/200x200/e2e8f0/475569?text=Podcast"
         };
     </script>
-    
-    <style>
 
+    <style>
         /* General Styles */
         body {
             font-family: var(--scq-font-body);
@@ -43,7 +42,11 @@
             padding: 0;
         }
 
-        h1, h2, h3, .now-playing-title, .episode-list-title {
+        h1,
+        h2,
+        h3,
+        .now-playing-title,
+        .episode-list-title {
             font-family: var(--scq-font-heading);
         }
 
@@ -51,15 +54,17 @@
             display: flex;
             flex-direction: column;
             width: 100%;
-            justify-content:space-between;
+            justify-content: space-between;
             gap: 0.5rem;
         }
+
         .subscribe-buttons {
-            width:100%;
-            justify-content:space-between;
+            width: 100%;
+            justify-content: space-between;
             display: flex;
             gap: 0.75rem;
         }
+
         .subscribe-btn {
             display: flex;
             align-items: center;
@@ -72,11 +77,12 @@
             border: none;
             border-radius: 999px;
             padding: 0.5rem 1.1rem;
-            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.08);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
             cursor: pointer;
             transition: background 0.15s, color 0.15s;
             text-decoration: none;
         }
+
         .subscribe-btn:hover {
             background: var(--scq-haint);
             color: var(--scq-white);
@@ -123,20 +129,26 @@
 
         .now-playing-info {
             margin-bottom: 0.5rem;
-            margin-top:0;
+            margin-top: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* Add min-width to allow the children to shrink */
+            min-width: 0;
         }
 
         .now-playing-title {
-            font-size: clamp(1rem, 2vw + 1rem, 3rem);
+            /* Prevent text from wrapping and truncate it with an ellipsis */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            /* You can keep the clamp font size for initial scaling, but the above properties are the key to preventing wrapping */
+            font-size: clamp(1rem, 4vw, 3rem);
             font-weight: bold;
             color: var(--scq-grey);
             text-align: center;
             margin: 0;
-            overflow-wrap: break-word;
-            word-break: break-word;
             max-width: 100%;
         }
 
@@ -480,7 +492,7 @@
             <div class="audio-player-section">
                 <!-- Now Playing Art and Title -->
                 <div class="now-playing-info">
-                    
+
                     <img id="now-playing-art" src="" alt="Now Playing Art" class="now-playing-art">
                     <h2 id="now-playing-title" class="now-playing-title"></h2>
                 </div>
@@ -536,7 +548,8 @@
             <!-- Error Message -->
             <div id="error-message" class="error-container hidden">
                 <h3 class="error-title">Oops! Something went wrong.</h3>
-                <p id="error-text" class="error-text">Could not fetch the podcast feed. Please check the RSS URL and your
+                <p id="error-text" class="error-text">Could not fetch the podcast feed. Please check the RSS URL and
+                    your
                     network connection.</p>
             </div>
             <!-- Episode List Section -->
@@ -561,14 +574,15 @@
                 </div>
                 <div class="subscribe-section" style="margin-top:0.5rem; margin-bottom:0; align-items: center;">
                     <div class="subscribe-buttons">
-                        <a id="rss-btn" class="subscribe-btn" href="#" target="_blank" rel="noopener noreferrer" title="Subscribe via RSS">
-                            
+                        <a id="rss-btn" class="subscribe-btn" href="#" target="_blank" rel="noopener noreferrer"
+                            title="Subscribe via RSS">
+
                             Subscribe via RSS
                         </a>
-                        
-                <a href="https://poweredbypodcube.com/" class="footer">Player by PodCube™</a>
+
+                        <a href="https://poweredbypodcube.com/" class="footer">Player by PodCube™</a>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
@@ -577,7 +591,7 @@
     <!-- Google Fonts: Dynamically loaded based on config -->
     <script>
         // Dynamically load Google Fonts based on config
-        (function() {
+        (function () {
             const config = window.PODCAST_CONFIG;
             if (!config || !config.fonts) return;
             // Helper to extract font names from CSS font-family string
@@ -585,9 +599,9 @@
                 return fontString.split(',').map(f => f.trim().replace(/^['"]|['"]$/g, ''));
             }
             // Only add Google Fonts for fonts that are not generic families
-            const generic = ["serif","sans-serif","cursive","monospace","fantasy","system-ui","ui-sans-serif","ui-serif","ui-monospace","ui-rounded","emoji","math","fangsong"];
+            const generic = ["serif", "sans-serif", "cursive", "monospace", "fantasy", "system-ui", "ui-sans-serif", "ui-serif", "ui-monospace", "ui-rounded", "emoji", "math", "fangsong"];
             let fontSet = new Set();
-            ['body','heading'].forEach(key => {
+            ['body', 'heading'].forEach(key => {
                 if (config.fonts[key]) {
                     extractFontNames(config.fonts[key]).forEach(f => {
                         if (f && !generic.includes(f.toLowerCase())) fontSet.add(f);
@@ -596,7 +610,7 @@
             });
             if (fontSet.size > 0) {
                 // Build Google Fonts URL
-                const families = Array.from(fontSet).map(f => f.replace(/ /g, '+')+':wght@400;700').join('&family=');
+                const families = Array.from(fontSet).map(f => f.replace(/ /g, '+') + ':wght@400;700').join('&family=');
                 const url = `https://fonts.googleapis.com/css2?family=${families}&display=swap`;
                 const link = document.createElement('link');
                 link.rel = 'stylesheet';
