@@ -106,7 +106,7 @@
 
         .sound-button {
             width: 100%;
-            height: 100px;
+            height: 120px; /* Increased height to accommodate two lines of text */
             padding: 10px;
             color: white;
             font-size: 1.25rem;
@@ -140,10 +140,17 @@
         .sound-button-text {
             position: relative;
             z-index: 2;
-            white-space: nowrap;
+            /* New properties for 2-line text */
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Clip after 2 lines */
+            -webkit-box-orient: vertical;
             overflow: hidden;
-            text-overflow: clip;
-            display: block;
+            text-overflow: ellipsis; /* Use ellipsis instead of clip for better user experience */
+            line-height: 1.3em;
+            height: 2.6em; /* Set a fixed height for 2 lines */
+            
+            white-space: normal; /* Allow wrapping */
+            text-align: center;
             width: 100%;
             padding: 0;
             margin: 0;
@@ -315,8 +322,8 @@
     <div class="control-buttons-container">
         <button id="add-row-btn" class="control-button-primary">Add Row</button>
         <button id="remove-row-btn" class="control-button-secondary">Remove Row</button>
-        <button id="download-config-btn" class="control-button-tertiary">Download Soundboard (JSON)</button>
-        <button id="upload-config-btn" class="control-button-tertiary">Import Soundboard (JSON)</button>
+        <button id="download-config-btn" class="control-button-tertiary">Download Config</button>
+        <button id="upload-config-btn" class="control-button-tertiary">Upload Config</button>
     </div>
     <input type="file" id="upload-file-input" class="hidden" accept="application/json">
 
@@ -645,8 +652,8 @@
                 controlsContainer.appendChild(renameButton);
 
                 container.appendChild(button);
-                container.appendChild(volumeSlider);
                 container.appendChild(controlsContainer);
+                container.appendChild(volumeSlider);
                 container.appendChild(colorClearControlsContainer);
                 container.appendChild(fileInput);
                 soundboardGrid.appendChild(container);
