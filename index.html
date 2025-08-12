@@ -12,11 +12,11 @@
             rssFeed: "https://pinecast.com/jsonfeed/bug-and-moss",
             rssButton: "https://pinecast.com/feed/bug-and-moss",
             colors: {
-                white: "#f7fafc",      // backgrounds
-                beige: "#e3f0ff",     // panels/lists
-                haint: "#3bb273",     // accent/green
-                pink: "#ff914d",      // orange/highlight
-                grey: "#234e70"       // deep blue
+                background: "#f7fafc",      // backgrounds
+                panel: "#e3f0ff",           // panels/lists
+                accent: "#3bb273",          // accent
+                highlight: "#ff914d",       // highlight
+                primary: "#234e70"          // deep blue
             },
             fonts: {
                 body: "'Wellfleet', sans-serif",
@@ -43,7 +43,7 @@
         body {
             font-family: var(--scq-font-body);
             font-size: larger;
-            background-color: var(--scq-grey);
+            background-color: var(--scq-primary);
             overflow: hidden;
             width: 100%;
             min-height: 100vh;
@@ -85,8 +85,8 @@
             display: flex;
             align-items: center;
             gap: 0.4em;
-            background: var(--scq-pink);
-            color: var(--scq-white);
+            background: var(--scq-highlight);
+            color: var(--scq-background);
             font-family: var(--scq-font-body);
             font-weight: bold;
             font-size: 0.95rem;
@@ -100,8 +100,8 @@
         }
 
         .subscribe-btn:hover {
-            background: var(--scq-haint);
-            color: var(--scq-white);
+            background: var(--scq-accent);
+            color: var(--scq-background);
         }
 
         #container {
@@ -110,7 +110,7 @@
             display: flex;
             flex-direction: column;
             align-items: stretch;
-            background: var(--scq-white);
+            background: var(--scq-background);
             border-radius: 1.25rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             overflow: hidden;
@@ -131,16 +131,168 @@
             border-radius: 0.75rem;
         }
 
-        .now-playing-art {
-            max-width: 70%;
+
+        .now-playing-flip-container {
+            perspective: 900px;
+            width: 100%;
+            max-width: 50%;
             min-width: 80px;
-            max-height: 35vh;
             aspect-ratio: 1/1;
+            margin: 0 auto 0.5rem auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-height: 50vh;
+            transition: max-height 0.4s cubic-bezier(.4,2,.6,1);
+        }
+        .now-playing-flip-container.flipped {
+            /* When flipped, allow the shownotes card to expand taller */
+            max-height: 60vh;
+        }
+        .now-playing-flipper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1/1;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(.4,2,.6,1);
+            transform-style: preserve-3d;
+            min-width: 80px;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .now-playing-flip-container.flipped .now-playing-flipper {
+            transform: rotateY(180deg);
+        }
+        .now-playing-art, .now-playing-shownotes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
             border-radius: 0.75rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            border: 4px solid var(--scq-pink);
+            border: 4px solid var(--scq-highlight);
+            overflow: hidden;
+            min-width: 80px;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* Wiggle animation for show art */
+        @keyframes wiggle {
+            0% { transform: rotate(0deg); }
+            10% { transform: rotate(-5deg); }
+            20% { transform: rotate(4deg); }
+            30% { transform: rotate(-3deg); }
+            40% { transform: rotate(2deg); }
+            50% { transform: rotate(0deg); }
+            100% { transform: rotate(0deg); }
+        }
+        .now-playing-art.wiggle {
+            animation: wiggle 0.7s cubic-bezier(.36,.07,.19,.97) both;
+    }
+        
+        .now-playing-art {
             object-fit: cover;
             transition: all 0.3s;
+            background: var(--scq-background);
+            width: 100%;
+            height: 100%;
+            max-height: 100%;
+        }
+        .now-playing-shownotes {
+            background: var(--scq-panel);
+            color: var(--scq-primary);
+            font-family: var(--scq-font-body);
+            font-size: 1rem;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            transform: rotateY(180deg);
+            overflow-y: auto;
+            text-align: left;
+            min-width: 80px;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* Improve shownotes readability */
+        .now-playing-shownotes p {
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+            line-height: 1.5;
+        }
+        .now-playing-shownotes hr {
+            border: none;
+            border-top: 2px solid var(--scq-primary);
+            width: 100%;
+            margin: 1em 0;
+        }
+        @media (max-width: 600px) {
+            #container {
+                height: 100dvh;
+                min-height: 100dvh;
+                max-height: 100dvh;
+            }
+            .now-playing-flip-container {
+                width: 100%;
+                aspect-ratio: 1/1;
+                max-width: 60%;
+                max-height: 10%;
+                margin-bottom: 1.2rem;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .now-playing-flip-container.flipped {
+                max-height: 70%;
+                aspect-ratio: unset;
+            }
+            .now-playing-flipper {
+                width: 100%;
+                aspect-ratio: 1/1;
+                max-width: 100vw;
+                max-height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .now-playing-art {
+                aspect-ratio: 1/1;
+                width: 100%;
+                height: 100%;
+                left: 0;
+                top: 0;
+                max-width: 100vw;
+                max-height: 100%;
+                margin: 0 auto;
+            }
+            .now-playing-flip-container.flipped .now-playing-shownotes {
+                aspect-ratio: unset !important;
+                width: 150%;
+                min-height: 60%;
+                max-height: 150%;
+                left: 50%;
+                top: 0;
+                transform: translateX(-50%) rotateY(180deg);
+                display: flex;
+                justify-content: flex-start;
+                align-items: flex-start;
+            }
+            .now-playing-shownotes {
+                left: 0;
+                transform: rotateY(180deg);
+                width: 100%;
+                max-width: 150%;
+                max-height: 100%;
+                margin: 0 auto;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                justify-content: flex-start;
+                font-size: 0.6rem;
+            }
         }
 
         .now-playing-info {
@@ -162,7 +314,7 @@
             /* You can keep the clamp font size for initial scaling, but the above properties are the key to preventing wrapping */
             font-size: clamp(1rem, 4vw, 3rem);
             font-weight: bold;
-            color: var(--scq-grey);
+            color: var(--scq-primary);
             text-align: center;
             margin: 0;
             max-width: 100%;
@@ -184,8 +336,8 @@
         }
 
         .control-button {
-            background-color: var(--scq-pink);
-            color: var(--scq-white);
+            background-color: var(--scq-highlight);
+            color: var(--scq-background);
             font-weight: bold;
             font-size: 0.75rem;
             font-family: var(--scq-font-body);
@@ -198,23 +350,23 @@
         }
 
         .control-button:hover {
-            background-color: var(--scq-grey);
+            background-color: var(--scq-primary);
         }
 
         .play-pause-button {
-            background-color: var(--scq-haint);
-            color: var(--scq-grey);
+            background-color: var(--scq-accent);
+            color: var(--scq-primary);
             padding: 0.5rem 1rem;
         }
 
         .play-pause-button:hover {
-            background-color: var(--scq-grey);
-            color: var(--scq-pink);
+            background-color: var(--scq-primary);
+            color: var(--scq-highlight);
         }
 
         .play-pause-button:hover #play-pause-icon svg polygon,
         .play-pause-button:hover #play-pause-icon svg rect {
-            fill: var(--scq-pink);
+            fill: var(--scq-highlight);
         }
 
         .progress-container {
@@ -235,7 +387,7 @@
         .progress-bar-container {
             flex: 1;
             height: 0.5rem;
-            background-color: var(--scq-beige);
+            background-color: var(--scq-panel);
             border-radius: 0.25rem;
             cursor: pointer;
             position: relative;
@@ -243,7 +395,7 @@
 
         .progress-bar {
             height: 0.5rem;
-            background-color: var(--scq-pink);
+            background-color: var(--scq-highlight);
             border-radius: 0.25rem;
             transition: all 0.1s;
             width: 0;
@@ -253,8 +405,8 @@
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background-color: var(--scq-pink);
-            border: 2px solid var(--scq-grey);
+            background-color: var(--scq-highlight);
+            border: 2px solid var(--scq-primary);
             border-radius: 50%;
             width: 1rem;
             height: 1rem;
@@ -265,8 +417,8 @@
         .audio-element {
             width: 100%;
             border-radius: 0.75rem;
-            border: 2px solid var(--scq-pink);
-            background-color: var(--scq-beige);
+            border: 2px solid var(--scq-highlight);
+            background-color: var(--scq-panel);
             outline: none;
         }
 
@@ -281,7 +433,7 @@
             animation: spin 1s linear infinite;
             height: 2rem;
             width: 2rem;
-            color: var(--scq-haint);
+            color: var(--scq-accent);
             margin: 0 auto;
         }
 
@@ -297,7 +449,7 @@
 
         .loading-text {
             margin-top: 0.5rem;
-            color: var(--scq-grey);
+            color: var(--scq-primary);
         }
 
         .error-container {
@@ -333,7 +485,7 @@
         .episode-list-title {
             font-size: 1rem;
             font-weight: bold;
-            color: var(--scq-grey);
+            color: var(--scq-primary);
         }
 
         .autoplay-toggle {
@@ -343,8 +495,8 @@
             align-items: center;
             padding: 0.5rem 0.75rem;
             transition: all 0.2s;
-            background-color: var(--scq-white);
-            color: var(--scq-pink);
+            background-color: var(--scq-background);
+            color: var(--scq-highlight);
             font-weight: bold;
             font-size: 0.7rem;
             outline: none;
@@ -358,9 +510,9 @@
         .autoplay-checkbox {
             width: 1em;
             height: 1em;
-            border: 2px solid var(--scq-pink);
+            border: 2px solid var(--scq-highlight);
             border-radius: 0.25em;
-            background: var(--scq-white);
+            background: var(--scq-background);
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -368,20 +520,20 @@
         }
 
         .autoplay-checkbox.checked {
-            background: var(--scq-pink);
-            border-color: var(--scq-pink);
+            background: var(--scq-highlight);
+            border-color: var(--scq-highlight);
         }
 
         .autoplay-checkbox svg {
             display: block;
             width: 0.8em;
             height: 0.8em;
-            color: var(--scq-white);
+            color: var(--scq-background);
         }
 
         .sort-toggle {
-            background-color: var(--scq-pink);
-            color: var(--scq-white);
+            background-color: var(--scq-highlight);
+            color: var(--scq-background);
             font-family: var(--scq-font-body);
             font-size: 0.7rem;
             padding: 0.5rem 1rem;
@@ -393,11 +545,11 @@
         }
 
         .sort-toggle:hover {
-            background-color: var(--scq-grey);
+            background-color: var(--scq-primary);
         }
 
         .episode-list {
-            background-color: var(--scq-beige);
+            background-color: var(--scq-panel);
             border-radius: 0.75rem;
             padding-right: 0.5rem;
             min-height: 0;
@@ -412,16 +564,16 @@
         }
 
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: var(--scq-white);
+            background: var(--scq-background);
         }
 
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: var(--scq-pink);
+            background: var(--scq-highlight);
             border-radius: 10px;
         }
 
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: var(--scq-grey);
+            background: var(--scq-primary);
         }
 
         .episode-item {
@@ -438,25 +590,25 @@
         }
 
         .episode-item:hover {
-            background-color: var(--scq-haint);
+            background-color: var(--scq-accent);
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
 
         .episode-item-active {
-            background-color: var(--scq-haint);
-            border-left: 4px solid var(--scq-pink);
+            background-color: var(--scq-accent);
+            border-left: 4px solid var(--scq-highlight);
         }
 
         .episode-item-title {
             font-weight: bold;
             font-size: 0.9rem;
-            color: var(--scq-grey);
+            color: var(--scq-primary);
             margin: 0
         }
 
         .episode-item-date {
             font-size: 0.5rem;
-            color: var(--scq-pink);
+            color: var(--scq-highlight);
             margin: 0
         }
 
@@ -507,9 +659,14 @@
             <!-- Audio Player Section -->
             <div class="audio-player-section">
                 <!-- Now Playing Art and Title -->
-                <div class="now-playing-info">
 
-                    <img id="now-playing-art" src="" alt="Now Playing Art" class="now-playing-art">
+                <div class="now-playing-info">
+                    <div class="now-playing-flip-container" id="now-playing-flip-container">
+                        <div class="now-playing-flipper">
+                            <img id="now-playing-art" src="" alt="Now Playing Art" class="now-playing-art">
+                            <div id="now-playing-shownotes" class="now-playing-shownotes" style="display: flex;"></div>
+                        </div>
+                    </div>
                     <h2 id="now-playing-title" class="now-playing-title"></h2>
                 </div>
                 <!-- Audio Controls -->
@@ -590,11 +747,29 @@
                 </div>
                 <div class="subscribe-section" style="margin-top:0.5rem; margin-bottom:0; align-items: center;">
                     <div class="subscribe-buttons">
-                        <a id="rss-btn" class="subscribe-btn" href="#" target="_blank" rel="noopener noreferrer"
-                            title="Subscribe via RSS">
 
+                        <button id="rss-btn" class="subscribe-btn" type="button" title="Subscribe via RSS">
                             Subscribe via RSS
-                        </a>
+                        </button>
+                <!-- RSS Copied Popup -->
+                <div id="rss-popup" style="
+                    display: none;
+                    position: fixed;
+                    left: 50%;
+                    top: 10%;
+                    transform: translate(-50%, 0);
+                    background: var(--scq-primary, #234e70);
+                    color: var(--scq-background, #f7fafc);
+                    padding: 1rem 2rem;
+                    border-radius: 1rem;
+                    font-size: 1.1rem;
+                    font-family: var(--scq-font-body, sans-serif);
+                    z-index: 9999;
+                    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+                    text-align: center;
+                ">
+                    RSS Link Copied!<br>Paste this link into your podcast player of choice to subscribe.
+                </div>
 
                         <a href="https://poweredbypodcube.com/" class="footer" style="font-family:'Nova Square'">Player by PodCube™</a>
                     </div>
@@ -642,11 +817,11 @@
         // Set CSS variables for colors and fonts
         function setThemeVars() {
             const root = document.documentElement;
-            root.style.setProperty('--scq-white', CONFIG.colors.white);
-            root.style.setProperty('--scq-beige', CONFIG.colors.beige);
-            root.style.setProperty('--scq-haint', CONFIG.colors.haint);
-            root.style.setProperty('--scq-pink', CONFIG.colors.pink);
-            root.style.setProperty('--scq-grey', CONFIG.colors.grey);
+            root.style.setProperty('--scq-background', CONFIG.colors.background);
+            root.style.setProperty('--scq-panel', CONFIG.colors.panel);
+            root.style.setProperty('--scq-accent', CONFIG.colors.accent);
+            root.style.setProperty('--scq-highlight', CONFIG.colors.highlight);
+            root.style.setProperty('--scq-primary', CONFIG.colors.primary);
             root.style.setProperty('--scq-font-body', CONFIG.fonts.body);
             root.style.setProperty('--scq-font-heading', CONFIG.fonts.heading);
         }
@@ -681,6 +856,8 @@
             const autoplayCheckbox = document.getElementById('autoplay-checkbox');
             const rssBtn = document.getElementById('rss-btn');
             let showArtUrl = ART_FALLBACK;
+            let currentShownotes = '';
+            let podcastDescription = '';
 
             // --- STATE ---
             let feedData = null;
@@ -696,7 +873,26 @@
             // --- SET PODCAST NAME, ART, RSS BUTTON ---
             nowPlayingTitle.textContent = PODCAST_NAME;
             nowPlayingArt.src = ART_FALLBACK;
-            rssBtn.href = RSS_BUTTON_URL;
+
+            // Remove href, since now it's a button
+            // rssBtn.href = RSS_BUTTON_URL;
+
+            // --- RSS BUTTON COPY TO CLIPBOARD ---
+            const rssPopup = document.getElementById('rss-popup');
+            rssBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    await navigator.clipboard.writeText(RSS_BUTTON_URL);
+                    // Show popup
+                    rssPopup.style.display = 'block';
+                    setTimeout(() => {
+                        rssPopup.style.display = 'none';
+                    }, 3500);
+                } catch (err) {
+                    // fallback: alert
+                    alert('Could not copy RSS link. Please copy manually: ' + RSS_BUTTON_URL);
+                }
+            });
 
             // --- HELPER FUNCTIONS ---
             const formatTime = (sec) => {
@@ -756,6 +952,10 @@
                 showArtUrl = feed.icon || ART_FALLBACK;
                 nowPlayingArt.src = showArtUrl;
                 nowPlayingTitle.textContent = PODCAST_NAME;
+                // Set podcast description from feed if available
+                if (feed && (feed.description || feed.summary)) {
+                    podcastDescription = feed.description || feed.summary;
+                }
             }
 
             function populateEpisodeList(feed) {
@@ -808,6 +1008,7 @@
                 episodeList.appendChild(fragment);
             }
 
+
             function playEpisode(title, audioUrl, episodeArt, episodeId = null) {
                 nowPlayingTitle.textContent = title;
                 audioPlayer.src = audioUrl;
@@ -819,7 +1020,86 @@
                 };
                 currentEpisodeId = episodeId;
                 highlightNowPlaying(episodeId);
+
+                // Update shownotes/description
+                let desc = '';
+                if (feedData && episodeId) {
+                    const ep = feedData.items.find(item => item.id === episodeId);
+                    if (ep) {
+                        // Try all possible fields for description
+                        desc = ep.summary || ep.description || ep.content_html || ep.content_text || ep['itunes:summary'] || '';
+                        // If still empty, try to extract from content if it's an object
+                        if (!desc && ep.content && typeof ep.content === 'string') desc = ep.content;
+                    }
+                }
+                // If still empty, show fallback
+                currentShownotes = desc ? desc : '<em>No description available.</em>';
+                document.getElementById('now-playing-shownotes').innerHTML = currentShownotes;
+                // Always reset to art side when new episode plays
+                document.getElementById('now-playing-flip-container').classList.remove('flipped');
             }
+            // --- FLIP ART TO SHOW SHOWNOTES ---
+            const flipContainer = document.getElementById('now-playing-flip-container');
+            const shownotesDiv = document.getElementById('now-playing-shownotes');
+            const artImg = document.getElementById('now-playing-art');
+            let flipTimeout = null;
+            // Show podcast description if no episode is selected and card is flipped
+            function updateShownotesForFlip() {
+                if (flipContainer.classList.contains('flipped')) {
+                    if (!currentEpisodeId) {
+                        shownotesDiv.innerHTML = podcastDescription;
+                    } else {
+                        shownotesDiv.innerHTML = currentShownotes;
+                    }
+                } else {
+                    // Optionally clear or reset shownotesDiv if needed
+                }
+            }
+            function toggleFlip() {
+                flipContainer.classList.toggle('flipped');
+                // Always scroll shownotes to top when flipping (in either direction)
+                shownotesDiv.scrollTop = 0;
+                if (shownotesDiv.scrollTo) shownotesDiv.scrollTo({ top: 0, behavior: 'auto' });
+                updateShownotesForFlip();
+            }
+            artImg.addEventListener('click', toggleFlip);
+            artImg.addEventListener('touchend', function(e) {
+                // Prevent double tap zoom
+                e.preventDefault();
+                toggleFlip();
+            });
+            // Also update shownotes if card is flipped by other means
+            flipContainer.addEventListener('transitionend', updateShownotesForFlip);
+            // Also scroll to top after transition for iOS reliability
+            flipContainer.addEventListener('transitionend', function() {
+                shownotesDiv.scrollTop = 0;
+                if (shownotesDiv.scrollTo) shownotesDiv.scrollTo({ top: 0, behavior: 'auto' });
+            });
+            // --- SHOWNOTES FLIP: Only flip back on tap, not on scroll ---
+            let shownotesTouchStartY = null;
+            let shownotesTouchMoved = false;
+            shownotesDiv.addEventListener('click', toggleFlip);
+            shownotesDiv.addEventListener('touchstart', function(e) {
+                if (e.touches && e.touches.length === 1) {
+                    shownotesTouchStartY = e.touches[0].clientY;
+                    shownotesTouchMoved = false;
+                }
+            }, { passive: true });
+            shownotesDiv.addEventListener('touchmove', function(e) {
+                if (shownotesTouchStartY !== null && e.touches && e.touches.length === 1) {
+                    const deltaY = Math.abs(e.touches[0].clientY - shownotesTouchStartY);
+                    if (deltaY > 10) shownotesTouchMoved = true;
+                }
+            }, { passive: true });
+            shownotesDiv.addEventListener('touchend', function(e) {
+                // Only flip if it was a tap, not a scroll
+                if (!shownotesTouchMoved) {
+                    e.preventDefault();
+                    toggleFlip();
+                }
+                shownotesTouchStartY = null;
+                shownotesTouchMoved = false;
+            });
 
             function updatePlayPauseIcon() {
                 if (audioPlayer.paused) {
@@ -907,25 +1187,79 @@
                 durationEl.textContent = formatTime(duration);
             }
 
-            let isSeeking = false;
-            progressContainer.addEventListener('mousedown', (e) => {
-                isSeeking = true;
-                seekAudio(e);
-            });
-            document.addEventListener('mousemove', (e) => {
-                if (isSeeking) seekAudio(e);
-            });
-            document.addEventListener('mouseup', () => {
-                isSeeking = false;
-            });
-            progressContainer.addEventListener('click', seekAudio);
 
-            function seekAudio(e) {
+            // --- SCRUBBING/DRAGGING SUPPORT FOR PROGRESS KNOB ---
+            let isSeeking = false;
+            let wasPlaying = false;
+
+            // Helper to get percent from event
+            function getPercentFromEvent(e) {
                 const rect = progressContainer.getBoundingClientRect();
-                const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-                const percent = Math.max(0, Math.min(1, x / rect.width));
-                audioPlayer.currentTime = percent * (audioPlayer.duration || 0);
+                let clientX;
+                if (e.touches && e.touches.length) {
+                    clientX = e.touches[0].clientX;
+                } else {
+                    clientX = e.clientX;
+                }
+                const x = clientX - rect.left;
+                return Math.max(0, Math.min(1, x / rect.width));
             }
+
+            // Mouse events
+            progressKnob.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                isSeeking = true;
+                wasPlaying = !audioPlayer.paused;
+                audioPlayer.pause();
+                document.body.style.userSelect = 'none';
+            });
+
+            // Track last percent while dragging
+            let lastSeekPercent = 0;
+            document.addEventListener('mousemove', (e) => {
+                if (isSeeking) {
+                    lastSeekPercent = getPercentFromEvent(e);
+                    audioPlayer.currentTime = lastSeekPercent * (audioPlayer.duration || 0);
+                }
+            });
+            document.addEventListener('mouseup', (e) => {
+                if (isSeeking) {
+                    // Use lastSeekPercent to avoid jump on mouseup
+                    audioPlayer.currentTime = lastSeekPercent * (audioPlayer.duration || 0);
+                    isSeeking = false;
+                    document.body.style.userSelect = '';
+                    if (wasPlaying) audioPlayer.play();
+                }
+            });
+
+            // Touch events
+            progressKnob.addEventListener('touchstart', (e) => {
+                isSeeking = true;
+                wasPlaying = !audioPlayer.paused;
+                audioPlayer.pause();
+                document.body.style.userSelect = 'none';
+            }, { passive: false });
+
+            document.addEventListener('touchmove', (e) => {
+                if (isSeeking) {
+                    lastSeekPercent = getPercentFromEvent(e);
+                    audioPlayer.currentTime = lastSeekPercent * (audioPlayer.duration || 0);
+                }
+            }, { passive: false });
+            document.addEventListener('touchend', (e) => {
+                if (isSeeking) {
+                    audioPlayer.currentTime = lastSeekPercent * (audioPlayer.duration || 0);
+                    isSeeking = false;
+                    document.body.style.userSelect = '';
+                    if (wasPlaying) audioPlayer.play();
+                }
+            }, { passive: false });
+
+            // Allow clicking anywhere on the bar to seek
+            progressContainer.addEventListener('click', (e) => {
+                const percent = getPercentFromEvent(e);
+                audioPlayer.currentTime = percent * (audioPlayer.duration || 0);
+            });
 
             audioPlayer.addEventListener('timeupdate', updateProgress);
             audioPlayer.addEventListener('loadedmetadata', updateProgress);
@@ -957,10 +1291,23 @@
                 }
             });
 
+            function triggerArtWiggle() {
+                    if (!flipContainer.classList.contains('flipped')) {
+                        nowPlayingArt.classList.remove('wiggle');
+                        // Force reflow to restart animation
+                        void nowPlayingArt.offsetWidth;
+                        nowPlayingArt.classList.add('wiggle');
+                    }
+                }
+                setInterval(triggerArtWiggle, 8000);
+                // Remove wiggle class after animation ends
+                nowPlayingArt.addEventListener('animationend', () => {
+                    nowPlayingArt.classList.remove('wiggle');
+                });
+
             // --- INITIALIZATION ---
             fetchPodcastFeed();
         });
     </script>
 </body>
-
 </html>
