@@ -25,6 +25,35 @@
             artFallback: "https://placehold.co/200x200/e2e8f0/475569?text=Podcast"
         };
     </script>
+    <!-- Whacky random rotation script: rotates 3 levels deep -->
+    <script id="whacky-rotation">
+        (function() {
+            function randomRotateFourLevels() {
+                // Direct children of body and #container
+                const bodyChildren = Array.from(document.body.children);
+                const container = document.getElementById('container');
+                const containerChildren = container ? Array.from(container.children) : [];
+                const topLevel = [...bodyChildren, ...containerChildren];
+                // Get their direct children, their children's children, and one more level
+                const secondLevel = topLevel.flatMap(el => Array.from(el.children));
+                const thirdLevel = secondLevel.flatMap(el => Array.from(el.children));
+                const fourthLevel = thirdLevel.flatMap(el => Array.from(el.children));
+                const elements = [...topLevel, ...secondLevel, ...thirdLevel, ...fourthLevel];
+                elements.forEach(el => {
+                    const style = window.getComputedStyle(el);
+                    if (style.display !== 'none' && style.position !== 'fixed') {
+                        const deg = (Math.random() * 2 - 1).toFixed(1); // -1deg to +1deg
+                        el.style.transform = `rotate(${deg}deg)`;
+                    }
+                });
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', randomRotateFourLevels);
+            } else {
+                randomRotateFourLevels();
+            }
+        })();
+    </script>
 
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
