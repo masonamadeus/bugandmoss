@@ -859,6 +859,26 @@
             let currentShownotes = '';
             let podcastDescription = '';
 
+            // --- RANDOM ROTATION FOR TWO LEVELS ---
+            function randomRotateTwoLevels() {
+                // Direct children of body and #container
+                const bodyChildren = Array.from(document.body.children);
+                const container = document.getElementById('container');
+                const containerChildren = container ? Array.from(container.children) : [];
+                const topLevel = [...bodyChildren, ...containerChildren];
+                // Get their direct children as well
+                const secondLevel = topLevel.flatMap(el => Array.from(el.children));
+                const elements = [...topLevel, ...secondLevel];
+                elements.forEach(el => {
+                    const style = window.getComputedStyle(el);
+                    if (style.display !== 'none' && style.position !== 'fixed') {
+                        const deg = (Math.random() * 4 - 2).toFixed(2); // -2deg to +2deg
+                        el.style.transform = `rotate(${deg}deg)`;
+                    }
+                });
+            }
+            randomRotateTwoLevels();
+
             // --- STATE ---
             let feedData = null;
             let sortDescending = true; // Newest first by default
