@@ -982,7 +982,9 @@
                 episodeList.innerHTML = '';
 
                 try {
-                    const response = await fetch(RSS_FEED_URL);
+                    // Add cache-busting query parameter to force fresh fetch
+                    const cacheBustUrl = RSS_FEED_URL + (RSS_FEED_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
+                    const response = await fetch(cacheBustUrl);
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     const data = await response.json();
                     feedData = data;
