@@ -37,6 +37,7 @@
             background-color: #e3f0ff; /* Powdered Bug */
             padding: 1.5rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
             margin-bottom: 2rem;
         }
         .global-controls button, .modal button, .confirm-modal button {
@@ -376,6 +377,9 @@
 </head>
 <body>
     <div class="container">
+        
+    
+        <div id="soundboard-grid" class="soundboard-grid"></div>
         <div class="global-controls">
             <button id="add-btn">Add Button</button>
             <button id="remove-btn" class="danger">Remove Button</button>
@@ -384,8 +388,6 @@
             <button id="upload-config-btn">Upload Config</button>
             <button id="db-manager-btn">Database Manager</button>
         </div>
-    
-        <div id="soundboard-grid" class="soundboard-grid"></div>
     </div>
     
     <input type="file" id="upload-config-input" accept="application/json" style="display: none;">
