@@ -12,11 +12,11 @@
             rssFeed: "https://pinecast.com/jsonfeed/bug-and-moss",
             rssButton: "https://pinecast.com/feed/bug-and-moss",
             colors: {
-                background: "#f7fafc",      // backgrounds
-                panel: "#e3f0ff",           // panels/lists
-                accent: "#3bb273",          // accent
-                highlight: "#ff914d",       // highlight
-                primary: "#234e70"          // primary
+                background: "#f7fafc",      // Not-Quite White
+                panel: "#e3f0ff",           // powerderd bug
+                accent: "#3bb273",          // Mossy Green
+                highlight: "#ff914d",       // Chewy Orange
+                primary: "#234e70"          // Bug Blue
             },
             fonts: {
                 body: "'Wellfleet', sans-serif",
@@ -173,6 +173,7 @@
             align-items: center;
             max-height: 50vh;
             transition: max-height 0.4s cubic-bezier(.4,2,.6,1);
+            z-index: 1000;
         }
         .now-playing-flip-container.flipped {
             /* When flipped, allow the shownotes card to expand taller */
@@ -188,6 +189,7 @@
             min-width: 80px;
             max-width: 100%;
             max-height: 100%;
+            z-index: 1001;
         }
         .now-playing-flip-container.flipped .now-playing-flipper {
             transform: rotateY(180deg);
@@ -204,6 +206,7 @@
             min-width: 80px;
             max-width: 100%;
             max-height: 100%;
+            z-index: 1002;
         }
 
         /* Wiggle animation for show art */
@@ -695,6 +698,26 @@
                             <img id="now-playing-art" src="" alt="Now Playing Art" class="now-playing-art">
                             <div id="now-playing-shownotes" class="now-playing-shownotes" style="display: flex;"></div>
                         </div>
+    <!-- Modal Backdrop and RSS Popup as direct children of body -->
+    <div id="rss-popup" style="
+        display: none;
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        background: var(--scq-primary, #234e70);
+        color: var(--scq-background, #f7fafc);
+        padding: 1.5rem 2.5rem;
+        border-radius: 1.25rem;
+        font-size: 1.1rem;
+        font-family: var(--scq-font-body, sans-serif);
+        z-index: 9999;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+        text-align: center;
+        max-width: 90vw;
+    ">
+        RSS Link Copied to Clipboard!<br><br>Paste this link into your podcast player of choice to subscribe.
+    </div>
                     </div>
                     <h2 id="now-playing-title" class="now-playing-title"></h2>
                 </div>
@@ -780,28 +803,7 @@
                         <button id="rss-btn" class="subscribe-btn" type="button" title="Subscribe via RSS">
                             Subscribe via RSS
                         </button>
-                <!-- RSS Copied Popup -->
-                <div id="rss-popup" style="
-                    display: none;
-                    position: fixed;
-                    left: 50%;
-                    top: 10%;
-                    transform: translate(-50%, 0);
-                    background: var(--scq-primary, #234e70);
-                    color: var(--scq-background, #f7fafc);
-                    padding: 1rem 2rem;
-                    border-radius: 1rem;
-                    font-size: 1.1rem;
-                    font-family: var(--scq-font-body, sans-serif);
-                    z-index: 9999;
-                    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-                    text-align: center;
-                ">
-                    RSS Link Copied!<br>Paste this link into your podcast player of choice to subscribe.
-                </div>
 
-                        <a href="https://poweredbypodcube.com/" class="footer" style="font-family:'Nova Square'">Player by PodCube™</a>
-                    </div>
 
                 </div>
             </div>
@@ -888,25 +890,6 @@
             let currentShownotes = '';
             let podcastDescription = '';
 
-            // --- RANDOM ROTATION FOR TWO LEVELS ---
-            function randomRotateTwoLevels() {
-                // Direct children of body and #container
-                const bodyChildren = Array.from(document.body.children);
-                const container = document.getElementById('container');
-                const containerChildren = container ? Array.from(container.children) : [];
-                const topLevel = [...bodyChildren, ...containerChildren];
-                // Get their direct children as well
-                const secondLevel = topLevel.flatMap(el => Array.from(el.children));
-                const elements = [...topLevel, ...secondLevel];
-                elements.forEach(el => {
-                    const style = window.getComputedStyle(el);
-                    if (style.display !== 'none' && style.position !== 'fixed') {
-                        const deg = (Math.random() * 4 - 2).toFixed(2); // -2deg to +2deg
-                        el.style.transform = `rotate(${deg}deg)`;
-                    }
-                });
-            }
-            randomRotateTwoLevels();
 
             // --- STATE ---
             let feedData = null;
@@ -932,7 +915,7 @@
                 e.preventDefault();
                 try {
                     await navigator.clipboard.writeText(RSS_BUTTON_URL);
-                    // Show popup
+                    // Show modal
                     rssPopup.style.display = 'block';
                     setTimeout(() => {
                         rssPopup.style.display = 'none';
