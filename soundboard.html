@@ -1298,9 +1298,26 @@
                     }
                 }
 
-                async downloadConfig() {
+               async downloadConfig() {
                     const allData = await this.db.getAll();
-                    const json = JSON.stringify(allData);
+                    // Map over the data to convert ArrayBuffer to Base64
+                    const serializableData = allData.map(item => {
+                        if (item.files && item.files.length > 0) {
+                            const serializableFiles = item.files.map(file => {
+                                // Use a helper function to convert the ArrayBuffer to a Base64 string
+                                return {
+                                    ...file,
+                                    arrayBuffer: this._arrayBufferToBase64(file.arrayBuffer)
+                                };
+                            });
+                            return {
+                                ...item,
+                                files: serializableFiles
+                            };
+                        }
+                        return item;
+                    });
+                    const json = JSON.stringify(serializableData, null, 2);
                     const blob = new Blob([json], {
                         type: 'application/json'
                     });
@@ -1323,8 +1340,26 @@
                             const data = JSON.parse(e.target.result);
                             const confirmed = await this.showConfirmModal("This will overwrite your current soundboard configuration. Are you sure?");
                             if (confirmed) {
+                                // Map over the uploaded data to convert Base64 back to ArrayBuffer
+                                const deserializedData = data.map(item => {
+                                    if (item.files && item.files.length > 0) {
+                                        const deserializedFiles = item.files.map(file => {
+                                            // Use a helper function to convert the Base64 string back to an ArrayBuffer
+                                            return {
+                                                ...file,
+                                                arrayBuffer: this._base64ToArrayBuffer(file.arrayBuffer)
+                                            };
+                                        });
+                                        return {
+                                            ...item,
+                                            files: deserializedFiles
+                                        };
+                                    }
+                                    return item;
+                                });
+
                                 await this.db.clear();
-                                for (const item of data) {
+                                for (const item of deserializedData) {
                                     await this.db.save(item.id, item);
                                 }
                                 await this.loadStateFromDB();
@@ -1337,6 +1372,27 @@
                         }
                     };
                     reader.readAsText(file);
+                }
+
+                // New helper methods for Base64 conversion
+                _arrayBufferToBase64(buffer) {
+                    let binary = '';
+                    const bytes = new Uint8Array(buffer);
+                    const len = bytes.byteLength;
+                    for (let i = 0; i < len; i++) {
+                        binary += String.fromCharCode(bytes[i]);
+                    }
+                    return btoa(binary);
+                }
+
+                _base64ToArrayBuffer(base64) {
+                    const binary_string = atob(base64);
+                    const len = binary_string.length;
+                    const bytes = new Uint8Array(len);
+                    for (let i = 0; i < len; i++) {
+                        bytes[i] = binary_string.charCodeAt(i);
+                    }
+                    return bytes.buffer;
                 }
 
                 // ================================================================
