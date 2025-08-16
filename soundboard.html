@@ -766,7 +766,7 @@
                             player.playback.shuffledOrder = shuffleArray(Array.from({length: player.config.files.length}, (_, i) => i));
                         }
                     }
-                    playNextFile(index);
+                    
                 } else {
                     // Audio is not playing, start from the beginning of the list
                     player.playback.currentFileIndex = 0;
