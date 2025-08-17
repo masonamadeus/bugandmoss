@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
+<!-- TO DO 
+    - ADD LOOP FUNCTIONALITY (EASY)
+    - ADD 'TIMER CARD' TO AUTOMATICALLY PLAY US OUT
+-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -835,7 +838,7 @@
                     constructor(audioElement) {
                         this.audio = audioElement || new Audio();
                         this.isPlaying = false;
-                        this.duckAmount = 50; // percent
+                        this.duckAmount = 0.3;
                         this.playback = {
                             currentFileIndex: 0,
                         };
@@ -1468,7 +1471,7 @@
 
                             // Duck non-priority sounds
                             if (!playerButtonData.priority) {
-                                player.audio.volume = playerButtonData.volume * 0.5;
+                                player.audio.volume = playerButtonData.volume * 0.36;
                                 const slider = this._getVolumeSlider(playerIndex);
                                 if (slider) {
                                     slider.value = player.audio.volume;
