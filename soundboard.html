@@ -625,7 +625,9 @@
             function getRandom(min, max) {
                 const minCeiled = Math.ceil(min);
                 const maxFloored = Math.floor(max);
-                return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // The maximum is exclusive and the minimum is inclusive
+                let value = Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
+                console.log(`Generating random number ${value} between ${minCeiled} and ${maxFloored}`);
+                return value // The maximum is exclusive and the minimum is inclusive
             }
 
 
@@ -692,7 +694,7 @@
             class SoundboardDB {
                 constructor() {
                     this.DB_NAME = 'BugAndMossSoundboardDB';
-                    this.DB_VERSION = 5; // INCREMENT THE DB VERSION TO TRIGGER ONUPGRADENEEDED
+                    this.DB_VERSION = 6; // INCREMENT THE DB VERSION TO TRIGGER ONUPGRADENEEDED
                     this.SOUNDS_STORE = 'sounds';
                     this.CONFIG_STORE = 'config';
                     this.CONFIG_KEY = 'global-config';
@@ -961,12 +963,16 @@
                 }
 
                 handleGridClick(event) {
-                    // Do nothing if we're in rearrange mode
                     if (this.isRearranging) return;
                     const card = event.target.closest('.sound-card');
                     if (!card) return;
                     const index = parseInt(card.dataset.index);
-                    const action = event.target.dataset.action;
+
+                    // FIX: Find the closest parent with a data-action attribute
+                    const actionElement = event.target.closest('[data-action]');
+                    if (!actionElement) return;
+                    const action = actionElement.dataset.action;
+
                     switch (action) {
                         case 'play':
                             this.togglePlay(index);
@@ -1110,7 +1116,7 @@
                     if (player.isPlaying) {
                         player.cleanup();
                         player.playback.currentFileIndex++
-                        if (player.playback.currentFileIndex > buttonData.files.length) { player.playback.currentFileIndex = 0 }
+                        if (player.playback.currentFileIndex >= buttonData.files.length) { player.playback.currentFileIndex = 0 }
                     } else {
                         this.playFile(index, buttonData.shuffle ? getRandom(0, buttonData.files.length) : player.playback.currentFileIndex);
                     }
@@ -1150,7 +1156,7 @@
                                 this.playFile(index, player.playback.currentFileIndex);
                             } else {
                                 player.playback.currentFileIndex++;
-                                if (player.playback.currentFileIndex >= buttonData.files.length - 1) {
+                                if (player.playback.currentFileIndex >= buttonData.files.length) {
                                     player.playback.currentFileIndex = 0;
                                 }
                                 // don't play the next file unless autoplay is on
