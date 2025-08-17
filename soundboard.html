@@ -637,6 +637,15 @@
                 return value // The maximum is exclusive and the minimum is inclusive
             }
 
+            function randomButNot(min, max, notThis){
+                let value;
+                do {
+                    value = getRandom(min, max);
+                } while (value === notThis);
+                console.log(`Generating random number ${value} between ${min} and ${max}, but not ${notThis}`);
+                return value;
+            }
+
 
             // ====================================================================
             // SECTION: Audio Player Class
@@ -805,7 +814,6 @@
 
                 async initialize() {
                     await this.db.openDB();
-                    await this.requestPersistentStorage();
                     await this.loadStateFromDB();
                     this.attachGlobalEventListeners();
                     this.renderAllButtons();
