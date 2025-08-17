@@ -1432,12 +1432,12 @@
                         }
                     }
 
-                     async togglePlay(index) {
+                    async togglePlay(index) {
                         const buttonData = this.buttonsData[index];
                         const player = this._getAudioPlayer(index);
                         if (buttonData.files.length === 0) return;
 
-                        if (player.playback.currentFileIndex >= buttonData.files.length){
+                        if (player.playback.currentFileIndex >= buttonData.files.length) {
                             player.playback.currentFileIndex = 0;
                         }
 
@@ -1520,18 +1520,18 @@
                         // Restore volumes of ducked players if the just-finished player was a priority sound
                         if (buttonData.priority) {
                             let isOtherPriorityPlaying = this._checkForPriorityPlaying();
-                            if (!isOtherPriorityPlaying){
+                            if (!isOtherPriorityPlaying) {
                                 this.players.forEach(duckedPlayer => {
-                                const duckedPlayerIndex = [...this.players.entries()].find(([key, val]) => val === duckedPlayer)[0];
-                                const duckedPlayerButtonData = this.buttonsData[duckedPlayerIndex];
-                                duckedPlayer.audio.volume = duckedPlayerButtonData.volume; // Restore original volume
-                                const slider = this._getVolumeSlider(duckedPlayerIndex);
-                                if (slider) {
-                                    slider.value = duckedPlayer.audio.volume;
-                                }
-                            });
+                                    const duckedPlayerIndex = [...this.players.entries()].find(([key, val]) => val === duckedPlayer)[0];
+                                    const duckedPlayerButtonData = this.buttonsData[duckedPlayerIndex];
+                                    duckedPlayer.audio.volume = duckedPlayerButtonData.volume; // Restore original volume
+                                    const slider = this._getVolumeSlider(duckedPlayerIndex);
+                                    if (slider) {
+                                        slider.value = duckedPlayer.audio.volume;
+                                    }
+                                });
                             }
-                            
+
                         }
 
                         // Handle looping and autoplay logic
@@ -1687,9 +1687,13 @@
                             const listItem = document.createElement('li');
                             listItem.innerHTML = `
                             <span>${file.fileName}</span>
-                            <button data-file-index="${index}">Remove</button>
+                            <button data-file-index="${index}" class="remove-file-button">Remove</button>
                         `;
                             fileListElement.appendChild(listItem);
+                            const removeButton = listItem.querySelector('.remove-file-button');
+                            removeButton.addEventListener('click', (event) => {
+                                this.removeFileFromModalButton(event);
+                            })
                         });
                     }
 
@@ -1725,20 +1729,34 @@
                     }
 
                     async removeFileFromModalButton(event) {
-                        const fileIndex = parseInt(event.target.dataset.file - index);
-                        if (this.activeModalIndex !== null && !isNaN(fileIndex)) {
+                        // We can now get the file index directly from the event target.
+                        // Use `parseInt` to ensure it's a number.
+                        const fileIndex = parseInt(event.target.dataset.fileIndex);
+
+                        // The condition is now a simple check for a valid index.
+                        if (!isNaN(fileIndex)) {
                             const buttonData = this.buttonsData[this.activeModalIndex];
+
+                            // Defensive check: If the button has no files, do nothing.
+                            if (!buttonData || !buttonData.files) return;
+
+                            // Cleanup and remove the file.
                             const player = this._getAudioPlayer(this.activeModalIndex);
-                            player.cleanup();
-                            // Remove the file from the array
+                            if (player) {
+                                player.cleanup();
+                            }
                             buttonData.files.splice(fileIndex, 1);
-                            // Reset the current playback index
-                            player.playback.currentFileIndex = 0;
+
+                            // Reset the current playback index to prevent issues.
+                            if (buttonData.files.length > 0) {
+                                player.playback.currentFileIndex = 0;
+                            }
+
+                            // Persist the changes and re-render the UI.
                             await this.db.save(this.activeModalIndex, buttonData);
                             this._renderFileList(buttonData.files);
                         }
                     }
-
                     // ================================================================
                     // Global Functionality Methods
                     // ================================================================
