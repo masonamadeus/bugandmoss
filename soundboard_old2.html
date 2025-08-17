@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- 
+======= TO DO ===========
+- ADD BUTTON SHOULD JUST BE A GHOST/SKELETON BUTTON AT THE BOTTOM OF THE LIST.
+- REMOVE BUTTON SHOULD BE WITHIN THE SETTINGS MODAL FOR A GIVEN BUTTON
+- MAYBE PUT CONTROL BUTTONS INSIDE THE GHOST/SKELETON BUTTON, SO THAT THE BUTTON PART IS A PLUS SIGN FOR ADDING BUTTONS
+  AND INSTEAD OF SLIDERS IT HAS THE 'REARRANGE, DOWNLOAD, UPLOAD, DATABASE MANAGER' BUTTONS
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soundboard</title>
+    <style>
+        /* Color Palette:
+           background: #f7fafc (Not-Quite White)
+           panel: #e3f0ff (Powdered Bug)
+           accent: #3bb273 (Mossy Green)
+           highlight: #ff914d (Chewy Orange)
+           primary: #234e70 (Bug Blue)
+        */
+        body {
+            font-family: 'Wellfleet', sans-serif;
+            background-color: #f7fafc;
+            /* Not-Quite White */
+            color: #234e70;
+            /* Bug Blue */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .global-controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            background-color: #e3f0ff;
+            /* Powdered Bug */
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .global-controls button,
+        .modal button,
+        .confirm-modal button {
+            background-color: #234e70;
+            /* Bug Blue */
+            color: #FFFFFF;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .global-controls button:hover,
+        .modal button:hover,
+        .confirm-modal button:hover {
+            background-color: #1e3f5b;
+            /* Darker Bug Blue */
+        }
+
+        .global-controls button.danger,
+        .confirm-modal button.danger {
+            background-color: #ff914d;
+            /* Chewy Orange */
+        }
+
+        .global-controls button.danger:hover,
+        .confirm-modal button.danger:hover {
+            background-color: #d47b40;
+            /* Darker Chewy Orange */
+        }
+
+        .soundboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .soundboard-grid.rearrange-mode {
+            cursor: grab;
+        }
+
+        .sound-card {
+            background-color: #e3f0ff;
+            /* Powdered Bug */
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .soundboard-grid.rearrange-mode .sound-card:hover {
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+            transform: scale(1.02);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .soundboard-grid.rearrange-mode .sound-card {
+            transform: rotate(2deg);
+            border: 2px solid #ff914d;
+            cursor: grab;
+        }
+
+        .sound-card.dragging {
+            opacity: 0.5;
+        }
+
+        .soundboard-grid.rearrange-mode .sound-card.drag-over {
+            border: 2px dashed #ff914d;
+            /* Chewy Orange */
+            transform: scale(1.05);
+            transition: transform 0.2s ease;
+        }
+
+        .sound-button {
+            position: relative;
+            width: 100%;
+            height: 100px;
+            background-color: #3bb273;
+            /* Mossy Green */
+            color: #234e70;
+            /* Bug Blue */
+            font-size: 1.25rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            overflow: hidden;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .soundboard-grid.rearrange-mode .sound-button {
+            cursor: grab;
+        }
+
+        .soundboard-grid.rearrange-mode .sound-button:hover {
+            opacity: 1;
+            /* Override the hover opacity from previous logic */
+        }
+
+        .sound-button:hover {
+            opacity: 0.9;
+        }
+
+        .progress-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            transition: width 0.1s linear;
+        }
+
+        .button-text {
+            position: relative;
+            z-index: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sound-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .slider-group label {
+            width: 60px;
+            font-size: 0.875rem;
+            color: #234e70;
+            /* Bug Blue */
+        }
+
+        .sound-controls input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 4px;
+            background: #a8d5e5;
+            outline: none;
+        }
+
+        .sound-controls input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: #3bb273;
+            /* Mossy Green */
+            cursor: pointer;
+        }
+
+        .sound-controls input[type="range"]::-webkit-slider-thumb:active {
+            cursor: grabbing;
+        }
+
+        .sound-controls input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            background: #3bb273;
+            /* Mossy Green */
+            cursor: pointer;
+        }
+
+        .sound-controls input[type="range"]::-moz-range-thumb:active {
+            cursor: grabbing;
+        }
+
+        .settings-triangle-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            cursor: pointer;
+            width: 0;
+            height: 0;
+            border-bottom: 40px solid #ff914d;
+            /* Chewy Orange, larger border for clickability */
+            border-left: 40px solid transparent;
+            z-index: 2;
+        }
+
+        .settings-triangle-btn svg {
+            position: absolute;
+            top: -30px;
+            left: 10px;
+            z-index: 3;
+            width: 20px;
+            height: 20px;
+            color: #ffffff;
+        }
+
+        .modal,
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content,
+        .confirm-modal-content {
+            background-color: #e3f0ff;
+            /* Powdered Bug */
+            margin: 5% auto;
+            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .confirm-modal-content {
+            text-align: center;
+            padding: 2rem;
+            max-width: 400px;
+        }
+
+        .confirm-modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: flex-end;
+            /* Align close button to the right */
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            border-bottom: 1px solid #cce0ec;
+            padding-bottom: 0.25rem;
+            color: #234e70;
+            /* Bug Blue */
+        }
+
+        .modal-section input[type="text"] {
+            width: 100%;
+            padding: 0.5rem;
+            background-color: #f7fafc;
+            /* Not-Quite White */
+            border: 1px solid #234e70;
+            /* Bug Blue */
+            color: #234e70;
+            /* Bug Blue */
+        }
+
+        .modal-section label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .title-and-color {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .color-swatch-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .color-swatch {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #234e70;
+            /* Bug Blue */
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .color-swatch:hover {
+            border-color: #ff914d;
+            /* Chewy Orange */
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .file-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .file-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #f7fafc;
+            /* Not-Quite White */
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid #e3f0ff;
+            /* Powdered Bug */
+        }
+
+        .file-list button {
+            background-color: #ff914d;
+            /* Chewy Orange */
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .file-list button:hover {
+            background-color: #d47b40;
+            /* Darker Chewy Orange */
+        }
+
+        .file-input-container {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .file-input-container label {
+            flex-grow: 1;
+            background-color: #3bb273;
+            /* Mossy Green */
+            color: #f7fafc;
+            padding: 0.75rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .file-input-container label:hover {
+            background-color: #308d5b;
+            /* Darker Mossy Green */
+        }
+
+        .modal-checkbox-group {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .modal-checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            user-select: none;
+            color: #234e70;
+            /* Bug Blue */
+        }
+
+        .modal-checkbox-group input[type="checkbox"] {
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #234e70;
+            /* Bug Blue */
+            cursor: pointer;
+            position: relative;
+        }
+
+        .modal-checkbox-group input[type="checkbox"]:checked {
+            background-color: #3bb273;
+            /* Mossy Green */
+            border-color: #3bb270;
+            /* Mossy Green */
+        }
+
+        .modal-checkbox-group input[type="checkbox"]:checked::after {
+            content: '✔';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #f7fafc;
+            /* Not-Quite White */
+            font-size: 1rem;
+        }
+
+        /* New styles for the Database Manager modal */
+        #db-manager-modal .modal-content {
+            max-width: 500px;
+        }
+
+        #db-stats-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            font-size: 1.1rem;
+        }
+
+        #db-stats-container p {
+            margin: 0;
+            padding: 0.5rem;
+            background-color: #f7fafc;
+            border: 1px solid #cce0ec;
+        }
+
+        #clear-database-btn {
+            background-color: #ff914d;
+            margin-top: 1rem;
+        }
+
+        #clear-database-btn:hover {
+            background-color: #d47b40;
+        }
+
+        #db-file-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #db-file-list li {
+            background-color: #f0f8ff;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e3f0ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #db-file-list li:last-child {
+            border-bottom: none;
+        }
+
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e3f0ff;
+        }
+
+        .stat-line:last-of-type {
+            border-bottom: none;
+        }
+
+        .spacer {
+            margin: 0 1rem;
+        }
+
+        #soundboard-title {
+            text-align: center;
+            cursor: pointer;
+            padding: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        #soundboard-title:hover,
+        #soundboard-title:focus {
+            background-color: #e3f0ff;
+            /* Powdered Bug */
+            outline: none;
+        }
+
+        /* new control card */
+
+        /* Style the plus button to be big and clear */
+#add-btn-plus {
+    font-size: 4rem;
+    font-weight: 200;
+    line-height: 1; /* Helps with vertical centering */
+    background-color: #cce0ec !important; /* A neutral color from your palette */
+    color: #234e70; /* Bug Blue */
+}
+
+#add-btn-plus:hover {
+    background-color: #b8d2e3 !important;
+}
+
+/* Create a grid for the action buttons in the lower half */
+#control-card-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Creates a 2x2 grid */
+    gap: 0.5rem;
+    padding-top: 0.5rem; /* A little space from the plus button */
+}
+
+/* Adjust the buttons to fit nicely within the 2x2 grid */
+#control-card-actions button {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    text-align: center;
+    background-color: #3bb273; /* Mossy Green */
+    color: #f7fafc; /* Not-Quite White */
+    border-color: #ff914d
+}
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 id="soundboard-title" contenteditable="true">The Bug & Moss Soundboard</h1>
+        <div id="soundboard-grid" class="soundboard-grid">
+            <div id="control-card" class="sound-card">
+                    <button id="add-btn-plus" class="sound-button" title="Add a new button">+</button>
+                    <div id="control-card-actions">
+                        <button id="rearrange-mode-btn">Rearrange</button>
+                        <button id="download-config-btn">Download Config</button>
+                        <button id="upload-config-btn">Upload Config</button>
+                        <button id="db-manager-btn">Database Manager</button>
+                    </div>
+                </div>
+        </div>
+        
+    </div>
+
+    <input type="file" id="upload-config-input" accept="application/json" style="display: none;">
+
+    <div id="settings-modal" class="modal">
+        <div id="modal-content" class="modal-content">
+            <div class="modal-header">
+            </div>
+
+            <div class="modal-section">
+                <h3>Button Title</h3>
+                <div class="title-and-color">
+                    <input type="color" id="button-color-picker" class="hidden">
+                    <div id="color-swatch" class="color-swatch"></div>
+                    <input type="text" id="button-name-input">
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <h3>Audio Files</h3>
+                <div class="file-input-container">
+                    <label for="add-file-input" class="file-input-label">Add Audio File</label>
+                    <input type="file" id="add-file-input" accept="audio/*" multiple style="display: none;">
+                    <button id="clear-files-btn" class="danger">Clear All</button>
+                </div>
+                <ul id="file-list" class="file-list"></ul>
+            </div>
+
+            <div class="modal-section">
+                <h3>Playback Options</h3>
+                <div class="modal-checkbox-group">
+                    <label>
+                        <input type="checkbox" id="shuffle-checkbox">
+                        Shuffle Playback
+                    </label>
+                    <label>
+                        <input type="checkbox" id="autoplay-checkbox">
+                        Autoplay Next
+                    </label>
+                </div>
+            </div>
+
+                    <div class="modal-section"
+                        style="border-top: 1px solid #cce0ec; padding-top: 1.5rem; margin-top: 1.5rem;">
+                        <button id="remove-button-modal" class="danger">Remove This Button</button>
+                    </div>
+
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="confirm-modal">
+        <div class="confirm-modal-content">
+            <p id="confirm-modal-message"></p>
+            <div class="confirm-modal-actions">
+                <button id="confirm-yes-btn">Yes</button>
+                <button id="confirm-no-btn" class="danger">No</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="db-manager-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Database Manager</h3>
+            </div>
+            <div class="modal-section">
+                <div id="db-stats-container">
+                    <div class="stat-line">
+                        <span>Total Buttons:</span> <span id="db-button-count">Calculating...</span>
+                    </div>
+                    <div class="stat-line">
+                        <span>Database Usage:</span> <span id="db-usage">Calculating...</span>
+                    </div>
+                    <div class="stat-line">
+                        <span>Available Quota:</span> <span id="db-quota">Calculating...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-section">
+                <h3>Stored Sounds</h3>
+                <ul id="db-file-list">
+                    <li><small>No sounds found.</small></li>
+                </ul>
+            </div>
+            <div class="modal-section">
+                <button id="clear-database-btn" class="danger">Clear Entire Database</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            function getRandom(min, max) {
+                const minCeiled = Math.ceil(min);
+                const maxFloored = Math.floor(max);
+                let value = Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
+                console.log(`Generating random number ${value} between ${minCeiled} and ${maxFloored}`);
+                return value // The maximum is exclusive and the minimum is inclusive
+            }
+
+            function randomButNot(min, max, notThis) {
+                let value;
+                do {
+                    value = getRandom(min, max);
+                } while (value === notThis);
+                console.log(`Generating random number ${value} between ${min} and ${max}, but not ${notThis}`);
+                return value;
+            }
+
+
+            // ====================================================================
+            // SECTION: Audio Player Class
+            // I'm so fucking tired ddude
+            // ====================================================================
+
+            class AudioPlayer {
+                constructor(audioElement) {
+                    this.audio = audioElement || new Audio();
+                    this.isPlaying = false;
+                    this.playback = { currentFileIndex: 0, };
+                    this.progressOverlay = null; // A reference to the progress bar element
+                    this.setupListeners();
+                }
+
+                setupListeners() {
+                    this.audio.onplaying = () => this.isPlaying = true;
+                    this.audio.onpause = () => {
+                        this.isPlaying = false;
+                        this.resetProgress();
+                    };
+                    this.audio.onended = () => {
+                        // This is for local cleanup ONLY
+                        this.isPlaying = false;
+                        this.resetProgress();
+                        this.audio.currentTime = 0; // Rewind the audio element
+                    };
+                    this.audio.ontimeupdate = () => this.updateProgress();
+                }
+
+                updateProgress() {
+                    if (this.progressOverlay && this.audio.duration > 0) {
+                        const progress = (this.audio.currentTime / this.audio.duration) * 100;
+                        this.progressOverlay.style.width = `${progress}%`;
+                    }
+                }
+
+                resetProgress() {
+                    if (this.progressOverlay) {
+                        this.progressOverlay.style.width = '0%';
+                    }
+                }
+
+                // A method to properly clean up the audio object and its URL
+                cleanup() {
+                    this.audio.pause();
+                    if (this.audio.src) {
+                        URL.revokeObjectURL(this.audio.src);
+                        this.audio.src = '';
+                        this.audio.load();
+                    }
+                    this.isPlaying = false;
+                    this.resetProgress();
+                }
+            }
+
+            // ====================================================================
+            // SECTION: Database Manager Class
+            // Handles all IndexedDB interactions in a clean, encapsulated way.
+            // ====================================================================
+
+            class SoundboardDB {
+                constructor() {
+                    this.DB_NAME = 'BugAndMossSoundboardDB';
+                    this.DB_VERSION = 6; // INCREMENT THE DB VERSION TO TRIGGER ONUPGRADENEEDED
+                    this.SOUNDS_STORE = 'sounds';
+                    this.CONFIG_STORE = 'config';
+                    this.CONFIG_KEY = 'global-config';
+                    this.db = null;
+                }
+
+                async openDB() {
+                    return new Promise((resolve, reject) => {
+                        const request = indexedDB.open(this.DB_NAME, this.DB_VERSION);
+                        request.onupgradeneeded = event => {
+                            this.db = event.target.result;
+                            if (!this.db.objectStoreNames.contains(this.SOUNDS_STORE)) {
+                                this.db.createObjectStore(this.SOUNDS_STORE, {
+                                    keyPath: 'id'
+                                });
+                            }
+                            if (!this.db.objectStoreNames.contains(this.CONFIG_STORE)) {
+                                this.db.createObjectStore(this.CONFIG_STORE, {
+                                    keyPath: 'id'
+                                });
+                            }
+                        };
+                        request.onsuccess = event => {
+                            this.db = event.target.result;
+                            resolve(this.db);
+                        };
+                        request.onerror = event => reject(event.target.error);
+                    });
+                }
+
+                _dbRequest(storeName, mode, action, data) {
+                    return new Promise((resolve, reject) => {
+                        if (!this.db) {
+                            reject("Database not initialized.");
+                            return;
+                        }
+                        const transaction = this.db.transaction(storeName, mode);
+                        const store = transaction.objectStore(storeName);
+                        let request;
+                        if (data !== undefined) {
+                            request = store[action](data);
+                        } else {
+                            request = store[action]();
+                        }
+                        transaction.oncomplete = () => resolve(request.result);
+                        transaction.onerror = () => reject(transaction.error);
+                    });
+                }
+
+                async save(id, data) {
+                    const storeName = typeof id === 'number' ? this.SOUNDS_STORE : this.CONFIG_STORE;
+                    return this._dbRequest(storeName, 'readwrite', 'put', {
+                        id,
+                        ...data
+                    });
+                }
+
+                async get(id) {
+                    const storeName = typeof id === 'number' ? this.SOUNDS_STORE : this.CONFIG_STORE;
+                    return this._dbRequest(storeName, 'readonly', 'get', id);
+                }
+
+                async getAll() {
+                    const soundData = await this._dbRequest(this.SOUNDS_STORE, 'readonly', 'getAll');
+                    const configData = await this._dbRequest(this.CONFIG_STORE, 'readonly', 'getAll');
+                    return [...soundData, ...configData];
+                }
+
+                async delete(id) {
+                    const storeName = typeof id === 'number' ? this.SOUNDS_STORE : this.CONFIG_STORE;
+                    return this._dbRequest(storeName, 'readwrite', 'delete', id);
+                }
+
+                async clear() {
+                    await this._dbRequest(this.SOUNDS_STORE, 'readwrite', 'clear');
+                    await this._dbRequest(this.CONFIG_STORE, 'readwrite', 'clear');
+                }
+            }
+
+
+            // ====================================================================
+            // SECTION: Application Manager Class
+            // Manages the state and business logic of the soundboard.
+            // UI interactions trigger methods on this manager.
+            // ====================================================================
+
+            class SoundboardManager {
+                constructor(dbInstance) {
+                    this.db = dbInstance;
+                    this.soundboardGrid = document.getElementById('soundboard-grid');
+                    this.buttonsData = []; // This holds our single source of truth for the state
+                    this.players = new Map(); // Stores the Audio objects and playback state
+                    this.activeModalIndex = null;
+                    this.isRearranging = false;
+                    this.draggedItem = null;
+                }
+
+                // ================================================================
+                // Core Manager Methods
+                // ================================================================
+
+                async initialize() {
+                    await this.db.openDB();
+                    await this.loadStateFromDB();
+                    this.attachGlobalEventListeners();
+                    this.renderAllButtons();
+                }
+
+                async requestPersistentStorage() {
+                    if (navigator.storage && navigator.storage.persist) {
+                        const isPersisted = await navigator.storage.persisted();
+                        if (!isPersisted) {
+                            const granted = await navigator.storage.persist();
+                            if (granted) {
+                                console.log("Persistent storage granted!");
+                            } else {
+                                console.log("Persistent storage denied.");
+                            }
+                        } else {
+                            console.log("Persistent storage already granted.");
+                        }
+                    }
+                }
+
+                async loadStateFromDB() {
+                    // Corrected function call to get sounds from the dedicated store
+                    const soundData = await this.db._dbRequest(this.db.SOUNDS_STORE, 'readonly', 'getAll');
+
+                    // Get or create the global config
+                    let configData = await this.db.get(this.db.CONFIG_KEY);
+                    if (!configData) {
+                        configData = { id: this.db.CONFIG_KEY, numButtons: 8 };
+                        await this.db.save(configData.id, configData);
+                    }
+
+                    const numButtons = configData.numButtons;
+                    const soundDataMap = new Map(soundData.map(item => [item.id, item]));
+
+                    this.buttonsData = [];
+                    for (let i = 0; i < numButtons; i++) {
+                        const data = soundDataMap.get(i) || this._getInitialButtonData(i);
+                        this.buttonsData.push(data);
+                    }
+                }
+
+                async addButton() {
+                    const nextIndex = this.buttonsData.length;
+                    const newButtonData = this._getInitialButtonData(nextIndex);
+                    this.buttonsData.push(newButtonData);
+                    // Save the new button count to the config store
+                    await this.db.save(this.db.CONFIG_KEY, {
+                        numButtons: this.buttonsData.length
+                    });
+                    this.renderAllButtons(); // Re-render to show the new button
+                }
+
+                async removeLastButton() {
+                    if (this.buttonsData.length > 1) {
+                        const lastIndex = this.buttonsData.length - 1;
+                        this.buttonsData.pop();
+                        // Clean up audio player instance
+                        if (this.players.has(lastIndex)) {
+                            const player = this.players.get(lastIndex);
+                            player.cleanup();
+                            this.players.delete(lastIndex);
+                        }
+                        await this.db.delete(lastIndex);
+                        // Save the new button count to the config store
+                        await this.db.save(this.db.CONFIG_KEY, {
+                            numButtons: this.buttonsData.length
+                        });
+                        this.renderAllButtons();
+                    }
+                }
+
+                async updateButton(index, newData) {
+                    this.buttonsData[index] = {
+                        ...this.buttonsData[index],
+                        ...newData
+                    };
+                    await this.db.save(index, this.buttonsData[index]);
+                    this.renderButton(index);
+                }
+
+                // ================================================================
+                // UI Rendering Methods
+                // ================================================================
+
+
+renderAllButtons() {
+    // Get a reference to our static control card
+    const controlCard = document.getElementById('control-card');
+
+    // WORKING ON: allow user to rearrange position of control card
+    // get control card position in grid
+    const controlCardIndex = Array.from(this.soundboardGrid.children).indexOf(controlCard);
+
+    // 1. Clear only the old sound card elements, leaving the control card alone
+    this.soundboardGrid.querySelectorAll('.sound-card:not(#control-card)').forEach(card => card.remove());
+
+    // 2. Render each button from our data
+    this.buttonsData.forEach((buttonData, index) => {
+
+        const card = this._createSoundCardElement(buttonData, index);
+        // 3. Insert the new card BEFORE the control card - we want to change this
+        this.soundboardGrid.insertBefore(card, controlCard);
+    });
+
+    // m
+}
+
+                renderButton(index) {
+                    const oldCard = this.soundboardGrid.querySelector(`[data-index="${index}"]`);
+                    if (oldCard) {
+                        const newCard = this._createSoundCardElement(this.buttonsData[index], index);
+                        this.soundboardGrid.replaceChild(newCard, oldCard);
+                    }
+                }
+
+                _createSoundCardElement(buttonData, index) {
+                    const card = document.createElement('div');
+                    card.className = 'sound-card';
+                    card.dataset.index = index;
+                    card.setAttribute('draggable', this.isRearranging); // Dynamically set draggable
+                    card.innerHTML = `
+<button class="sound-button" data-action="play" style="background-color: ${buttonData.color};">
+<div class="progress-overlay" style="width: 0%;"></div>
+<span class="button-text">${buttonData.name}</span>
+<div class="settings-triangle-btn" data-action="settings">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+<path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+</svg>
+</div>
+</button>
+<div class="sound-controls">
+<div class="slider-group">
+<label>Volume</label>
+<input type="range" min="0" max="1" step="0.01" value="${buttonData.volume}" data-action="volume-change">
+</div>
+<div class="slider-group">
+<label>Speed</label>
+<input type="range" min="0.5" max="2" step="0.1" value="${buttonData.playbackRate}" data-action="speed-change" ondblclick="this.value=1.0; this.dispatchEvent(new Event('input'))">
+</div>
+</div>
+`;
+                    return card;
+                }
+
+                // ================================================================
+                // Event Handling and Playback Logic
+                // ================================================================
+
+                attachGlobalEventListeners() {
+                    // Use a single event listener on the main grid for delegation
+                    this.soundboardGrid.addEventListener('click', (event) => this.handleGridClick(event));
+                    this.soundboardGrid.addEventListener('input', (event) => this.handleSliderChange(event));
+
+                    // Drag and drop listeners
+                    this.soundboardGrid.addEventListener('dragstart', (e) => this.handleDragStart(e));
+                    this.soundboardGrid.addEventListener('dragover', (e) => this.handleDragOver(e));
+                    this.soundboardGrid.addEventListener('dragenter', (e) => this.handleDragEnter(e));
+                    this.soundboardGrid.addEventListener('dragleave', (e) => this.handleDragLeave(e));
+                    this.soundboardGrid.addEventListener('drop', (e) => this.handleDrop(e));
+                    this.soundboardGrid.addEventListener('dragend', (e) => this.handleDragEnd(e));
+
+                    // Global control buttons
+                    document.getElementById('add-btn-plus').addEventListener('click', () => this.addButton());
+document.getElementById('remove-button-modal').addEventListener('click', () => this._handleRemoveButton());
+
+
+                    document.getElementById('rearrange-mode-btn').addEventListener('click', () => this.toggleRearrangeMode());
+                    document.getElementById('download-config-btn').addEventListener('click', () => this.downloadConfig());
+                    document.getElementById('upload-config-btn').addEventListener('click', () => document.getElementById('upload-config-input').click());
+                    document.getElementById('upload-config-input').addEventListener('change', (e) => this.uploadConfig(e));
+                    document.getElementById('db-manager-btn').addEventListener('click', () => this.showDbManagerModal());
+
+                    // Modals
+                    document.getElementById('settings-modal').addEventListener('click', (event) => {
+                        if (event.target.id === 'settings-modal') this.closeSettingsModal();
+                    });
+                    document.getElementById('db-manager-modal').addEventListener('click', (event) => {
+                        if (event.target.id === 'db-manager-modal') this.closeDbManagerModal();
+                    });
+                    document.getElementById('clear-database-btn').addEventListener('click', () => this.handleClearDatabase());
+
+                    // Settings Modal specific inputs
+                    document.getElementById('button-name-input').addEventListener('input', (e) => this.updateModalButtonData('name', e.target.value));
+                    document.getElementById('button-color-picker').addEventListener('input', (e) => this.updateModalButtonData('color', e.target.value));
+                    document.getElementById('color-swatch').addEventListener('click', () => document.getElementById('button-color-picker').click());
+                    document.getElementById('add-file-input').addEventListener('change', (e) => this.addFilesToModalButton(e));
+                    document.getElementById('clear-files-btn').addEventListener('click', () => this.clearModalButtonFiles());
+                    document.getElementById('shuffle-checkbox').addEventListener('change', (e) => this.updateModalButtonData('shuffle', e.target.checked));
+                    document.getElementById('autoplay-checkbox').addEventListener('change', (e) => this.updateModalButtonData('autoplay', e.target.checked));
+                    document.getElementById('file-list').addEventListener('click', (e) => {
+                        if (e.target.tagName === 'BUTTON') this.removeFileFromModalButton(e);
+                    });
+                }
+
+                handleGridClick(event) {
+                    if (this.isRearranging) return;
+                    const card = event.target.closest('.sound-card');
+                    if (!card) return;
+                    const index = parseInt(card.dataset.index);
+
+                    // FIX: Find the closest parent with a data-action attribute
+                    const actionElement = event.target.closest('[data-action]');
+                    if (!actionElement) return;
+                    const action = actionElement.dataset.action;
+
+                    switch (action) {
+                        case 'play':
+                            this.togglePlay(index);
+                            break;
+                        case 'settings':
+                            this.openSettingsModal(index);
+                            break;
+                    }
+                }
+
+                handleSliderChange(event) {
+                    const card = event.target.closest('.sound-card');
+                    if (!card) return;
+                    const index = parseInt(card.dataset.index);
+                    const action = event.target.dataset.action;
+                    const value = parseFloat(event.target.value);
+                    const buttonData = this.buttonsData[index];
+                    const player = this._getAudioPlayer(index);
+                    switch (action) {
+                        case 'volume-change':
+                            buttonData.volume = value;
+                            player.audio.volume = value;
+                            break;
+                        case 'speed-change':
+                            buttonData.playbackRate = value;
+                            player.audio.playbackRate = value;
+                            break;
+                    }
+                    this.db.save(index, buttonData);
+                }
+
+                handleDragStart(event) {
+                    if (!this.isRearranging) return;
+                    this.draggedItem = event.target.closest('.sound-card');
+                    event.dataTransfer.effectAllowed = 'move';
+                    event.dataTransfer.setData('text/plain', this.draggedItem.dataset.index);
+                    setTimeout(() => {
+                        this.draggedItem.classList.add('dragging');
+                    }, 0);
+                }
+
+                handleDragOver(event) {
+                    event.preventDefault(); // This is essential to allow a drop
+                }
+
+                handleDragEnter(event) {
+                    if (!this.isRearranging) return;
+                    const targetCard = event.target.closest('.sound-card');
+                    if (targetCard && targetCard !== this.draggedItem) {
+                        targetCard.classList.add('drag-over');
+                    }
+                }
+
+                handleDragLeave(event) {
+                    const targetCard = event.target.closest('.sound-card');
+                    if (targetCard && targetCard !== this.draggedItem) {
+                        // Check if the drag is truly leaving the drop target, not just moving to a child element.
+                        // This prevents the class from being removed prematurely.
+                        if (!targetCard.contains(event.relatedTarget)) {
+                            targetCard.classList.remove('drag-over');
+                        }
+                    }
+                }
+
+                async handleDrop(event) {
+                    event.preventDefault();
+                    if (!this.isRearranging || !this.draggedItem) return;
+                    const targetCard = event.target.closest('.sound-card');
+                    if (targetCard && targetCard !== this.draggedItem) {
+                        const fromIndex = parseInt(this.draggedItem.dataset.index);
+                        const toIndex = parseInt(targetCard.dataset.index);
+
+                        // Use a temporary array for swapping
+                        const buttonsToSave = [...this.buttonsData];
+                        const [draggedData] = buttonsToSave.splice(fromIndex, 1);
+                        buttonsToSave.splice(toIndex, 0, draggedData);
+
+                        // 🐛 FIX: Update the 'id' of each button to match its new index
+                        // This is crucial for the database to save the new order correctly.
+                        buttonsToSave.forEach((button, index) => {
+                            button.id = index;
+                        });
+
+                        // Update in-memory state
+                        this.buttonsData = buttonsToSave;
+
+                        // Save the entire rearranged array to the database
+                        // It's a good idea to first clear the existing data to avoid
+                        // orphaned records before saving the new arrangement.
+                        await this.db.clear(); // Clear all data from both stores
+                        for (const item of this.buttonsData) {
+                            await this.db.save(item.id, item);
+                        }
+                        // Also save the updated button count
+                        await this.db.save(this.db.CONFIG_KEY, { numButtons: this.buttonsData.length });
+
+
+                        // Re-render the grid
+                        this.renderAllButtons();
+                    }
+                }
+
+                handleDragEnd() {
+                    if (this.draggedItem) {
+                        this.draggedItem.classList.remove('dragging');
+                        this.draggedItem = null;
+                        this.soundboardGrid.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                    }
+                }
+
+                toggleRearrangeMode() {
+                    this.isRearranging = !this.isRearranging;
+                    const btn = document.getElementById('rearrange-mode-btn');
+                    const grid = document.getElementById('soundboard-grid');
+                    if (this.isRearranging) {
+                        btn.textContent = 'Done Rearranging';
+                        grid.classList.add('rearrange-mode');
+                        this.buttonsData.forEach((_, index) => {
+                            const card = grid.querySelector(`[data-index="${index}"]`);
+                            if (card) {
+                                card.setAttribute('draggable', 'true');
+                            }
+                        });
+                    } else {
+                        btn.textContent = 'Rearrange';
+                        grid.classList.remove('rearrange-mode');
+                        this.buttonsData.forEach((_, index) => {
+                            const card = grid.querySelector(`[data-index="${index}"]`);
+                            if (card) {
+                                card.setAttribute('draggable', 'false');
+                            }
+                        });
+                    }
+                }
+
+                async togglePlay(index) {
+                    const buttonData = this.buttonsData[index];
+                    const player = this._getAudioPlayer(index);
+                    if (buttonData.files.length === 0) return;
+
+                    if (player.isPlaying) {
+                        player.cleanup();
+                        player.playback.currentFileIndex++
+                        if (player.playback.currentFileIndex >= buttonData.files.length) { player.playback.currentFileIndex = 0 }
+                    } else {
+                        this.playFile(index, buttonData.shuffle ? getRandom(0, buttonData.files.length) : player.playback.currentFileIndex);
+                    }
+                }
+
+
+
+                async playFile(buttonIndex, fileIndex) {
+                    console.log(`buttonIndex: ${buttonIndex} \n fileIndex: ${fileIndex}`)
+                    const buttonData = this.buttonsData[buttonIndex];
+                    const player = this._getAudioPlayer(buttonIndex);
+                    const actualFileIndex = buttonData.shuffle ? getRandom(0, buttonData.files.length) : fileIndex;
+                    const fileData = buttonData.files[actualFileIndex];
+                    if (!fileData) {
+                        console.error("No file found at index:", actualFileIndex);
+                        return;
+                    }
+                    player.cleanup();
+                    const blob = new Blob([fileData.arrayBuffer], {
+                        type: fileData.mimeType
+                    });
+                    player.audio.src = URL.createObjectURL(blob);
+                    player.audio.volume = buttonData.volume;
+                    player.audio.playbackRate = buttonData.playbackRate;
+                    player.audio.play().catch(e => console.error("Playback error:", e));
+                }
+
+                _getAudioPlayer(index) {
+                    let player = this.players.get(index);
+                    if (!player) {
+                        const audio = new Audio();
+                        player = new AudioPlayer(audio);
+                        this.players.set(index, player);
+                        audio.onended = async () => {
+                            const buttonData = this.buttonsData[index];
+                            if (buttonData.loop) {
+                                this.playFile(index, player.playback.currentFileIndex);
+                            } else {
+                                player.playback.currentFileIndex++;
+                                if (player.playback.currentFileIndex >= buttonData.files.length) {
+                                    player.playback.currentFileIndex = 0;
+                                }
+                                // don't play the next file unless autoplay is on
+                                if (buttonData.autoplay) {
+                                    const fileIndex = buttonData.shuffle ? getRandom(0, buttonData.files.length) : player.playback.currentFileIndex;
+                                    this.playFile(index, fileIndex);
+                                }
+                            }
+                        };
+                    }
+                    const card = this.soundboardGrid.querySelector(`[data-index="${index}"]`);
+                    if (card) {
+                        player.progressOverlay = card.querySelector('.progress-overlay');
+                    }
+                    return player;
+                }
+                _getInitialButtonData(index) {
+                    return {
+                        id: index,
+                        name: `Button ${index + 1}`,
+                        color: "#3bb273",
+                        volume: 1.0,
+                        playbackRate: 1.0,
+                        shuffle: false,
+                        loop: false,
+                        files: []
+                    };
+                }
+
+                _shuffleArray(array) {
+                    for (let i = array.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [array[i], array[j]] = [array[j], array[i]];
+                    }
+                    return array;
+                }
+
+                // ================================================================
+                // Settings Modal Methods
+                // ================================================================
+
+                openSettingsModal(index) {
+                    this.activeModalIndex = index;
+                    const buttonData = this.buttonsData[index];
+                    const modal = document.getElementById('settings-modal');
+                    document.getElementById('button-name-input').value = buttonData.name;
+                    document.getElementById('button-color-picker').value = buttonData.color;
+                    document.getElementById('color-swatch').style.backgroundColor = buttonData.color;
+                    document.getElementById('shuffle-checkbox').checked = buttonData.shuffle;
+                    document.getElementById('autoplay-checkbox').checked = buttonData.autoplay;
+                    this._renderFileList(buttonData.files);
+                    modal.style.display = 'flex';
+                }
+
+                closeSettingsModal() {
+                    const modal = document.getElementById('settings-modal');
+                    modal.style.display = 'none';
+                    this.activeModalIndex = null;
+                }
+
+                updateModalButtonData(key, value) {
+                    if (this.activeModalIndex !== null) {
+                        const buttonData = this.buttonsData[this.activeModalIndex];
+                        buttonData[key] = value;
+                        this.updateButton(this.activeModalIndex, buttonData);
+                    }
+                    if (key === 'color') {
+                        document.getElementById('color-swatch').style.backgroundColor = value;
+                    }
+                }
+
+                _renderFileList(files) {
+                    const fileListElement = document.getElementById('file-list');
+                    fileListElement.innerHTML = '';
+                    if (files.length === 0) {
+                        const emptyItem = document.createElement('li');
+                        emptyItem.innerHTML = '<small>No files added yet.</small>';
+                        fileListElement.appendChild(emptyItem);
+                        return;
+                    }
+                    files.forEach((file, index) => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `
+                            <span>${file.fileName}</span>
+                            <button data-file-index="${index}">Remove</button>
+                        `;
+                        fileListElement.appendChild(listItem);
+                    });
+                }
+
+                async addFilesToModalButton(event) {
+                    if (this.activeModalIndex === null) return;
+                    const files = event.target.files;
+                    if (files.length === 0) return;
+                    const buttonData = this.buttonsData[this.activeModalIndex];
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const arrayBuffer = await file.arrayBuffer();
+                        const fileData = {
+                            fileName: file.name,
+                            mimeType: file.type,
+                            arrayBuffer: arrayBuffer
+                        };
+                        buttonData.files.push(fileData);
+                    }
+                    await this.updateButton(this.activeModalIndex, buttonData);
+                    this._renderFileList(buttonData.files);
+                }
+
+                async clearModalButtonFiles() {
+                    const confirmed = await this.showConfirmModal("Are you sure you want to clear all audio files for this button?");
+                    if (confirmed && this.activeModalIndex !== null) {
+                        const buttonData = this.buttonsData[this.activeModalIndex];
+                        const player = this._getAudioPlayer(this.activeModalIndex);
+                        player.cleanup(); // New line to handle player cleanup
+                        buttonData.files = [];
+                        await this.db.save(this.activeModalIndex, buttonData);
+                        this._renderFileList(buttonData.files);
+                    }
+                }
+
+                async removeFileFromModalButton(event) {
+                    const fileIndex = parseInt(event.target.dataset.fileIndex);
+                    if (this.activeModalIndex !== null && !isNaN(fileIndex)) {
+                        const buttonData = this.buttonsData[this.activeModalIndex];
+                        const player = this._getAudioPlayer(this.activeModalIndex);
+                        player.cleanup();
+                        // Remove the file from the array
+                        buttonData.files.splice(fileIndex, 1);
+                        // Reset the current playback index
+                        player.playback.currentFileIndex = 0;
+                        await this.db.save(this.activeModalIndex, buttonData);
+                        this._renderFileList(buttonData.files);
+                    }
+                }
+
+                // ================================================================
+                // Global Functionality Methods
+                // ================================================================
+
+                async _handleRemoveButton() {
+                    if (this.activeModalIndex === null) return;
+
+                    const confirmed = await this.showConfirmModal(
+                        "Are you sure you want to permanently remove this button?"
+                    );
+
+                    if (confirmed) {
+                        await this.removeButton(this.activeModalIndex);
+                    }
+                }
+
+
+                async removeButton(indexToRemove) {
+                    if (this.buttonsData.length <= 1) {
+                        alert("You cannot remove the last button.");
+                        return;
+                    }
+
+                    // 1. Remove from the main data array
+                    this.buttonsData.splice(indexToRemove, 1);
+
+                    // 2. Clean up the associated audio player to prevent memory leaks
+                    if (this.players.has(indexToRemove)) {
+                        this.players.get(indexToRemove).cleanup();
+                        this.players.delete(indexToRemove);
+                    }
+
+                    // 3. Re-sync with the database. It's safest to clear and re-write
+                    //    to ensure all IDs are updated correctly.
+                    await this.db.clear(); // This clears BOTH stores
+
+                    // Re-save all remaining buttons, ensuring their IDs match their new index
+                    for (let i = 0; i < this.buttonsData.length; i++) {
+                        const button = this.buttonsData[i];
+                        button.id = i; // Re-assign the ID to the new index
+                        await this.db.save(button.id, button);
+                    }
+
+                    // 4. Update and save the global config with the new button count
+                    await this.db.save(this.db.CONFIG_KEY, { numButtons: this.buttonsData.length });
+
+                    // 5. Close the modal and re-render the entire grid
+                    this.closeSettingsModal();
+                    this.renderAllButtons();
+                }
+
+                async downloadConfig() {
+                    const allData = await this.db.getAll();
+                    const soundboardTitle = document.getElementById('soundboard-title').textContent.trim();
+                    // Map over the data to convert ArrayBuffer to Base64
+                    const serializableData = allData.map(item => {
+                        if (item.files && item.files.length > 0) {
+                            const serializableFiles = item.files.map(file => {
+                                // Use a helper function to convert the ArrayBuffer to a Base64 string
+                                return {
+                                    ...file,
+                                    arrayBuffer: this._arrayBufferToBase64(file.arrayBuffer)
+                                };
+                            });
+                            return {
+                                ...item,
+                                files: serializableFiles
+                            };
+                        }
+                        return item;
+                    });
+                    const json = JSON.stringify(serializableData, null, 2);
+                    const blob = new Blob([json], {
+                        type: 'application/json'
+                    });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${Date.now()}_${soundboardTitle}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }
+
+                async uploadConfig(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            const confirmed = await this.showConfirmModal("This will overwrite your current soundboard configuration. Are you sure?");
+                            if (confirmed) {
+                                // Map over the uploaded data to convert Base64 back to ArrayBuffer
+                                const deserializedData = data.map(item => {
+                                    if (item.files && item.files.length > 0) {
+                                        const deserializedFiles = item.files.map(file => {
+                                            // Use a helper function to convert the Base64 string back to an ArrayBuffer
+                                            return {
+                                                ...file,
+                                                arrayBuffer: this._base64ToArrayBuffer(file.arrayBuffer)
+                                            };
+                                        });
+                                        return {
+                                            ...item,
+                                            files: deserializedFiles
+                                        };
+                                    }
+                                    return item;
+                                });
+
+                                await this.db.clear();
+                                for (const item of deserializedData) {
+                                    await this.db.save(item.id, item);
+                                }
+                                await this.loadStateFromDB();
+                                this.renderAllButtons();
+                                alert("Configuration uploaded successfully!");
+                            }
+                        } catch (e) {
+                            alert("Failed to read file. Please ensure it is a valid JSON configuration file.");
+                            console.error("Upload error:", e);
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+
+                // New helper methods for Base64 conversion
+                _arrayBufferToBase64(buffer) {
+                    let binary = '';
+                    const bytes = new Uint8Array(buffer);
+                    const len = bytes.byteLength;
+                    for (let i = 0; i < len; i++) {
+                        binary += String.fromCharCode(bytes[i]);
+                    }
+                    return btoa(binary);
+                }
+
+                _base64ToArrayBuffer(base64) {
+                    const binary_string = atob(base64);
+                    const len = binary_string.length;
+                    const bytes = new Uint8Array(len);
+                    for (let i = 0; i < len; i++) {
+                        bytes[i] = binary_string.charCodeAt(i);
+                    }
+                    return bytes.buffer;
+                }
+
+                // ================================================================
+                // Modal Manager Methods
+                // ================================================================
+
+                showDbManagerModal() {
+                    this.updateDbStats();
+                    this.updateDbFileList();
+                    document.getElementById('db-manager-modal').style.display = 'flex';
+                }
+
+                closeDbManagerModal() {
+                    document.getElementById('db-manager-modal').style.display = 'none';
+                }
+
+                async updateDbStats() {
+                    const dbSizeEl = document.getElementById('db-usage');
+                    const dbQuotaEl = document.getElementById('db-quota');
+                    const dbButtonCountEl = document.getElementById('db-button-count');
+
+                    const soundData = await this.db._dbRequest(this.db.SOUNDS_STORE, 'readonly', 'getAll');
+                    dbButtonCountEl.textContent = soundData.length;
+
+                    if (navigator.storage && navigator.storage.estimate) {
+                        const {
+                            quota,
+                            usage
+                        } = await navigator.storage.estimate();
+                        dbSizeEl.textContent = this._formatBytes(usage);
+                        dbQuotaEl.textContent = this._formatBytes(quota);
+                    } else {
+                        dbSizeEl.textContent = 'N/A';
+                        dbQuotaEl.textContent = 'N/A';
+                    }
+                }
+
+                async updateDbFileList() {
+                    const fileListEl = document.getElementById('db-file-list');
+                    const soundData = await this.db._dbRequest(this.db.SOUNDS_STORE, 'readonly', 'getAll');
+                    fileListEl.innerHTML = '';
+                    if (soundData.length === 0) {
+                        fileListEl.innerHTML = '<li><small>No sounds found.</small></li>';
+                        return;
+                    }
+
+                    soundData.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = `Button ${item.id + 1}: ${item.files.length} file(s)`;
+                        fileListEl.appendChild(li);
+                    });
+                }
+
+                async handleClearDatabase() {
+                    const confirmed = await this.showConfirmModal("This will permanently delete ALL sound data and settings. Are you sure?");
+                    if (confirmed) {
+                        try {
+                            await this.db.clear();
+                            this.buttonsData = [];
+                            this.players.clear();
+                            await this.db.save(this.db.CONFIG_KEY, {
+                                numButtons: 8
+                            });
+                            await this.loadStateFromDB();
+                            this.renderAllButtons();
+                            this.closeDbManagerModal();
+                        } catch (e) {
+                            console.error("Failed to clear database:", e);
+                        }
+                    }
+                }
+
+                showConfirmModal(message) {
+                    return new Promise(resolve => {
+                        const modal = document.getElementById('confirm-modal');
+                        const messageEl = document.getElementById('confirm-modal-message');
+                        const yesBtn = document.getElementById('confirm-yes-btn');
+                        const noBtn = document.getElementById('confirm-no-btn');
+                        messageEl.textContent = message;
+                        const handler = (e) => {
+                            if (e.target === yesBtn) resolve(true);
+                            else if (e.target === noBtn) resolve(false);
+                            yesBtn.removeEventListener('click', handler);
+                            noBtn.removeEventListener('click', handler);
+                            modal.style.display = 'none';
+                        };
+                        yesBtn.addEventListener('click', handler);
+                        noBtn.addEventListener('click', handler);
+                        modal.style.display = 'flex';
+                    });
+                }
+
+                _formatBytes(bytes, decimals = 2) {
+                    if (bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const dm = decimals < 0 ? 0 : decimals;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+                }
+            }
+
+            // Create and initialize the application
+            const app = new SoundboardManager(new SoundboardDB());
+            app.initialize();
+        });
+    </script>
+</body>
+
+</html>
