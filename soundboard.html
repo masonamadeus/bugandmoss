@@ -798,9 +798,26 @@
 
                 async initialize() {
                     await this.db.openDB();
+                    await this.requestPersistentStorage();
                     await this.loadStateFromDB();
                     this.attachGlobalEventListeners();
                     this.renderAllButtons();
+                }
+
+                async requestPersistentStorage() {
+                    if (navigator.storage && navigator.storage.persist) {
+                        const isPersisted = await navigator.storage.persisted();
+                        if (!isPersisted) {
+                            const granted = await navigator.storage.persist();
+                            if (granted) {
+                                console.log("Persistent storage granted!");
+                            } else {
+                                console.log("Persistent storage denied.");
+                            }
+                        } else {
+                            console.log("Persistent storage already granted.");
+                        }
+                    }
                 }
 
                 async loadStateFromDB() {
