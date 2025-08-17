@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!-- 
+======= TO DO ===========
+- ADD BUTTON SHOULD JUST BE A GHOST/SKELETON BUTTON AT THE BOTTOM OF THE LIST.
+- REMOVE BUTTON SHOULD BE WITHIN THE SETTINGS MODAL FOR A GIVEN BUTTON
+- MAYBE PUT CONTROL BUTTONS INSIDE THE GHOST/SKELETON BUTTON, SO THAT THE BUTTON PART IS A PLUS SIGN FOR ADDING BUTTONS
+  AND INSTEAD OF SLIDERS IT HAS THE 'REARRANGE, DOWNLOAD, UPLOAD, DATABASE MANAGER' BUTTONS
+-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -959,8 +966,6 @@
                     document.getElementById('settings-modal').addEventListener('click', (event) => {
                         if (event.target.id === 'settings-modal') this.closeSettingsModal();
                     });
-                    document.getElementById('confirm-yes-btn').addEventListener('click', () => this.resolveConfirm(true));
-                    document.getElementById('confirm-no-btn').addEventListener('click', () => this.resolveConfirm(false));
                     document.getElementById('db-manager-modal').addEventListener('click', (event) => {
                         if (event.target.id === 'db-manager-modal') this.closeDbManagerModal();
                     });
