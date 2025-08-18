@@ -1562,7 +1562,7 @@
                                     const duckedPlayerButtonData = this.buttonsData[duckedPlayerIndex];
                                     const targetVolume = duckedPlayerButtonData.volume;
                                     const slider = this._getVolumeSlider(duckedPlayerIndex);
-                                    this._lerpVolume(duckedPlayer.audio, slider, duckedPlayer.audio.volume, targetVolume, 200);
+                                    this._lerpVolume(duckedPlayer.audio, slider, duckedPlayer.audio.volume, targetVolume, duckedPlayer.fadeSpeed);
                                 });
                             }
 
