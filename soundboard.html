@@ -1199,7 +1199,7 @@
                     constructor(audioElement) {
                         this.audio = audioElement || new Audio();
                         this.isPlaying = false;
-                        this.duckAmount = 0.3;
+                        this.duckAmount = 0.4;
                         this.fadeSpeed = 200;
                         this.playback = {
                             currentFileIndex: 0,
@@ -2167,17 +2167,16 @@
                         document.getElementById('shuffle-checkbox').addEventListener('change', (e) => this.updateModalButtonData('shuffle', e.target.checked));
                         document.getElementById('autoplay-checkbox').addEventListener('change', (e) => this.updateModalButtonData('autoplay', e.target.checked));
                         document.getElementById('priority-checkbox').addEventListener('change', (e) => this.updateModalButtonData('priority', e.target.checked));
-                        document.getElementById('file-list').addEventListener('click', (e) => {
-                            if (e.target.tagName === 'BUTTON') this.removeFileFromModalButton(e);
-                        });
+                        
 
                         document.getElementById('cosmetics-btn').addEventListener('click', () => this.openCosmeticsModal());
                         document.getElementById('delete-cosmetics-key-btn').addEventListener('click', () => this.deleteCosmeticsKey());
-                        document.getElementById('cosmetics-modal').addEventListener('click', (event) => {
-                            if (event.target.id === 'cosmetics-modal') {
-                                document.getElementById('cosmetics-modal').style.display = 'none';
-                            }
-                        });
+                        document.getElementById('file-list').addEventListener('click', (e) => {
+        // If the clicked element has the 'remove-file-button' class, then act.
+        if (e.target.classList.contains('remove-file-button')) {
+            this.removeFileFromModalButton(e);
+        }
+    });
 
                         document.querySelectorAll('#cosmetics-modal input[type="color"]').forEach(input => {
                             input.addEventListener('input', (e) => {
@@ -2568,28 +2567,28 @@
                     }
 
                     _renderFileList(files) {
-                        const fileListElement = document.getElementById('file-list');
-                        fileListElement.innerHTML = '';
-                        if (files.length === 0) {
-                            const emptyItem = document.createElement('li');
-                            emptyItem.innerHTML = '<small>No files added yet.</small>';
-                            fileListElement.appendChild(emptyItem);
-                            return;
-                        }
-                        files.forEach((file, index) => {
-                            const listItem = document.createElement('li');
-                            listItem.innerHTML = `
-                            <span>${file.fileName}</span>
-                            <button data-file-index="${index}" class="remove-file-button">Remove</button>
-                        `;
-                            fileListElement.appendChild(listItem);
-                            const removeButton = listItem.querySelector('.remove-file-button');
-                            removeButton.addEventListener('click', (event) => {
-                                this.removeFileFromModalButton(event);
-                            })
-                        });
-                    }
+    const fileListElement = document.getElementById('file-list');
+    fileListElement.innerHTML = ''; // Clear the list first
 
+    if (files.length === 0) {
+        const emptyItem = document.createElement('li');
+        emptyItem.innerHTML = '<small>No files added yet.</small>';
+        fileListElement.appendChild(emptyItem);
+        return;
+    }
+
+    files.forEach((file, index) => {
+        const listItem = document.createElement('li');
+        // The button is now just part of the HTML string. The single,
+        // delegated listener on the parent list will handle its click.
+        listItem.innerHTML = `
+            <span>${file.fileName}</span>
+            <button data-file-index="${index}" class="remove-file-button">Remove</button>
+        `;
+        fileListElement.appendChild(listItem);
+        // The old, buggy addEventListener call that was here has been removed.
+    });
+}
                     async addFilesToModalButton(event) {
                         if (this.activeModalIndex === null) return;
                         const files = event.target.files;
