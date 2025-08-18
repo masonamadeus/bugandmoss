@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- TO DO 
+    - ADD LOOP FUNCTIONALITY (EASY)
+    - ADD 'TIMER CARD' TO AUTOMATICALLY PLAY US OUT
+-->
 
 <head>
     <meta charset="UTF-8">
@@ -105,7 +109,7 @@
             display: flex;
             flex-direction: column;
             gap: 1rem;
-            align-self: center;
+            align-self: start;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
@@ -280,7 +284,7 @@
             position: relative;
         }
 
-        .confirm-modal button.confirm-yes-btn {
+        .confrim-modal button.confirm-yes-btn {
             /* yeah I know this is shitty */
             background-color: var(--accent-color);
             color: #FFFFFF;
@@ -295,6 +299,12 @@
             text-align: center;
             padding: 2rem;
             max-width: 400px;
+        }
+
+        .confirm-modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
         }
 
         .modal-header {
@@ -335,33 +345,22 @@
             gap: 1rem;
         }
 
-        #button-color-picker {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    border: 2px solid var(--primary-color);
-    background-color: transparent; /* The actual color comes from the swatch inside */
-    cursor: pointer;
-    transition: border-color 0.3s ease;
-}
+        .color-swatch-container {
+            display: flex;
+            align-items: center;
+        }
 
-#button-color-picker:hover {
-    border-color: var(--highlight-color);
-}
+        .color-swatch {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--primary-color);
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
 
-/* These pseudo-elements style the color preview part of the input */
-#button-color-picker::-webkit-color-swatch-wrapper {
-    padding: 0;
-}
-#button-color-picker::-webkit-color-swatch {
-    border: none;
-}
-#button-color-picker::-moz-color-swatch {
-    border: none;
-}
+        .color-swatch:hover {
+            border-color: var(--highlight-color);
+        }
 
         .hidden {
             display: none;
@@ -417,12 +416,6 @@
 
         .file-input-container label:hover {
             filter: brightness(50%);
-        }
-
-        .modal-actions-row {
-            display: flex;
-            justify-content: space-between;
-
         }
 
         .modal-checkbox-group {
@@ -536,6 +529,24 @@
             outline: none;
         }
 
+        /* new control card */
+
+        /* Style the plus button to be big and clear */
+        #add-btn-plus {
+            font-size: 4rem;
+            font-weight: 200;
+            line-height: 1;
+            /* Helps with vertical centering */
+            background-color: var(--secondary-color) !important;
+            /* A neutral color from your palette */
+            color: var(--primary-color);
+            /* Bug Blue */
+        }
+
+        #add-btn-plus:hover {
+            background-color: #b8d2e3 !important;
+        }
+
         #control-card-actions {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -558,14 +569,6 @@
             background-color: var(--accent-color);
             color: var(--background-color);
             border-color: var(--highlight-color);
-            border-style: none;
-        }
-
-        #control-card-actions button:hover{
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
-            transform: scale(1.02);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            cursor: pointer;
         }
 
         /* New styles for the Cosmetics modal */
@@ -719,165 +722,15 @@
             filter: brightness(50%);
         }
 
-        .timer-controls .timer-buttons .start-timer-btn {
+        .timer-controls .timer-buttons #start-timer-btn {
             background-color: var(--accent-color);
             color: white;
         }
 
-        .timer-controls .timer-buttons .stop-timer-btn {
+        .timer-controls .timer-buttons #stop-timer-btn {
             background-color: var(--highlight-color);
             color: white;
         }
-
-        .timer-options-container.hidden-options {
-            display: none;
-        }
-
-        .confirm-modal-actions {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            color: var(--background-color);
-            font-weight: bold;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .add-timer-btn:hover {
-            filter: brightness(50%);
-        }
-
-        .timer-options-container.hidden-options {
-            display: none;
-        }
-
-        .timer-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-align: center;
-            color: var(--primary-color);
-            cursor: default;
-            border: 2px solid transparent;
-            /* invisible border for focus */
-            transition: border-color 0.2s ease;
-        }
-
-        .timer-title[contenteditable="true"] {
-            background-color: var(--background-color);
-            border-color: var(--highlight-color);
-            outline: none;
-            cursor: text;
-        }
-
-        .timer-options-toggle {
-            user-select: none;
-        }
-
-        /* Style the new remove timer button */
-        .remove-timer-btn {
-            width: 100%;
-            margin-bottom: 1rem;
-            font-weight: bold;
-            padding: 0.75rem;
-            margin-top: 1rem;
-            background-color: var(--highlight-color);
-            color: white;
-        }
-
-        /* UPDATED Styles for the compact Notepad Card */
-.notepad-card {
-    display: flex;
-    flex-direction: column;
-    padding: 0.5rem; /* Reduced padding on the card itself */
-    align-self: stretch;
-}
-
-.notepad-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding-bottom: 0.5rem;
-}
-
-
-.notepad-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--secondary-color);
-    flex-shrink: 0; /* Prevent tabs from shrinking */
-}
-
-.notepad-tab {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    border: 1px solid var(--secondary-color);
-    background-color: var(--background-color);
-    padding: 0.1rem 0.4rem; /* Smaller tabs */
-    cursor: pointer;
-    font-size: 0.8rem;
-    border-radius: 4px;
-}
-
-.notepad-tab-title {
-    cursor: pointer;
-    outline: none;
-    font-size: 1rem;
-    white-space: nowrap; /* Prevent title from wrapping */
-    user-select: none;
-}
-
-.notepad-tab-title[contenteditable="true"] {
-    cursor: text;
-    user-select: text
-}
-
-.add-page-btn {
-    border: 1px solid var(--secondary-color);
-    background-color: var(--background-color);
-    padding: 0.1rem 0.4rem; /* Smaller button */
-    cursor: pointer;
-    font-size: 0.8rem;
-    font-weight: bold;
-    border-radius: 4px;
-}
-
-.notepad-tab.active {
-    background-color: var(--accent-color);
-    color: white;
-    font-weight: bold;
-    border-color: var(--accent-color);
-    cursor: text;
-}
-.notepad-tab.active { color: white; }
-
-.delete-page-btn {
-    color: darkred;
-    font-weight: bold;
-    font-size: 0.9rem;
-    padding: 2px 4px;
-    border-radius: 50%;
-    line-height: 1;
-}
-.delete-page-btn:hover { background-color: rgba(0,0,0,0.2); }
-
-.notepad-content {
-    flex-grow: 1;
-    width: 100%;
-    border: none;
-    background-color: var(--background-color);
-    padding: 0.5rem;
-    font-family: sans-serif;
-    font-size: 1rem;
-    color: var(--primary-color);
-    resize: vertical;
-    box-sizing: border-box;
-}
-.notepad-content:focus { outline: 1px solid var(--highlight-color); }
     </style>
 </head>
 
@@ -888,74 +741,52 @@
 
 
         <div id="soundboard-grid" class="soundboard-grid">
-        </div>
 
-    </div>
-
-    <template id="notepad-card-template">
-    <div class="sound-card special-function-card notepad-card">
-        <div class="notepad-tabs">
-            <button class="add-page-btn">+</button>
-        </div>
-        <textarea class="notepad-content" placeholder="Type your notes here..."></textarea>
-    </div>
-</template>
-
-    <template id="timer-card-template">
-        <div class="sound-card special-function-card timer-card">
-            <div class="timer-title" contenteditable="false">New Timer</div>
-            <div class="timer-display">00:00</div>
-            <div class="timer-controls">
-                <div class="timer-options-toggle">
-                    <label>
-                        <input type="checkbox" class="hide-timer-options-toggle" value="false">
-                        Lock Timer Settings
-                    </label>
-                </div>
-                <div class="timer-options-container">
+            <div class="sound-card special-function-card" id="timer-card">
+                <div id="timer-display" class="timer-display">00:00</div>
+                <div class="timer-controls">
                     <div class="slider-group">
-                        <label>Minutes:</label>
-                        <input type="range" class="timer-minutes-range" min="0" max="60" value="0">
-                        <span class="timer-minutes-value">0</span>
+                        <label for="timer-minutes-range">Minutes:</label>
+                        <input type="range" id="timer-minutes-range" min="0" max="60" value="0">
+                        <span id="timer-minutes-value">0</span>
                     </div>
                     <div class="slider-group">
-                        <label>Seconds:</label>
-                        <input type="range" class="timer-seconds-range" min="0" max="59" value="0">
-                        <span class="timer-seconds-value">0</span>
+                        <label for="timer-seconds-range">Seconds:</label>
+                        <input type="range" id="timer-seconds-range" min="0" max="59" value="0">
+                        <span id="timer-seconds-value">0</span>
                     </div>
                     <div class="timer-sound-select">
-                        <label>Start with:</label>
-                        <select class="timer-start-sound"></select>
+                        <label for="timer-start-sound">Play on Start:</label>
+                        <select id="timer-start-sound"></select>
                     </div>
                     <div class="timer-sound-select">
-                        <label>End with:</label>
-                        <select class="timer-end-sound"></select>
+                        <label for="timer-end-sound">Play on End:</label>
+                        <select id="timer-end-sound"></select>
                     </div>
-                    <button class="remove-timer-btn danger">Remove Timer</button>
-                </div>
-                <div class="timer-buttons">
-                    <button class="start-timer-btn">Start</button>
-                    <button class="stop-timer-btn">Reset</button>
+                    <div class="timer-buttons">
+                        <button id="start-timer-btn">Start</button>
+                        <button id="stop-timer-btn">Stop</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </template>
 
-    <div id="control-card" class="sound-card special-function-card" data-card-type="control" data-card-id="control-card"
-        style="display: none;">
-        <div id="control-card-actions">
-            <button id="add-btn-plus" title="Add a new button" class="span-two-columns">Add Sound</button>
-            <button id="add-timer-btn">Add Timer</button>
-            <button id="add-notepad-btn">Add Note</button>
-            <button id="rearrange-mode-btn" style="background-color:var(--highlight-color)"
-                class="span-two-columns">Rearrange</button>
-            <button id="upload-config-btn">Upload</button>
-            <button id="db-manager-btn">Storage</button>
-            <button id="download-config-btn">Download</button>
-            <button id="cosmetics-btn">Cosmetics</button>
+
+
+            <div id="control-card" class="sound-card special-function-card">
+                <button id="add-btn-plus" class="sound-button" title="Add a new button">+</button>
+                <div id="control-card-actions">
+                    <button id="rearrange-mode-btn" style="background-color:var(--highlight-color)"
+                        class="span-two-columns">Rearrange</button>
+                    <button id="upload-config-btn">Upload</button>
+                    <button id="db-manager-btn">Storage</button>
+                    <button id="download-config-btn">Download</button>
+                    <button id="cosmetics-btn">Cosmetics</button>
+                </div>
+            </div>
+
         </div>
+
     </div>
-
 
     <input type="file" id="upload-config-input" accept="application/json" style="display: none;">
 
@@ -974,12 +805,13 @@
 
 
             <div class="modal-section">
-    <h3>Button Settings</h3>
-    <div class="title-and-color">
-        <input type="color" id="button-color-picker">
-        <input type="text" style="font-size: 1rem;" id="button-name-input">
-    </div>
-</div>
+                <h3>Button Settings</h3>
+                <div class="title-and-color">
+                    <input type="color" id="button-color-picker" class="hidden">
+                    <div id="color-swatch" class="color-swatch"></div>
+                    <input type="text" style="font-size: 1rem;" id="button-name-input">
+                </div>
+            </div>
 
 
             <div class="modal-section">
@@ -997,6 +829,7 @@
                         Priority
                     </label>
 
+                    <button id="remove-button-modal" style="margin-left:auto" class="danger">Delete</button>
                 </div>
             </div>
 
@@ -1007,12 +840,10 @@
                     <input type="file" id="add-file-input" accept="audio/*" multiple style="display: none;">
                 </div>
                 <ul id="file-list" class="file-list"></ul>
-                <div class="modal-actions-row">
-                    <button id="remove-button-modal" class="danger">Delete Button</button>
-                    <button id="clear-files-btn"
+
+                <button id="clear-files-btn"
                     style="margin-left:auto; background-color:var(--highlight-color); color:var(--primary-color)">Clear
                     All</button>
-                </div>
             </div>
 
 
@@ -1054,6 +885,9 @@
 
     <div id="cosmetics-modal" class="modal">
         <div class="modal-content">
+            <div class="modal-header">
+                <h3>Cosmetics</h3>
+            </div>
             <div class="modal-section">
                 <h4>Font Selection</h4>
                 <label for="font-input">Enter a font name:</label>
@@ -1089,12 +923,30 @@
                         <input type="color" id="highlight-color-picker" data-css-var="--highlight-color">
                         <label for="highlight-color-picker">Highlight</label>
                     </div>
-                    <button id="delete-cosmetics-key-btn" class="danger">Reset Appearance</button>
+                    <button id="delete-cosmetics-key-btn" class="danger">Delete All Custom Settings</button>
                 </div>
             </div>
         </div>
 
         <script>
+
+            function lerpVolume(audio, from, to, duration) {
+                const start = performance.now();
+
+                function step(now) {
+                    const t = Math.min((now - start) / duration, 1); // 0 → 1
+                    audio.volume = from + (to - from) * t;           // linear interpolation
+
+                    if (t < 1) {
+                        requestAnimationFrame(step);
+                    }
+                }
+
+                requestAnimationFrame(step);
+            }
+
+            // don't fucking judge me I'm lazy
+
             function loadGoogleFonts(fontNames) {
                 if (!fontNames || fontNames.length === 0) {
                     console.warn("No font names provided to loadGoogleFonts.");
@@ -1118,23 +970,14 @@
                 }
 
                 function randomButNot(min, max, notThis) {
+                    let value;
+
                     const minCeiled = Math.ceil(min);
                     const maxFloored = Math.floor(max);
 
-                    // If the range of possible numbers is 1 or less,
-                    // we might get an infinite loop.
-                    if (maxFloored - minCeiled <= 1) {
-                        // If the only possible value is the one we're trying to avoid,
-                        // we have no choice but to return it (or a default).
-                        if (minCeiled === notThis) {
-                            // This scenario should be handled based on desired behavior.
-                            // Returning `notThis` is one option, returning null is another.
-                            return notThis;
-                        }
-                        return minCeiled;
-                    }
+                    // IN CASE MAX IS 1 AND MIN IS 0 SINCE THIS IS FOR SHUFFLING
+                    if ((maxFloored - 1) - minCeiled == 0) { return 0; }
 
-                    let value;
                     do {
                         value = getRandom(min, max);
                     } while (value === notThis);
@@ -1203,12 +1046,13 @@
 
                 // ====================================================================
                 // SECTION: Database Manager Class
+                // Handles all IndexedDB interactions in a clean, encapsulated way.
                 // ====================================================================
 
                 class SoundboardDB {
                     constructor() {
                         this.DB_NAME = 'BugAndMossSoundboardDB';
-                        this.DB_VERSION = 7; // INCREMENT THE DB VERSION TO TRIGGER ONUPGRADENEEDED
+                        this.DB_VERSION = 6; // INCREMENT THE DB VERSION TO TRIGGER ONUPGRADENEEDED
                         this.SOUNDS_STORE = 'sounds';
                         this.CONFIG_STORE = 'config';
                         this.CONFIG_KEY = 'global-config';
@@ -1261,10 +1105,11 @@
 
                     async save(id, data) {
                         const storeName = typeof id === 'number' ? this.SOUNDS_STORE : this.CONFIG_STORE;
-                        const saveData = { id, ...(data.id !== undefined ? data : { ...data, id }) };
-                        return this._dbRequest(storeName, 'readwrite', 'put', saveData);
+                        return this._dbRequest(storeName, 'readwrite', 'put', {
+                            id,
+                            ...data
+                        });
                     }
-
 
                     async get(id) {
                         const storeName = typeof id === 'number' ? this.SOUNDS_STORE : this.CONFIG_STORE;
@@ -1288,267 +1133,34 @@
                     }
                 }
 
-                
-
-class NotepadCard {
-    constructor(element, soundboardManager, dbInstance) {
-        this.cardElement = element;
-        this.soundboardManager = soundboardManager;
-        this.db = dbInstance;
-        this.id = parseInt(this.cardElement.dataset.cardId);
-
-        // DOM Elements
-        this.contentElement = this.cardElement.querySelector('.notepad-content');
-        this.tabsContainer = this.cardElement.querySelector('.notepad-tabs');
-        this.addPageButton = this.cardElement.querySelector('.add-page-btn');
-        
-        // state
-        this.pages = [{ title: 'New Note', content: '' }];
-        this.currentPageIndex = 0;
-        this.height = null;
-
-        this.attachListeners();
-        this.loadState();
-    }
-
-    attachListeners() {
-        this.contentElement.addEventListener('input', () => {
-            this.pages[this.currentPageIndex].content = this.contentElement.value;
-            this.saveState();
-        });
-
-        this.contentElement.addEventListener('mouseup', () => {
-        // Only save if a height style was actually set by resizing
-        if (this.contentElement.style.height) {
-            this.height = this.contentElement.style.height;
-            this.saveState();
-        }
-    });
-
-        this.addPageButton.addEventListener('click', () => this.addPage());
-        
-        this.tabsContainer.addEventListener('click', (e) => {
-        // First, handle the delete button action
-        if (e.target.classList.contains('delete-page-btn')) {
-            const tab = e.target.closest('.notepad-tab');
-            if (tab) {
-                this.deletePage(parseInt(tab.dataset.pageIndex));
-            }
-            return; // Stop processing
-        }
-
-        // Now, handle the page switch action
-        const tabToSwitchTo = e.target.closest('.notepad-tab');
-        if (tabToSwitchTo) {
-            const targetIndex = parseInt(tabToSwitchTo.dataset.pageIndex);
-            
-            // Only switch pages if the clicked tab is not already the active one.
-            if (targetIndex !== this.currentPageIndex) {
-                this.switchPage(targetIndex);
-            }
-            // If it IS the active tab, we do nothing, which lets you click to edit the title.
-        }
-    });
-
-        this.tabsContainer.addEventListener('input', (e) => {
-            if (e.target.classList.contains('notepad-tab-title')) {
-                const tab = e.target.closest('.notepad-tab');
-                const pageIndex = parseInt(tab.dataset.pageIndex);
-                this.pages[pageIndex].title = e.target.textContent;
-                this.saveState();
-            }
-        });
-    }
-
-    async loadState() {
-    const state = await this.db.get(`notepad-${this.id}`);
-    if (state) {
-        this.pages = state.pages.map(p => ({ title: 'Note', content: '', ...p }));
-        this.currentPageIndex = state.currentPageIndex;
-        this.height = state.height || null; // UPDATED: Load the card's height
-    }
-    this.render();
-}
-
-async saveState() {
-    const state = {
-        pages: this.pages,
-        currentPageIndex: this.currentPageIndex,
-        height: this.height // UPDATED: Save the card's height
-    };
-    await this.db.save(`notepad-${this.id}`, state);
-}
-    
-    addPage() {
-        this.pages.push({ title: 'New Note', content: '' });
-        this.currentPageIndex = this.pages.length - 1;
-        this.render();
-        this.saveState();
-    }
-
-    deletePage(index) {
-    // If there is more than one page, just delete the page
-    if (this.pages.length > 1) {
-        this.pages.splice(index, 1);
-        if (this.currentPageIndex >= index) {
-            this.currentPageIndex = Math.max(0, this.currentPageIndex - 1);
-        }
-        this.render();
-        this.saveState();
-    } else {
-        // If it's the last page, delete the entire note card
-        this.soundboardManager.removeNotepad(this.id);
-    }
-}
-    
-    switchPage(index) {
-        if (index >= 0 && index < this.pages.length) {
-            this.currentPageIndex = index;
-            this.render();
-            this.saveState();
-        }
-    }
-
-    render() {
-    const currentPage = this.pages[this.currentPageIndex];
-    this.contentElement.value = currentPage.content;
-    
-    if (this.height) {
-        this.contentElement.style.height = this.height;
-    } else {
-        this.contentElement.style.height = '';
-    }
-    
-    this.tabsContainer.querySelectorAll('.notepad-tab').forEach(tab => tab.remove());
-    
-    this.pages.forEach((page, index) => {
-        const tab = document.createElement('div');
-        tab.className = 'notepad-tab';
-        tab.dataset.pageIndex = index;
-
-        const tabTitle = document.createElement('span');
-        tabTitle.className = 'notepad-tab-title';
-        tabTitle.textContent = page.title;
-        
-        // UPDATED: Explicitly use strings for contentEditable for better compatibility
-        tabTitle.contentEditable = (index === this.currentPageIndex) ? 'true' : 'false';
-        
-        const deleteBtn = document.createElement('span');
-        deleteBtn.className = 'delete-page-btn';
-        deleteBtn.textContent = 'x';
-        
-        tab.appendChild(tabTitle);
-        tab.appendChild(deleteBtn);
-
-        if (index === this.currentPageIndex) {
-            tab.classList.add('active');
-        }
-        this.tabsContainer.insertBefore(tab, this.addPageButton);
-    });
-}
-}
 
                 class TimerCard {
-                    constructor(element, soundboardManager, dbInstance) {
-                        // Pass a reference to the main manager and the element to access its methods
-                        this.cardElement = element;
+                    constructor(soundboardManager) {
+                        // Pass a reference to the main manager to access its methods
                         this.soundboardManager = soundboardManager;
-                        this.db = dbInstance;
-                        this.id = parseInt(this.cardElement.dataset.timerId);
-
-                        this.timerTitle = this.cardElement.querySelector('.timer-title');
-                        this.timerDisplay = this.cardElement.querySelector('.timer-display');
-                        this.startTimerBtn = this.cardElement.querySelector('.start-timer-btn');
-                        this.stopTimerBtn = this.cardElement.querySelector('.stop-timer-btn');
-                        this.removeTimerBtn = this.cardElement.querySelector('.remove-timer-btn');
-
-                        this.timerStartSoundSelect = this.cardElement.querySelector('.timer-start-sound');
-                        this.timerEndSoundSelect = this.cardElement.querySelector('.timer-end-sound');
-                        this.timerMinutesRange = this.cardElement.querySelector('.timer-minutes-range');
-                        this.timerSecondsRange = this.cardElement.querySelector('.timer-seconds-range');
-                        this.timerMinutesValue = this.cardElement.querySelector('.timer-minutes-value');
-                        this.timerSecondsValue = this.cardElement.querySelector('.timer-seconds-value');
-                        this.hideOptionsToggle = this.cardElement.querySelector('.hide-timer-options-toggle');
-                        this.optionsContainer = this.cardElement.querySelector('.timer-options-container');
-
+                        this.timerCard = document.getElementById('timer-card');
+                        this.timerDisplay = document.getElementById('timer-display');
+                        this.startTimerBtn = document.getElementById('start-timer-btn');
+                        this.stopTimerBtn = document.getElementById('stop-timer-btn');
+                        this.timerStartSoundSelect = document.getElementById('timer-start-sound');
+                        this.timerEndSoundSelect = document.getElementById('timer-end-sound');
+                        this.timerMinutesRange = document.getElementById('timer-minutes-range');
+                        this.timerSecondsRange = document.getElementById('timer-seconds-range');
+                        this.timerMinutesValue = document.getElementById('timer-minutes-value');
+                        this.timerSecondsValue = document.getElementById('timer-seconds-value');
                         this.timerInterval = null;
-                        this.timerCountdown = 0; // This will be set on load or via sliders
-                        this.isTimerRunning = false; // Add a state flag for clarity
-
-                        // fancy outro logic
-                        this.hasPlayedEndSound = false;
-                        this.preloadedEndSound = null;
-
+                        this.timerCountdown = 0;
+                        this.timerDuration = 0;
                         this.attachListeners();
-                        this.loadTimerState(); // Call the new loading function
                     }
 
                     attachListeners() {
-                        this.startTimerBtn.addEventListener('click', () => this.startTimer(false));
-                        this.stopTimerBtn.addEventListener('click', () => this.stopTimer(false));
-                        // REFACTOR: The remove button now calls the manager, which handles all state and UI updates.
-                        this.removeTimerBtn.addEventListener('click', () => this.soundboardManager.removeTimer(this.id));
+                        this.startTimerBtn.addEventListener('click', this.startTimer.bind(this));
+                        this.stopTimerBtn.addEventListener('click', this.stopTimer.bind(this));
                         this.timerMinutesRange.addEventListener('input', this.updateTimerDisplay.bind(this));
                         this.timerSecondsRange.addEventListener('input', this.updateTimerDisplay.bind(this));
-                        this.hideOptionsToggle.addEventListener('change', () => {
-                            const isShowing = this.hideOptionsToggle.checked;
-                            this.optionsContainer.classList.toggle('hidden-options', isShowing);
-                            this.timerTitle.contentEditable = !isShowing;
-                            this.saveTimerState();
-                        });
-                        // Save state on change
-                        this.cardElement.addEventListener('input', () => this.saveTimerState());
-                        this.timerStartSoundSelect.addEventListener('change', () => this.saveTimerState());
-                        this.timerEndSoundSelect.addEventListener('change', () => this.saveTimerState());
-                    }
-
-                    async saveTimerState() {
-                        const state = {
-                            title: this.timerTitle.textContent,
-                            minutes: this.timerMinutesRange.value,
-                            seconds: this.timerSecondsRange.value,
-                            startSound: this.timerStartSoundSelect.value,
-                            endSound: this.timerEndSoundSelect.value,
-                            optionsHidden: this.hideOptionsToggle.checked,
-                            countdown: this.timerCountdown, // Save the current countdown
-                            isTimerRunning: this.isTimerRunning, // Save the running state
-                            hasPlayedEndSound: this.hasPlayedEndSound,
-                            preloadedEndSound: this.preloadedEndSound
-                        };
-                        this.db.save(`timer-${this.id}`, state);
-                    }
-
-                    async loadTimerState() {
-                        const state = await this.db.get(`timer-${this.id}`);
-                        if (state) {
-                            // Explicitly apply the loaded values to the UI elements
-                            this.timerTitle.textContent = state.title;
-                            this.timerMinutesRange.value = state.minutes;
-                            this.timerSecondsRange.value = state.seconds;
-                            this.timerMinutesValue.textContent = state.minutes;
-                            this.timerSecondsValue.textContent = state.seconds;
-                            this.timerStartSoundSelect.value = state.startSound;
-                            this.timerEndSoundSelect.value = state.endSound;
-                            this.hideOptionsToggle.checked = state.optionsHidden;
-                            this.optionsContainer.classList.toggle('hidden-options', state.optionsHidden);
-                            this.timerTitle.contentEditable = !state.optionsHidden;
-                            this.hasPlayedEndSound = state.hasPlayedEndSound;
-                            this.preloadedEndSound = state.preloadedEndSound;
-
-                            // Set the countdown from the loaded state
-                            // If the timer was running, resume from the saved countdown
-                            if (state.isTimerRunning && state.countdown > 0) {
-                                this.timerCountdown = state.countdown;
-                                this.startTimer(true); // Immediately resume the timer
-                            } else {
-                                // Otherwise, set the countdown from the slider values
-                                this.timerCountdown = (parseInt(this.timerMinutesRange.value) * 60) + parseInt(this.timerSecondsRange.value);
-                            }
-                        } else {
-                            // Initialize for a new timer
-                            this.timerCountdown = (parseInt(this.timerMinutesRange.value) * 60) + parseInt(this.timerSecondsRange.value);
-                        }
-                        this.renderTimerDisplay();
+                        // Initial display update
+                        this.updateTimerDisplay();
                     }
 
                     updateTimerDisplay() {
@@ -1556,12 +1168,7 @@ async saveState() {
                         const seconds = this.timerSecondsRange.value;
                         this.timerMinutesValue.textContent = minutes;
                         this.timerSecondsValue.textContent = seconds;
-
-                        // Only update countdown from sliders if the timer is not running
-                        if (!this.isTimerRunning) {
-                            this.timerCountdown = (parseInt(minutes) * 60) + parseInt(seconds);
-                        }
-
+                        this.timerCountdown = (parseInt(minutes) * 60) + parseInt(seconds);
                         this.renderTimerDisplay();
                     }
 
@@ -1570,111 +1177,49 @@ async saveState() {
                         const seconds = this.timerCountdown % 60;
                         const displayString = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
                         this.timerDisplay.textContent = displayString;
+                        this.timerDisplay.classList.toggle('running', this.timerInterval !== null);
                     }
 
-                    async preloadEndSound(index) {
-                        if (isNaN(index)) { return; }
-                        const buttonData = this.soundboardManager.buttonsData[index];
-                        const player = this.soundboardManager._getAudioPlayer(index);
-                        if (buttonData.files.length === 0) return;
+                    startTimer() {
+    this.updateTimerDisplay();
 
-                        if (player.playback.currentFileIndex >= buttonData.files.length) {
-                            player.playback.currentFileIndex = 0;
-                        }
-                        const fileIndex = buttonData.shuffle
-                            ? randomButNot(0, buttonData.files.length, player.playback.currentFileIndex)
-                            : player.playback.currentFileIndex;
+    // Check if the timer is already running or if the time is 0
+    if (this.timerInterval !== null || this.timerCountdown <= 0) return;
 
-                        player.playback.currentFileIndex = fileIndex;
-                        const outroDuration = await this.getAudioDuration(buttonData.files[fileIndex].arrayBuffer);
+    // Play the start sound
+    const startSoundId = parseInt(this.timerStartSoundSelect.value);
+    if (!isNaN(startSoundId) && startSoundId !== '') {
+        // Use .then() and .catch() to handle the Promise
+        this.soundboardManager.togglePlay(startSoundId).catch(error => {
+            console.error('Failed to play start sound:', error);
+        });
+    }
 
-                        console.log(outroDuration)
-                        this.preloadedEndSound = { index: index, fileIndex: fileIndex, priority: buttonData.priority, duration: outroDuration };
-                        return;
-                    }
+    this.timerInterval = setInterval(() => {
+        this.timerCountdown--;
+        this.renderTimerDisplay();
 
-                    getAudioDuration(arrayBuffer) {
-                        return new Promise((resolve, reject) => {
-                            const blob = new Blob([arrayBuffer]);
-                            const audio = new Audio();
-                            const objectURL = URL.createObjectURL(blob);
-
-                            audio.addEventListener('loadedmetadata', () => {
-                                const duration = audio.duration;
-                                URL.revokeObjectURL(objectURL); // Clean up the URL
-                                resolve(duration);
-                            }, { once: true }); // Use { once: true } for automatic cleanup
-
-                            audio.addEventListener('error', (e) => {
-                                URL.revokeObjectURL(objectURL);
-                                console.error('Error loading audio file:', e);
-                                reject(new Error('Failed to load audio file for duration calculation.'));
-                            }, { once: true });
-
-                            audio.src = objectURL;
-                        });
-                    }
-
-                    startTimer(isResume = false) {
-                        // Check if a timer is already running
-                        if (this.isTimerRunning || this.timerCountdown <= 0) return;
-
-                        if (!isResume) { this.hasPlayedEndSound = false; this.preloadedEndSound = null; }
-
-                        // Get the outro sound's duration if it's valid
-                        const endSoundId = parseInt(this.timerEndSoundSelect.value);
-
-                        if (!isNaN(endSoundId)) {
-                            this.preloadEndSound(endSoundId);
-                        }
-
-                        // Play start sound
-                        const startSoundId = parseInt(this.timerStartSoundSelect.value);
-                        if (!isNaN(startSoundId) && startSoundId !== '' && !isResume) {
-                            this.soundboardManager.togglePlay(startSoundId).catch(error => {
-                                console.error('Failed to play start sound:', error);
-                            });
-                        }
-
-                        this.isTimerRunning = true;
-                        this.timerDisplay.classList.add('running');
-
-                        // Set up the interval
-                        this.timerInterval = setInterval(() => {
-                            this.timerCountdown--;
-                            this.renderTimerDisplay();
-                            this.saveTimerState();
-
-                            // New logic: Check if the outro sound should play
-                            if (this.preloadedEndSound && !this.hasPlayedEndSound && this.timerCountdown <= this.preloadedEndSound.duration) {
-                                this.playEndSound();
-                                this.hasPlayedEndSound = true;
-                            }
-
-                            if (this.timerCountdown <= 0) {
-                                this.stopTimer(true); // Call stop and indicate that it's from a countdown end
-                            }
-                        }, 1000);
-
-                        this.saveTimerState();
-                    }
-
-                    stopTimer(isEnded = false) {
+        if (this.timerCountdown <= 0) {
+            this.stopTimer();
+            // Play the end sound
+            const endSoundId = parseInt(this.timerEndSoundSelect.value);
+            if (!isNaN(endSoundId) && endSoundId !== '') {
+                // Use .then() and .catch() to handle the Promise
+                this.soundboardManager.togglePlay(endSoundId).catch(error => {
+                    console.error('Failed to play end sound:', error);
+                });
+            }
+        }
+    }, 1000);
+}
+                    stopTimer() {
                         clearInterval(this.timerInterval);
                         this.timerInterval = null;
-                        this.isTimerRunning = false;
-                        this.timerDisplay.classList.remove('running');
-
-                        // Only reset the countdown if the timer was manually stopped or on page load
-                        if (!isEnded) {
-                            this.timerCountdown = (parseInt(this.timerMinutesRange.value) * 60) + parseInt(this.timerSecondsRange.value);
-                            this.renderTimerDisplay();
-                        }
-
-                        this.saveTimerState(); // Save the final, stopped state
+                        this.renderTimerDisplay();
                     }
 
                     updateTimerSoundSelectors(sounds) {
+                        // Clear existing options
                         this.timerStartSoundSelect.innerHTML = '<option value="">None</option>';
                         this.timerEndSoundSelect.innerHTML = '<option value="">None</option>';
                         sounds.forEach((sound, index) => {
@@ -1689,27 +1234,6 @@ async saveState() {
                                 this.timerEndSoundSelect.appendChild(optionEnd);
                             }
                         });
-                        this.loadTimerState();
-                    }
-
-                    playEndSound() {
-                        const endSoundId = parseInt(this.timerEndSoundSelect.value);
-                        const preloaded = this.preloadedEndSound;
-
-                        if (!isNaN(endSoundId) && endSoundId !== '' && preloaded) {
-                            this.soundboardManager.playFile(preloaded.index, preloaded.fileIndex, preloaded.priority).catch(error => {
-                                console.error('Failed to play end sound:', error);
-                            });
-                        }
-                    }
-
-                    async removeTimer() {
-                        const confirmed = await this.soundboardManager.showConfirmModal('Are you sure you want to delete this timer?');
-                        if (confirmed) {
-                            this.stopTimer();
-                            this.cardElement.remove();
-                            this.soundboardManager.removeTimerCardInstance(this.id);
-                        }
                     }
                 }
 
@@ -1723,19 +1247,13 @@ async saveState() {
                     constructor(dbInstance) {
                         this.db = dbInstance;
                         this.soundboardGrid = document.getElementById('soundboard-grid');
-                        this.controlCardElement = document.getElementById('control-card');
-                        this.buttonsData = [];
-                        this.players = new Map();
-                        this.timerCards = [];
-                        this.notepadCards = [];
-
-                        this.gridLayout = [];
-                        this.GRID_LAYOUT_KEY = 'grid-layout';
+                        this.buttonsData = []; // This holds our single source of truth for the state
+                        this.players = new Map(); // Stores the Audio objects and playback state
                         this.activeModalIndex = null;
                         this.isRearranging = false;
                         this.draggedItem = null;
                         this.cosmeticsData = {};
-
+                        this.timerCard = new TimerCard(this);
                     }
 
                     // ================================================================
@@ -1743,153 +1261,12 @@ async saveState() {
                     // ================================================================
 
                     async initialize() {
-                        loadGoogleFonts(['Wellfleet']);
+                        loadGoogleFonts(['Wellfleet'])
                         await this.db.openDB();
-                        await this.loadCosmetics();
-                        // REFACTOR: Load data components first, then layout, then render.
                         await this.loadStateFromDB();
-                        await this.loadTimers();
-                        await this.loadNotepads();
-                        await this.loadLayout();
+                        await this.loadCosmetics();
                         this.attachGlobalEventListeners();
-                        this.renderGrid();
-                    }
-
-                    // REFACTOR: New method to load the grid layout from DB or create a default.
-                    async loadLayout() {
-                        const layoutData = await this.db.get(this.GRID_LAYOUT_KEY);
-                        if (layoutData && Array.isArray(layoutData.layout)) {
-                            this.gridLayout = layoutData.layout;
-                        } else {
-                            this._generateDefaultLayout();
-                            await this._saveLayout();
-                        }
-                    }
-
-                    // REFACTOR: New method to save the current grid layout to DB.
-                    async _saveLayout() {
-                        await this.db.save(this.GRID_LAYOUT_KEY, { id: this.GRID_LAYOUT_KEY, layout: this.gridLayout });
-                    }
-
-                    // REFACTOR: New method to create a default layout if none exists.
-                    _generateDefaultLayout() {
-                        this.gridLayout = [];
-                        this.buttonsData.forEach((btn) => this.gridLayout.push({ type: 'sound', id: btn.id }));
-                        this.timerCards.forEach((timer) => this.gridLayout.push({ type: 'timer', id: timer.id }));
-                        this.notepadCards.forEach((note) => this.gridLayout.push({ type: 'notepad', id: note.id }));
-                        this.gridLayout.push({ type: 'control', id: 'control-card' });
-                    }
-
-                    async loadNotepads() {
-                        const notepadCountData = await this.db.get('notepadCount');
-                        const numNotepads = notepadCountData ? notepadCountData.count : 0;
-                        const notepadTemplate = document.getElementById('notepad-card-template');
-
-                        for (let i = 0; i < numNotepads; i++) {
-                            // Find the highest existing ID to avoid collisions
-                            const existingIds = this.notepadCards.map(n => n.id);
-                            const nextId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : i;
-
-                            const newCard = notepadTemplate.content.cloneNode(true).querySelector('.notepad-card');
-                            newCard.dataset.cardType = 'notepad';
-                            newCard.dataset.cardId = nextId;
-                            this.notepadCards.push(new NotepadCard(newCard, this, this.db));
-                        }
-                    }
-
-                    // Add this new method to add a notepad
-                    async addNotepad() {
-                        const existingIds = this.notepadCards.map(n => n.id);
-                        const nextId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 0;
-
-                        const newCard = document.getElementById('notepad-card-template').content.cloneNode(true).querySelector('.notepad-card');
-                        newCard.dataset.cardType = 'notepad';
-                        newCard.dataset.cardId = nextId;
-
-                        this.notepadCards.push(new NotepadCard(newCard, this, this.db));
-
-                        const controlCardIndex = this.gridLayout.findIndex(item => item.type === 'control');
-                        this.gridLayout.splice(controlCardIndex, 0, { type: 'notepad', id: nextId });
-
-                        await this.db.save('notepadCount', { id: 'notepadCount', count: this.notepadCards.length });
-                        await this._saveLayout();
-                        this.renderGrid();
-                    }
-
-                    // Add this new method to remove a notepad
-                    async removeNotepad(idToRemove) {
-                        const confirmed = await this.showConfirmModal('Are you sure you want to delete this note?');
-                        if (!confirmed) return;
-
-                        this.notepadCards = this.notepadCards.filter(n => n.id !== idToRemove);
-                        this.gridLayout = this.gridLayout.filter(item => !(item.type === 'notepad' && item.id === idToRemove));
-
-                        await this.db.delete(`notepad-${idToRemove}`);
-                        await this.db.save('notepadCount', { id: 'notepadCount', count: this.notepadCards.length });
-                        await this._saveLayout();
-                        this.renderGrid();
-                    }
-
-                    async loadTimers() {
-                        const timerCountData = await this.db.get('timerCount');
-                        const numTimers = timerCountData ? timerCountData.count : 0;
-                        const timerTemplate = document.getElementById('timer-card-template');
-
-                        for (let i = 0; i < numTimers; i++) {
-                            const timerId = i;
-                            const newCard = timerTemplate.content.cloneNode(true).querySelector('.timer-card');
-                            newCard.dataset.timerId = timerId;
-                            // REFACTOR: Add card type and ID for drag-and-drop identification.
-                            newCard.dataset.cardType = 'timer';
-                            newCard.dataset.cardId = timerId;
-                            this.timerCards.push(new TimerCard(newCard, this, this.db));
-                        }
-                    }
-
-                    async addTimer() {
-                        const nextTimerIndex = this.timerCards.length > 0 ? Math.max(...this.timerCards.map(t => t.id)) + 1 : 0;
-                        const newCard = document.getElementById('timer-card-template').content.cloneNode(true).querySelector('.timer-card');
-                        newCard.dataset.timerId = nextTimerIndex;
-                        newCard.dataset.cardType = 'timer';
-                        newCard.dataset.cardId = nextTimerIndex;
-
-                        this.timerCards.push(new TimerCard(newCard, this, this.db));
-
-                        // REFACTOR: Add the new timer to the layout and re-render.
-                        const controlCardIndex = this.gridLayout.findIndex(item => item.type === 'control');
-                        if (controlCardIndex > -1) {
-                            this.gridLayout.splice(controlCardIndex, 0, { type: 'timer', id: nextTimerIndex });
-                        } else {
-                            this.gridLayout.push({ type: 'timer', id: nextTimerIndex });
-                        }
-
-                        await this.db.save('timerCount', { id: 'timerCount', count: this.timerCards.length });
-                        await this._saveLayout();
-                        this.renderGrid();
-                    }
-
-                    // REFACTOR: New unified remove method for timers.
-                    async removeTimer(idToRemove) {
-                        const confirmed = await this.showConfirmModal('Are you sure you want to delete this timer?');
-                        if (!confirmed) return;
-
-                        const timerInstance = this.timerCards.find(t => t.id === idToRemove);
-                        if (timerInstance) {
-                            timerInstance.stopTimer();
-                        }
-
-                        // Remove from instance array
-                        this.timerCards = this.timerCards.filter(t => t.id !== idToRemove);
-
-                        // Remove from layout
-                        this.gridLayout = this.gridLayout.filter(item => !(item.type === 'timer' && item.id === idToRemove));
-
-                        // Delete DB entries
-                        await this.db.delete(`timer-${idToRemove}`);
-                        await this.db.save('timerCount', { id: 'timerCount', count: this.timerCards.length });
-
-                        await this._saveLayout();
-                        this.renderGrid();
+                        this.renderAllButtons();
                     }
 
                     async requestPersistentStorage() {
@@ -1945,10 +1322,16 @@ async saveState() {
                     }
 
                     async loadStateFromDB() {
+                        // Corrected function call to get sounds from the dedicated store
                         const soundData = await this.db._dbRequest(this.db.SOUNDS_STORE, 'readonly', 'getAll');
+
+                        // Get or create the global config
                         let configData = await this.db.get(this.db.CONFIG_KEY);
                         if (!configData) {
-                            configData = { id: this.db.CONFIG_KEY, numButtons: 8 };
+                            configData = {
+                                id: this.db.CONFIG_KEY,
+                                numButtons: 8
+                            };
                             await this.db.save(configData.id, configData);
                         }
 
@@ -1966,90 +1349,82 @@ async saveState() {
                         const nextIndex = this.buttonsData.length;
                         const newButtonData = this._getInitialButtonData(nextIndex);
                         this.buttonsData.push(newButtonData);
-
-                        // REFACTOR: Add the new button to the layout and re-render.
-                        const controlCardIndex = this.gridLayout.findIndex(item => item.type === 'control');
-                        if (controlCardIndex > -1) {
-                            this.gridLayout.splice(controlCardIndex, 0, { type: 'sound', id: nextIndex });
-                        } else {
-                            this.gridLayout.push({ type: 'sound', id: nextIndex });
-                        }
-
-                        await this.db.save(this.db.CONFIG_KEY, { id: this.db.CONFIG_KEY, numButtons: this.buttonsData.length });
-                        await this._saveLayout();
-                        this.renderGrid();
+                        // Save the new button count to the config store
+                        await this.db.save(this.db.CONFIG_KEY, {
+                            numButtons: this.buttonsData.length
+                        });
+                        this.renderAllButtons(); // Re-render to show the new button
                     }
 
                     async removeLastButton() {
                         if (this.buttonsData.length > 1) {
                             const lastIndex = this.buttonsData.length - 1;
                             this.buttonsData.pop();
+                            // Clean up audio player instance
                             if (this.players.has(lastIndex)) {
-                                this.players.get(lastIndex).cleanup();
+                                const player = this.players.get(lastIndex);
+                                player.cleanup();
                                 this.players.delete(lastIndex);
                             }
                             await this.db.delete(lastIndex);
-                            await this.db.save(this.db.CONFIG_KEY, { id: this.db.CONFIG_KEY, numButtons: this.buttonsData.length });
-
-                            // REFACTOR: Remove from layout and re-render.
-                            this.gridLayout = this.gridLayout.filter(item => !(item.type === 'sound' && item.id === lastIndex));
-                            await this._saveLayout();
-                            this.renderGrid();
+                            // Save the new button count to the config store
+                            await this.db.save(this.db.CONFIG_KEY, {
+                                numButtons: this.buttonsData.length
+                            });
+                            this.renderAllButtons();
                         }
                     }
 
                     async updateButton(index, newData) {
-                        this.buttonsData[index] = { ...this.buttonsData[index], ...newData };
+                        this.buttonsData[index] = {
+                            ...this.buttonsData[index],
+                            ...newData
+                        };
                         await this.db.save(index, this.buttonsData[index]);
-                        this.renderGrid();
+                        this.renderButton(index);
                     }
 
                     // ================================================================
                     // UI Rendering Methods
                     // ================================================================
 
-                    // REFACTOR: This is the new primary rendering function.
-                    renderGrid() {
-                        this.soundboardGrid.innerHTML = '';
 
-                        this.gridLayout.forEach(item => {
-                            let cardElement = null;
-                            if (item.type === 'sound') {
-                                const buttonData = this.buttonsData.find(b => b.id === item.id);
-                                if (buttonData) {
-                                    cardElement = this._createSoundCardElement(buttonData, item.id);
-                                }
-                            } else if (item.type === 'timer') {
-                                const timerInstance = this.timerCards.find(t => t.id === item.id);
-                                if (timerInstance) {
-                                    cardElement = timerInstance.cardElement;
-                                }
-                            } else if (item.type === 'control') {
-                                cardElement = this.controlCardElement;
-                                cardElement.style.display = 'flex'; // Make it visible
-                            } else if (item.type === 'notepad') {
-                                const noteInstance = this.notepadCards.find(n => n.id === item.id);
-                                if (noteInstance) {
-                                    cardElement = noteInstance.cardElement;
-                                }
-                            }
+                    renderAllButtons() {
+                        // Get a reference to our static control card
+                        const controlCard = document.getElementById('control-card');
 
-                            if (cardElement) {
-                                this.soundboardGrid.appendChild(cardElement);
-                            }
+                        // WORKING ON: allow user to rearrange position of control card
+                        // get control card position in grid
+                        const controlCardIndex = Array.from(this.soundboardGrid.children).indexOf(controlCard);
+
+                        // 1. Clear only the old sound card elements, leaving the control card alone
+                        this.soundboardGrid.querySelectorAll('.sound-card:not(.special-function-card)').forEach(card => card.remove());
+
+                        // 2. Render each button from our data
+                        this.buttonsData.forEach((buttonData, index) => {
+
+                            const card = this._createSoundCardElement(buttonData, index);
+                            // 3. Insert the new card BEFORE the control card - we want to change this
+                            this.soundboardGrid.insertBefore(card, controlCard);
                         });
 
-                        this.timerCards.forEach(timer => timer.updateTimerSoundSelectors(this.buttonsData));
+
+                        this.timerCard.updateTimerSoundSelectors(this.buttonsData)
+                    }
+
+                    renderButton(index) {
+                        const oldCard = this.soundboardGrid.querySelector(`[data-index="${index}"]`);
+                        if (oldCard) {
+                            const newCard = this._createSoundCardElement(this.buttonsData[index], index);
+                            this.soundboardGrid.replaceChild(newCard, oldCard);
+                        }
                     }
 
                     _createSoundCardElement(buttonData, index) {
                         const card = document.createElement('div');
                         card.className = 'sound-card';
-                        // REFACTOR: Use distinct data attributes for type and ID.
-                        card.dataset.cardType = 'sound';
-                        card.dataset.cardId = index;
-                        card.dataset.index = index; // Keep for compatibility
-                        card.setAttribute('draggable', this.isRearranging);
+                        card.dataset.index = index;
+                        card.setAttribute('draggable', this.isRearranging); // Dynamically set draggable
                         card.innerHTML = `
 <button class="sound-button" data-action="play" style="background-color: ${buttonData.color};">
 <div class="progress-overlay" style="width: 0%;"></div>
@@ -2080,10 +1455,12 @@ async saveState() {
                     // ================================================================
 
                     attachGlobalEventListeners() {
+                        // Use a single event listener on the main grid for delegation
                         this.soundboardGrid.addEventListener('click', (event) => this.handleGridClick(event));
                         this.soundboardGrid.addEventListener('input', (event) => this.handleSliderChange(event));
                         this.soundboardGrid.addEventListener('dblclick', (event) => this.handleGridDoubleClick(event));
 
+                        // Drag and drop listeners
                         this.soundboardGrid.addEventListener('dragstart', (e) => this.handleDragStart(e));
                         this.soundboardGrid.addEventListener('dragover', (e) => this.handleDragOver(e));
                         this.soundboardGrid.addEventListener('dragenter', (e) => this.handleDragEnter(e));
@@ -2091,18 +1468,18 @@ async saveState() {
                         this.soundboardGrid.addEventListener('drop', (e) => this.handleDrop(e));
                         this.soundboardGrid.addEventListener('dragend', (e) => this.handleDragEnd(e));
 
-                        document.getElementById('add-notepad-btn').addEventListener('click', () => this.addNotepad());
+                        // Global control buttons
                         document.getElementById('add-btn-plus').addEventListener('click', () => this.addButton());
                         document.getElementById('remove-button-modal').addEventListener('click', () => this._handleRemoveButton());
-                        document.getElementById('add-timer-btn').addEventListener('click', () => this.addTimer());
+
+
                         document.getElementById('rearrange-mode-btn').addEventListener('click', () => this.toggleRearrangeMode());
                         document.getElementById('download-config-btn').addEventListener('click', () => this.downloadConfig());
                         document.getElementById('upload-config-btn').addEventListener('click', () => document.getElementById('upload-config-input').click());
                         document.getElementById('upload-config-input').addEventListener('change', (e) => this.uploadConfig(e));
                         document.getElementById('db-manager-btn').addEventListener('click', () => this.showDbManagerModal());
 
-
-
+                        // Modals
                         document.getElementById('settings-modal').addEventListener('click', (event) => {
                             if (event.target.id === 'settings-modal') this.closeSettingsModal();
                         });
@@ -2111,8 +1488,10 @@ async saveState() {
                         });
                         document.getElementById('clear-database-btn').addEventListener('click', () => this.handleClearDatabase());
 
+                        // Settings Modal specific inputs
                         document.getElementById('button-name-input').addEventListener('input', (e) => this.updateModalButtonData('name', e.target.value));
                         document.getElementById('button-color-picker').addEventListener('input', (e) => this.updateModalButtonData('color', e.target.value));
+                        document.getElementById('color-swatch').addEventListener('click', () => document.getElementById('button-color-picker').click());
                         document.getElementById('add-file-input').addEventListener('change', (e) => this.addFilesToModalButton(e));
                         document.getElementById('clear-files-btn').addEventListener('click', () => this.clearModalButtonFiles());
                         document.getElementById('shuffle-checkbox').addEventListener('change', (e) => this.updateModalButtonData('shuffle', e.target.checked));
@@ -2122,6 +1501,7 @@ async saveState() {
                             if (e.target.tagName === 'BUTTON') this.removeFileFromModalButton(e);
                         });
 
+                        // Cosmetics modal listeners
                         document.getElementById('cosmetics-btn').addEventListener('click', () => this.openCosmeticsModal());
                         document.getElementById('delete-cosmetics-key-btn').addEventListener('click', () => this.deleteCosmeticsKey());
                         document.getElementById('cosmetics-modal').addEventListener('click', (event) => {
@@ -2130,6 +1510,7 @@ async saveState() {
                             }
                         });
 
+                        // Listen for changes on all color pickers
                         document.querySelectorAll('#cosmetics-modal input[type="color"]').forEach(input => {
                             input.addEventListener('input', (e) => {
                                 const cssVar = e.target.dataset.cssVar;
@@ -2139,9 +1520,10 @@ async saveState() {
                             });
                         });
 
+                        // Listen for changes on the font select
                         document.getElementById('font-input').addEventListener('change', (e) => {
                             const newFont = e.target.value.trim();
-                            if (newFont) {
+                            if (newFont) { // Only save if the input is not empty
                                 this.cosmeticsData.fontFamily = newFont;
                                 this.applyCosmetics();
                                 this._saveCosmetics();
@@ -2151,11 +1533,12 @@ async saveState() {
 
                     handleGridClick(event) {
                         if (this.isRearranging) return;
-                        const card = event.target.closest('.sound-card[data-card-type="sound"]');
+                        const card = event.target.closest('.sound-card');
                         if (!card) return;
                         const index = parseInt(card.dataset.index);
                         if (isNaN(index)) return;
 
+                        // FIX: Find the closest parent with a data-action attribute
                         const actionElement = event.target.closest('[data-action]');
                         if (!actionElement) return;
                         const action = actionElement.dataset.action;
@@ -2173,8 +1556,12 @@ async saveState() {
                     handleGridDoubleClick(event) {
                         const slider = event.target.closest('input[type="range"][data-action="speed-change"]');
                         if (slider) {
+                            // Set the value to 1.0
                             slider.value = 1.0;
-                            slider.dispatchEvent(new Event('input', { bubbles: true }));
+                            // Manually dispatch a new input event to trigger the change logic
+                            slider.dispatchEvent(new Event('input', {
+                                bubbles: true
+                            }));
                         }
                     }
 
@@ -2183,7 +1570,7 @@ async saveState() {
                         if (!card) return;
 
                         const index = parseInt(card.dataset.index);
-                        if (isNaN(index)) return;
+                        if (!index) return;
 
                         const action = event.target.dataset.action;
                         const value = parseFloat(event.target.value);
@@ -2197,6 +1584,8 @@ async saveState() {
                             case 'speed-change':
                                 buttonData.playbackRate = value;
                                 player.audio.playbackRate = value;
+
+                                // Find the speed display span and update it
                                 const speedDisplay = card.querySelector('.speed-display');
                                 if (speedDisplay) {
                                     speedDisplay.textContent = `${value.toFixed(1)}x`;
@@ -2209,17 +1598,15 @@ async saveState() {
                     handleDragStart(event) {
                         if (!this.isRearranging) return;
                         this.draggedItem = event.target.closest('.sound-card');
-                        if (!this.draggedItem) return;
                         event.dataTransfer.effectAllowed = 'move';
-                        // REFACTOR: Use a generic identifier for the drag data.
-                        event.dataTransfer.setData('text/plain', this.draggedItem.dataset.cardId);
+                        event.dataTransfer.setData('text/plain', this.draggedItem.dataset.index);
                         setTimeout(() => {
                             this.draggedItem.classList.add('dragging');
                         }, 0);
                     }
 
                     handleDragOver(event) {
-                        event.preventDefault();
+                        event.preventDefault(); // This is essential to allow a drop
                     }
 
                     handleDragEnter(event) {
@@ -2233,31 +1620,51 @@ async saveState() {
                     handleDragLeave(event) {
                         const targetCard = event.target.closest('.sound-card');
                         if (targetCard && targetCard !== this.draggedItem) {
+                            // Check if the drag is truly leaving the drop target, not just moving to a child element.
+                            // This prevents the class from being removed prematurely.
                             if (!targetCard.contains(event.relatedTarget)) {
                                 targetCard.classList.remove('drag-over');
                             }
                         }
                     }
 
-                    // REFACTOR: The drop handler now manipulates the gridLayout array.
                     async handleDrop(event) {
                         event.preventDefault();
                         if (!this.isRearranging || !this.draggedItem) return;
                         const targetCard = event.target.closest('.sound-card');
                         if (targetCard && targetCard !== this.draggedItem) {
-                            const fromType = this.draggedItem.dataset.cardType;
-                            const fromId = fromType === 'control' ? 'control-card' : parseInt(this.draggedItem.dataset.cardId);
-                            const toType = targetCard.dataset.cardType;
-                            const toId = toType === 'control' ? 'control-card' : parseInt(targetCard.dataset.cardId);
+                            const fromIndex = parseInt(this.draggedItem.dataset.index);
+                            const toIndex = parseInt(targetCard.dataset.index);
 
-                            const fromIndex = this.gridLayout.findIndex(item => item.type === fromType && item.id === fromId);
-                            const toIndex = this.gridLayout.findIndex(item => item.type === toType && item.id === toId);
+                            // Use a temporary array for swapping
+                            const buttonsToSave = [...this.buttonsData];
+                            const [draggedData] = buttonsToSave.splice(fromIndex, 1);
+                            buttonsToSave.splice(toIndex, 0, draggedData);
 
-                            if (fromIndex > -1 && toIndex > -1) {
-                                [this.gridLayout[fromIndex], this.gridLayout[toIndex]] = [this.gridLayout[toIndex], this.gridLayout[fromIndex]];
-                                await this._saveLayout();
-                                this.renderGrid();
+                            // 🐛 FIX: Update the 'id' of each button to match its new index
+                            // This is crucial for the database to save the new order correctly.
+                            buttonsToSave.forEach((button, index) => {
+                                button.id = index;
+                            });
+
+                            // Update in-memory state
+                            this.buttonsData = buttonsToSave;
+
+                            // Save the entire rearranged array to the database
+                            // It's a good idea to first clear the existing data to avoid
+                            // orphaned records before saving the new arrangement.
+                            await this.db.clear(); // Clear all data from both stores
+                            for (const item of this.buttonsData) {
+                                await this.db.save(item.id, item);
                             }
+                            // Also save the updated button count
+                            await this.db.save(this.db.CONFIG_KEY, {
+                                numButtons: this.buttonsData.length
+                            });
+
+
+                            // Re-render the grid
+                            this.renderAllButtons();
                         }
                     }
 
@@ -2269,24 +1676,36 @@ async saveState() {
                         }
                     }
 
-                    // REFACTOR: Toggle rearrange mode for ALL cards.
                     toggleRearrangeMode() {
                         this.isRearranging = !this.isRearranging;
                         const btn = document.getElementById('rearrange-mode-btn');
                         const grid = document.getElementById('soundboard-grid');
-                        grid.classList.toggle('rearrange-mode', this.isRearranging);
-                        btn.textContent = this.isRearranging ? 'Done Rearranging' : 'Rearrange';
-
-                        grid.querySelectorAll('.sound-card').forEach(card => {
-                            card.setAttribute('draggable', this.isRearranging);
-                        });
+                        if (this.isRearranging) {
+                            btn.textContent = 'Done Rearranging';
+                            grid.classList.add('rearrange-mode');
+                            this.buttonsData.forEach((_, index) => {
+                                const card = grid.querySelector(`[data-index="${index}"]`);
+                                if (card) {
+                                    card.setAttribute('draggable', 'true');
+                                }
+                            });
+                        } else {
+                            btn.textContent = 'Rearrange';
+                            grid.classList.remove('rearrange-mode');
+                            this.buttonsData.forEach((_, index) => {
+                                const card = grid.querySelector(`[data-index="${index}"]`);
+                                if (card) {
+                                    card.setAttribute('draggable', 'false');
+                                }
+                            });
+                        }
                     }
 
                     async togglePlay(index) {
                         if (isNaN(index)) {
-                            console.error("Invalid index provided:", index);
-                            return;
-                        }
+        console.error("Invalid index provided:", index);
+        return; // Stop execution if the index is not a number.
+    }
                         const buttonData = this.buttonsData[index];
                         const player = this._getAudioPlayer(index);
                         if (buttonData.files.length === 0) return;
@@ -2330,6 +1749,7 @@ async saveState() {
                         this.players.forEach((player, playerIndex) => {
 
                             const playerButtonData = this.buttonsData[playerIndex];
+                            // Duck non-priority sounds
                             if (!playerButtonData.priority) {
                                 const duckTarget = playerButtonData.volume * player.duckAmount;
                                 const slider = this._getVolumeSlider(playerIndex);
@@ -2339,6 +1759,7 @@ async saveState() {
                         });
                     }
 
+                    // programmatically help us show the ducking
                     _getVolumeSlider(index) {
                         const card = this.soundboardGrid.querySelector(`[data-index="${index}"]`);
                         if (card) {
@@ -2348,14 +1769,22 @@ async saveState() {
                     }
 
                     _checkForPriorityPlaying() {
+                        // Get an array of just the player objects from the Map.
                         const playersArray = Array.from(this.players.values());
+
+                        // Use .some() on the new array to efficiently check for a condition.
                         const priorityIsPlaying = playersArray.some(player => {
                             const playerIndex = playersArray.indexOf(player);
                             const playerButtonData = this.buttonsData[playerIndex];
+
+                            // This returns true as soon as the condition is met, stopping the loop.
                             return player.isPlaying && playerButtonData.priority;
                         });
 
-                        if (priorityIsPlaying) { return true; }
+                        if (priorityIsPlaying) {
+                            return true;
+                        }
+
                         return false;
                     };
 
@@ -2365,6 +1794,7 @@ async saveState() {
                         const player = this.players.get(index);
                         if (!player) return;
 
+                        // Restore volumes of ducked players if the just-finished player was a priority sound
                         if (buttonData.priority) {
                             let isOtherPriorityPlaying = this._checkForPriorityPlaying();
                             if (!isOtherPriorityPlaying) {
@@ -2376,8 +1806,10 @@ async saveState() {
                                     this._lerpVolume(duckedPlayer.audio, slider, duckedPlayer.audio.volume, targetVolume, duckedPlayer.fadeSpeed);
                                 });
                             }
+
                         }
 
+                        // Handle looping and autoplay logic
                         if (buttonData.loop) {
                             this.playFile(index, player.playback.currentFileIndex, buttonData.priority);
                         } else if (buttonData.autoplay) {
@@ -2393,15 +1825,20 @@ async saveState() {
                     }
 
                     async playFile(buttonIndex, fileIndex, isPriority) {
+                        console.log(this.buttonsData)
+                        console.log(this.players)
                         const buttonData = this.buttonsData[buttonIndex];
                         const player = this._getAudioPlayer(buttonIndex);
-                        const fileData = buttonData.files[fileIndex];
+                        const actualFileIndex = buttonData.shuffle ? getRandom(0, buttonData.files.length) : fileIndex;
+                        const fileData = buttonData.files[actualFileIndex];
                         if (!fileData) {
-                            console.error("No file found at index:", fileIndex);
+                            console.error("No file found at index:", actualFileIndex);
                             return;
                         }
                         player.cleanup();
-                        const blob = new Blob([fileData.arrayBuffer], { type: fileData.mimeType });
+                        const blob = new Blob([fileData.arrayBuffer], {
+                            type: fileData.mimeType
+                        });
                         player.audio.src = URL.createObjectURL(blob);
                         player.audio.volume = buttonData.volume;
                         player.audio.playbackRate = buttonData.playbackRate;
@@ -2414,6 +1851,7 @@ async saveState() {
 
                     _getAudioPlayer(index) {
                         let player = this.players.get(index);
+                        console.log(`_getAudioPlayer: ${index}`)
                         if (!player) {
                             const audio = new Audio();
                             player = new AudioPlayer(audio);
@@ -2429,7 +1867,6 @@ async saveState() {
                         }
                         return player;
                     }
-
                     _getInitialButtonData(index) {
                         return {
                             id: index,
@@ -2439,7 +1876,7 @@ async saveState() {
                             playbackRate: 1.0,
                             shuffle: false,
                             loop: false,
-                            priority: false,
+                            priority: false, // Added priority property
                             files: []
                         };
                     }
@@ -2453,19 +1890,27 @@ async saveState() {
                     }
 
                     // ================================================================
-                    // COSMETICS MODAL METHODS
-                    // ================================================================
+                    // COSMETICES MODAL METHODS
+                    // ==============================================================
                     applyCosmetics() {
                         const root = document.documentElement;
+
+                        // Apply colors
                         for (const [key, value] of Object.entries(this.cosmeticsData.colors)) {
                             root.style.setProperty(key, value);
                         }
+
+                        // Apply font
                         loadGoogleFonts([this.cosmeticsData.fontFamily]);
                         root.style.setProperty('--font-family-primary', `'${this.cosmeticsData.fontFamily}', sans-serif`);
+
+                        // Update the color picker values in the modal
                         document.querySelectorAll('#cosmetics-modal input[type="color"]').forEach(input => {
                             const cssVar = input.dataset.cssVar;
                             input.value = this.cosmeticsData.colors[cssVar];
                         });
+
+                        // Update the font select value
                         const fontSelect = document.getElementById('font-input');
                         fontSelect.value = this.cosmeticsData.fontFamily;
                     }
@@ -2480,27 +1925,23 @@ async saveState() {
                     // ================================================================
 
                     openSettingsModal(index) {
-    this.activeModalIndex = index;
-    const buttonData = this.buttonsData[index];
-    const modal = document.getElementById('settings-modal');
-
-    // Set the initial value of the color picker
-    document.getElementById('button-color-picker').value = buttonData.color;
-
-    document.getElementById('button-name-input').value = buttonData.name;
-    document.getElementById('shuffle-checkbox').checked = buttonData.shuffle;
-    document.getElementById('autoplay-checkbox').checked = buttonData.autoplay;
-    document.getElementById('priority-checkbox').checked = buttonData.priority;
-    this._renderFileList(buttonData.files);
-    
-    modal.style.display = 'flex';
-}
+                        this.activeModalIndex = index;
+                        const buttonData = this.buttonsData[index];
+                        const modal = document.getElementById('settings-modal');
+                        document.getElementById('button-name-input').value = buttonData.name;
+                        document.getElementById('button-color-picker').value = buttonData.color;
+                        document.getElementById('color-swatch').style.backgroundColor = buttonData.color;
+                        document.getElementById('shuffle-checkbox').checked = buttonData.shuffle;
+                        document.getElementById('autoplay-checkbox').checked = buttonData.autoplay;
+                        document.getElementById('priority-checkbox').checked = buttonData.priority; // Set the checkbox state
+                        this._renderFileList(buttonData.files);
+                        modal.style.display = 'flex';
+                    }
 
                     closeSettingsModal() {
                         const modal = document.getElementById('settings-modal');
                         modal.style.display = 'none';
                         this.activeModalIndex = null;
-                        this.renderGrid();
                     }
 
                     updateModalButtonData(key, value) {
@@ -2508,6 +1949,9 @@ async saveState() {
                             const buttonData = this.buttonsData[this.activeModalIndex];
                             buttonData[key] = value;
                             this.updateButton(this.activeModalIndex, buttonData);
+                        }
+                        if (key === 'color') {
+                            document.getElementById('color-swatch').style.backgroundColor = value;
                         }
                     }
 
@@ -2542,7 +1986,11 @@ async saveState() {
                         for (let i = 0; i < files.length; i++) {
                             const file = files[i];
                             const arrayBuffer = await file.arrayBuffer();
-                            const fileData = { fileName: file.name, mimeType: file.type, arrayBuffer: arrayBuffer };
+                            const fileData = {
+                                fileName: file.name,
+                                mimeType: file.type,
+                                arrayBuffer: arrayBuffer
+                            };
                             buttonData.files.push(fileData);
                         }
                         await this.updateButton(this.activeModalIndex, buttonData);
@@ -2554,7 +2002,7 @@ async saveState() {
                         if (confirmed && this.activeModalIndex !== null) {
                             const buttonData = this.buttonsData[this.activeModalIndex];
                             const player = this._getAudioPlayer(this.activeModalIndex);
-                            player.cleanup();
+                            player.cleanup(); // New line to handle player cleanup
                             buttonData.files = [];
                             await this.db.save(this.activeModalIndex, buttonData);
                             this._renderFileList(buttonData.files);
@@ -2562,81 +2010,112 @@ async saveState() {
                     }
 
                     async removeFileFromModalButton(event) {
+                        // We can now get the file index directly from the event target.
+                        // Use `parseInt` to ensure it's a number.
                         const fileIndex = parseInt(event.target.dataset.fileIndex);
+
+                        // The condition is now a simple check for a valid index.
                         if (!isNaN(fileIndex)) {
                             const buttonData = this.buttonsData[this.activeModalIndex];
+
+                            // Defensive check: If the button has no files, do nothing.
                             if (!buttonData || !buttonData.files) return;
+
+                            // Cleanup and remove the file.
                             const player = this._getAudioPlayer(this.activeModalIndex);
-                            if (player) { player.cleanup(); }
+                            if (player) {
+                                player.cleanup();
+                            }
                             buttonData.files.splice(fileIndex, 1);
-                            if (buttonData.files.length > 0) { player.playback.currentFileIndex = 0; }
+
+                            // Reset the current playback index to prevent issues.
+                            if (buttonData.files.length > 0) {
+                                player.playback.currentFileIndex = 0;
+                            }
+
+                            // Persist the changes and re-render the UI.
                             await this.db.save(this.activeModalIndex, buttonData);
                             this._renderFileList(buttonData.files);
                         }
                     }
-
                     // ================================================================
                     // Global Functionality Methods
                     // ================================================================
 
+
                     async _handleRemoveButton() {
                         if (this.activeModalIndex === null) return;
-                        const confirmed = await this.showConfirmModal("Are you sure you want to permanently remove this button?");
+
+                        const confirmed = await this.showConfirmModal(
+                            "Are you sure you want to permanently remove this button?"
+                        );
+
                         if (confirmed) {
                             await this.removeButton(this.activeModalIndex);
                         }
                     }
 
-                    // REFACTOR: This method now updates the gridLayout as well.
+
                     async removeButton(indexToRemove) {
                         if (this.buttonsData.length <= 1) {
+                            alert("You cannot remove the last button.");
                             return;
                         }
 
+                        // 1. Remove from the main data array
                         this.buttonsData.splice(indexToRemove, 1);
+
+                        // 2. Clean up the associated audio player to prevent memory leaks
                         if (this.players.has(indexToRemove)) {
                             this.players.get(indexToRemove).cleanup();
                             this.players.delete(indexToRemove);
                         }
 
-                        // Remove from layout
-                        this.gridLayout = this.gridLayout.filter(item => !(item.type === 'sound' && item.id === indexToRemove));
+                        // 3. Re-sync with the database. It's safest to clear and re-write
+                        //    to ensure all IDs are updated correctly.
+                        await this.db.clear(); // This clears BOTH stores
 
-                        // Re-index subsequent button IDs in both data and layout
-                        this.buttonsData.forEach((button, i) => {
-                            if (i >= indexToRemove) button.id = i;
-                        });
-                        this.gridLayout.forEach(item => {
-                            if (item.type === 'sound' && item.id > indexToRemove) {
-                                item.id--;
-                            }
-                        });
-
-                        // Clear and re-write the database to maintain consistency
-                        await this.db._dbRequest(this.db.SOUNDS_STORE, 'readwrite', 'clear');
-                        for (const button of this.buttonsData) {
+                        // Re-save all remaining buttons, ensuring their IDs match their new index
+                        for (let i = 0; i < this.buttonsData.length; i++) {
+                            const button = this.buttonsData[i];
+                            button.id = i; // Re-assign the ID to the new index
                             await this.db.save(button.id, button);
                         }
 
-                        await this.db.save(this.db.CONFIG_KEY, { id: this.db.CONFIG_KEY, numButtons: this.buttonsData.length });
-                        await this._saveLayout();
+                        // 4. Update and save the global config with the new button count
+                        await this.db.save(this.db.CONFIG_KEY, {
+                            numButtons: this.buttonsData.length
+                        });
 
+                        // 5. Close the modal and re-render the entire grid
                         this.closeSettingsModal();
-                        this.renderGrid();
+                        this.renderAllButtons();
                     }
 
                     async downloadConfig() {
                         const allData = await this.db.getAll();
                         const soundboardTitle = document.getElementById('soundboard-title').textContent.trim();
+                        // Map over the data to convert ArrayBuffer to Base64
                         const serializableData = allData.map(item => {
                             if (item.files && item.files.length > 0) {
-                                const serializableFiles = item.files.map(file => ({ ...file, arrayBuffer: this._arrayBufferToBase64(file.arrayBuffer) }));
-                                return { ...item, files: serializableFiles };
+                                const serializableFiles = item.files.map(file => {
+                                    // Use a helper function to convert the ArrayBuffer to a Base64 string
+                                    return {
+                                        ...file,
+                                        arrayBuffer: this._arrayBufferToBase64(file.arrayBuffer)
+                                    };
+                                });
+                                return {
+                                    ...item,
+                                    files: serializableFiles
+                                };
                             }
                             return item;
                         });
                         const json = JSON.stringify(serializableData, null, 2);
-                        const blob = new Blob([json], { type: 'application/json' });
+                        const blob = new Blob([json], {
+                            type: 'application/json'
+                        });
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
@@ -2656,10 +2135,20 @@ async saveState() {
                                 const data = JSON.parse(e.target.result);
                                 const confirmed = await this.showConfirmModal("This will overwrite your current soundboard configuration. Are you sure?");
                                 if (confirmed) {
+                                    // Map over the uploaded data to convert Base64 back to ArrayBuffer
                                     const deserializedData = data.map(item => {
                                         if (item.files && item.files.length > 0) {
-                                            const deserializedFiles = item.files.map(file => ({ ...file, arrayBuffer: this._base64ToArrayBuffer(file.arrayBuffer) }));
-                                            return { ...item, files: deserializedFiles };
+                                            const deserializedFiles = item.files.map(file => {
+                                                // Use a helper function to convert the Base64 string back to an ArrayBuffer
+                                                return {
+                                                    ...file,
+                                                    arrayBuffer: this._base64ToArrayBuffer(file.arrayBuffer)
+                                                };
+                                            });
+                                            return {
+                                                ...item,
+                                                files: deserializedFiles
+                                            };
                                         }
                                         return item;
                                     });
@@ -2668,12 +2157,8 @@ async saveState() {
                                     for (const item of deserializedData) {
                                         await this.db.save(item.id, item);
                                     }
-                                    // REFACTOR: Reload everything from the new DB state.
                                     await this.loadStateFromDB();
-                                    await this.loadTimers();
-                                    await this.loadNotepads();
-                                    await this.loadLayout();
-                                    this.renderGrid();
+                                    this.renderAllButtons();
                                     alert("Configuration uploaded successfully!");
                                 }
                             } catch (e) {
@@ -2684,6 +2169,7 @@ async saveState() {
                         reader.readAsText(file);
                     }
 
+                    // New helper methods for Base64 conversion
                     _arrayBufferToBase64(buffer) {
                         let binary = '';
                         const bytes = new Uint8Array(buffer);
@@ -2727,7 +2213,10 @@ async saveState() {
                         dbButtonCountEl.textContent = soundData.length;
 
                         if (navigator.storage && navigator.storage.estimate) {
-                            const { quota, usage } = await navigator.storage.estimate();
+                            const {
+                                quota,
+                                usage
+                            } = await navigator.storage.estimate();
                             dbSizeEl.textContent = this._formatBytes(usage);
                             dbQuotaEl.textContent = this._formatBytes(quota);
                         } else {
@@ -2759,14 +2248,11 @@ async saveState() {
                                 await this.db.clear();
                                 this.buttonsData = [];
                                 this.players.clear();
-                                this.timerCards = [];
-                                this.notepadCards = [];
-                                this.gridLayout = [];
-                                await this.db.save(this.db.CONFIG_KEY, { id: this.db.CONFIG_KEY, numButtons: 8 });
+                                await this.db.save(this.db.CONFIG_KEY, {
+                                    numButtons: 8
+                                });
                                 await this.loadStateFromDB();
-                                this._generateDefaultLayout();
-                                await this._saveLayout();
-                                this.renderGrid();
+                                this.renderAllButtons();
                                 this.closeDbManagerModal();
                             } catch (e) {
                                 console.error("Failed to clear database:", e);
@@ -2791,7 +2277,7 @@ async saveState() {
                             yesBtn.addEventListener('click', handler);
                             noBtn.addEventListener('click', handler);
                             modal.style.display = 'flex';
-                            modal.style.zIndex = 1001;
+                            modal.style.zIndex = 1001; // Ensure it's above other modals
                         });
                     }
 
@@ -2805,6 +2291,7 @@ async saveState() {
                     }
                 }
 
+                // Create and initialize the application
                 const app = new SoundboardManager(new SoundboardDB());
                 app.initialize();
             });
