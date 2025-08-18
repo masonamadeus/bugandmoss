@@ -336,32 +336,35 @@
         }
 
         #button-color-picker {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    border: 2px solid var(--primary-color);
-    background-color: transparent; /* The actual color comes from the swatch inside */
-    cursor: pointer;
-    transition: border-color 0.3s ease;
-}
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border: 2px solid var(--primary-color);
+            background-color: transparent;
+            /* The actual color comes from the swatch inside */
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
 
-#button-color-picker:hover {
-    border-color: var(--highlight-color);
-}
+        #button-color-picker:hover {
+            border-color: var(--highlight-color);
+        }
 
-/* These pseudo-elements style the color preview part of the input */
-#button-color-picker::-webkit-color-swatch-wrapper {
-    padding: 0;
-}
-#button-color-picker::-webkit-color-swatch {
-    border: none;
-}
-#button-color-picker::-moz-color-swatch {
-    border: none;
-}
+        /* These pseudo-elements style the color preview part of the input */
+        #button-color-picker::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        #button-color-picker::-webkit-color-swatch {
+            border: none;
+        }
+
+        #button-color-picker::-moz-color-swatch {
+            border: none;
+        }
 
         .hidden {
             display: none;
@@ -561,7 +564,7 @@
             border-style: none;
         }
 
-        #control-card-actions button:hover{
+        #control-card-actions button:hover {
             box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
             transform: scale(1.02);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -786,98 +789,130 @@
             color: white;
         }
 
+        .timer-sound-select {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .timer-sound-select label {
+            flex-shrink: 0;
+            /* Prevents the label from shrinking */
+        }
+
+        .timer-sound-select select {
+            width: 100%;
+            /* This is the key: it allows the dropdown to shrink
+       smaller than its own content, preventing overflow. */
+            min-width: 0;
+        }
+
         /* UPDATED Styles for the compact Notepad Card */
-.notepad-card {
-    display: flex;
-    flex-direction: column;
-    padding: 0.5rem; /* Reduced padding on the card itself */
-    align-self: stretch;
-}
+        .notepad-card {
+            display: flex;
+            flex-direction: column;
+            padding: 0.5rem;
+            /* Reduced padding on the card itself */
+            align-self: stretch;
+        }
 
-.notepad-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding-bottom: 0.5rem;
-}
+        .notepad-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
 
 
-.notepad-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--secondary-color);
-    flex-shrink: 0; /* Prevent tabs from shrinking */
-}
+        .notepad-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--secondary-color);
+            flex-shrink: 0;
+            /* Prevent tabs from shrinking */
+        }
 
-.notepad-tab {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    border: 1px solid var(--secondary-color);
-    background-color: var(--background-color);
-    padding: 0.1rem 0.4rem; /* Smaller tabs */
-    cursor: pointer;
-    font-size: 0.8rem;
-    border-radius: 4px;
-}
+        .notepad-tab {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--secondary-color);
+            background-color: var(--background-color);
+            padding: 0.1rem 0.4rem;
+            /* Smaller tabs */
+            cursor: pointer;
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
 
-.notepad-tab-title {
-    cursor: pointer;
-    outline: none;
-    font-size: 1rem;
-    white-space: nowrap; /* Prevent title from wrapping */
-    user-select: none;
-}
+        .notepad-tab-title {
+            cursor: pointer;
+            outline: none;
+            font-size: 1rem;
+            white-space: nowrap;
+            /* Prevent title from wrapping */
+            user-select: none;
+        }
 
-.notepad-tab-title[contenteditable="true"] {
-    cursor: text;
-    user-select: text
-}
+        .notepad-tab-title[contenteditable="true"] {
+            cursor: text;
+            user-select: text
+        }
 
-.add-page-btn {
-    border: 1px solid var(--secondary-color);
-    background-color: var(--background-color);
-    padding: 0.1rem 0.4rem; /* Smaller button */
-    cursor: pointer;
-    font-size: 0.8rem;
-    font-weight: bold;
-    border-radius: 4px;
-}
+        .add-page-btn {
+            border: 1px solid var(--secondary-color);
+            background-color: var(--background-color);
+            padding: 0.1rem 0.4rem;
+            /* Smaller button */
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border-radius: 4px;
+        }
 
-.notepad-tab.active {
-    background-color: var(--accent-color);
-    color: white;
-    font-weight: bold;
-    border-color: var(--accent-color);
-    cursor: text;
-}
-.notepad-tab.active { color: white; }
+        .notepad-tab.active {
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: bold;
+            border-color: var(--accent-color);
+            cursor: text;
+        }
 
-.delete-page-btn {
-    color: darkred;
-    font-weight: bold;
-    font-size: 0.9rem;
-    padding: 2px 4px;
-    border-radius: 50%;
-    line-height: 1;
-}
-.delete-page-btn:hover { background-color: rgba(0,0,0,0.2); }
+        .notepad-tab.active {
+            color: white;
+        }
 
-.notepad-content {
-    flex-grow: 1;
-    width: 100%;
-    border: none;
-    background-color: var(--background-color);
-    padding: 0.5rem;
-    font-family: sans-serif;
-    font-size: 1rem;
-    color: var(--primary-color);
-    resize: vertical;
-    box-sizing: border-box;
-}
-.notepad-content:focus { outline: 1px solid var(--highlight-color); }
+        .delete-page-btn {
+            color: darkred;
+            font-weight: bold;
+            font-size: 0.9rem;
+            padding: 2px 4px;
+            border-radius: 50%;
+            line-height: 1;
+        }
+
+        .delete-page-btn:hover {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .notepad-content {
+            flex-grow: 1;
+            width: 100%;
+            border: none;
+            background-color: var(--background-color);
+            padding: 0.5rem;
+            font-family: sans-serif;
+            font-size: 1rem;
+            color: var(--primary-color);
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        .notepad-content:focus {
+            outline: 1px solid var(--highlight-color);
+        }
     </style>
 </head>
 
@@ -893,13 +928,13 @@
     </div>
 
     <template id="notepad-card-template">
-    <div class="sound-card special-function-card notepad-card">
-        <div class="notepad-tabs">
-            <button class="add-page-btn">+</button>
+        <div class="sound-card special-function-card notepad-card">
+            <div class="notepad-tabs">
+                <button class="add-page-btn">+</button>
+            </div>
+            <textarea class="notepad-content" placeholder="Type your notes here..."></textarea>
         </div>
-        <textarea class="notepad-content" placeholder="Type your notes here..."></textarea>
-    </div>
-</template>
+    </template>
 
     <template id="timer-card-template">
         <div class="sound-card special-function-card timer-card">
@@ -974,12 +1009,12 @@
 
 
             <div class="modal-section">
-    <h3>Button Settings</h3>
-    <div class="title-and-color">
-        <input type="color" id="button-color-picker">
-        <input type="text" style="font-size: 1rem;" id="button-name-input">
-    </div>
-</div>
+                <h3>Button Settings</h3>
+                <div class="title-and-color">
+                    <input type="color" id="button-color-picker">
+                    <input type="text" style="font-size: 1rem;" id="button-name-input">
+                </div>
+            </div>
 
 
             <div class="modal-section">
@@ -1010,8 +1045,8 @@
                 <div class="modal-actions-row">
                     <button id="remove-button-modal" class="danger">Delete Button</button>
                     <button id="clear-files-btn"
-                    style="margin-left:auto; background-color:var(--highlight-color); color:var(--primary-color)">Clear
-                    All</button>
+                        style="margin-left:auto; background-color:var(--highlight-color); color:var(--primary-color)">Clear
+                        All</button>
                 </div>
             </div>
 
@@ -1288,165 +1323,165 @@
                     }
                 }
 
-                
 
-class NotepadCard {
-    constructor(element, soundboardManager, dbInstance) {
-        this.cardElement = element;
-        this.soundboardManager = soundboardManager;
-        this.db = dbInstance;
-        this.id = parseInt(this.cardElement.dataset.cardId);
 
-        // DOM Elements
-        this.contentElement = this.cardElement.querySelector('.notepad-content');
-        this.tabsContainer = this.cardElement.querySelector('.notepad-tabs');
-        this.addPageButton = this.cardElement.querySelector('.add-page-btn');
-        
-        // state
-        this.pages = [{ title: 'New Note', content: '' }];
-        this.currentPageIndex = 0;
-        this.height = null;
+                class NotepadCard {
+                    constructor(element, soundboardManager, dbInstance) {
+                        this.cardElement = element;
+                        this.soundboardManager = soundboardManager;
+                        this.db = dbInstance;
+                        this.id = parseInt(this.cardElement.dataset.cardId);
 
-        this.attachListeners();
-        this.loadState();
-    }
+                        // DOM Elements
+                        this.contentElement = this.cardElement.querySelector('.notepad-content');
+                        this.tabsContainer = this.cardElement.querySelector('.notepad-tabs');
+                        this.addPageButton = this.cardElement.querySelector('.add-page-btn');
 
-    attachListeners() {
-        this.contentElement.addEventListener('input', () => {
-            this.pages[this.currentPageIndex].content = this.contentElement.value;
-            this.saveState();
-        });
+                        // state
+                        this.pages = [{ title: 'New Note', content: '' }];
+                        this.currentPageIndex = 0;
+                        this.height = null;
 
-        this.contentElement.addEventListener('mouseup', () => {
-        // Only save if a height style was actually set by resizing
-        if (this.contentElement.style.height) {
-            this.height = this.contentElement.style.height;
-            this.saveState();
-        }
-    });
+                        this.attachListeners();
+                        this.loadState();
+                    }
 
-        this.addPageButton.addEventListener('click', () => this.addPage());
-        
-        this.tabsContainer.addEventListener('click', (e) => {
-        // First, handle the delete button action
-        if (e.target.classList.contains('delete-page-btn')) {
-            const tab = e.target.closest('.notepad-tab');
-            if (tab) {
-                this.deletePage(parseInt(tab.dataset.pageIndex));
-            }
-            return; // Stop processing
-        }
+                    attachListeners() {
+                        this.contentElement.addEventListener('input', () => {
+                            this.pages[this.currentPageIndex].content = this.contentElement.value;
+                            this.saveState();
+                        });
 
-        // Now, handle the page switch action
-        const tabToSwitchTo = e.target.closest('.notepad-tab');
-        if (tabToSwitchTo) {
-            const targetIndex = parseInt(tabToSwitchTo.dataset.pageIndex);
-            
-            // Only switch pages if the clicked tab is not already the active one.
-            if (targetIndex !== this.currentPageIndex) {
-                this.switchPage(targetIndex);
-            }
-            // If it IS the active tab, we do nothing, which lets you click to edit the title.
-        }
-    });
+                        this.contentElement.addEventListener('mouseup', () => {
+                            // Only save if a height style was actually set by resizing
+                            if (this.contentElement.style.height) {
+                                this.height = this.contentElement.style.height;
+                                this.saveState();
+                            }
+                        });
 
-        this.tabsContainer.addEventListener('input', (e) => {
-            if (e.target.classList.contains('notepad-tab-title')) {
-                const tab = e.target.closest('.notepad-tab');
-                const pageIndex = parseInt(tab.dataset.pageIndex);
-                this.pages[pageIndex].title = e.target.textContent;
-                this.saveState();
-            }
-        });
-    }
+                        this.addPageButton.addEventListener('click', () => this.addPage());
 
-    async loadState() {
-    const state = await this.db.get(`notepad-${this.id}`);
-    if (state) {
-        this.pages = state.pages.map(p => ({ title: 'Note', content: '', ...p }));
-        this.currentPageIndex = state.currentPageIndex;
-        this.height = state.height || null; // UPDATED: Load the card's height
-    }
-    this.render();
-}
+                        this.tabsContainer.addEventListener('click', (e) => {
+                            // First, handle the delete button action
+                            if (e.target.classList.contains('delete-page-btn')) {
+                                const tab = e.target.closest('.notepad-tab');
+                                if (tab) {
+                                    this.deletePage(parseInt(tab.dataset.pageIndex));
+                                }
+                                return; // Stop processing
+                            }
 
-async saveState() {
-    const state = {
-        pages: this.pages,
-        currentPageIndex: this.currentPageIndex,
-        height: this.height // UPDATED: Save the card's height
-    };
-    await this.db.save(`notepad-${this.id}`, state);
-}
-    
-    addPage() {
-        this.pages.push({ title: 'New Note', content: '' });
-        this.currentPageIndex = this.pages.length - 1;
-        this.render();
-        this.saveState();
-    }
+                            // Now, handle the page switch action
+                            const tabToSwitchTo = e.target.closest('.notepad-tab');
+                            if (tabToSwitchTo) {
+                                const targetIndex = parseInt(tabToSwitchTo.dataset.pageIndex);
 
-    deletePage(index) {
-    // If there is more than one page, just delete the page
-    if (this.pages.length > 1) {
-        this.pages.splice(index, 1);
-        if (this.currentPageIndex >= index) {
-            this.currentPageIndex = Math.max(0, this.currentPageIndex - 1);
-        }
-        this.render();
-        this.saveState();
-    } else {
-        // If it's the last page, delete the entire note card
-        this.soundboardManager.removeNotepad(this.id);
-    }
-}
-    
-    switchPage(index) {
-        if (index >= 0 && index < this.pages.length) {
-            this.currentPageIndex = index;
-            this.render();
-            this.saveState();
-        }
-    }
+                                // Only switch pages if the clicked tab is not already the active one.
+                                if (targetIndex !== this.currentPageIndex) {
+                                    this.switchPage(targetIndex);
+                                }
+                                // If it IS the active tab, we do nothing, which lets you click to edit the title.
+                            }
+                        });
 
-    render() {
-    const currentPage = this.pages[this.currentPageIndex];
-    this.contentElement.value = currentPage.content;
-    
-    if (this.height) {
-        this.contentElement.style.height = this.height;
-    } else {
-        this.contentElement.style.height = '';
-    }
-    
-    this.tabsContainer.querySelectorAll('.notepad-tab').forEach(tab => tab.remove());
-    
-    this.pages.forEach((page, index) => {
-        const tab = document.createElement('div');
-        tab.className = 'notepad-tab';
-        tab.dataset.pageIndex = index;
+                        this.tabsContainer.addEventListener('input', (e) => {
+                            if (e.target.classList.contains('notepad-tab-title')) {
+                                const tab = e.target.closest('.notepad-tab');
+                                const pageIndex = parseInt(tab.dataset.pageIndex);
+                                this.pages[pageIndex].title = e.target.textContent;
+                                this.saveState();
+                            }
+                        });
+                    }
 
-        const tabTitle = document.createElement('span');
-        tabTitle.className = 'notepad-tab-title';
-        tabTitle.textContent = page.title;
-        
-        // UPDATED: Explicitly use strings for contentEditable for better compatibility
-        tabTitle.contentEditable = (index === this.currentPageIndex) ? 'true' : 'false';
-        
-        const deleteBtn = document.createElement('span');
-        deleteBtn.className = 'delete-page-btn';
-        deleteBtn.textContent = 'x';
-        
-        tab.appendChild(tabTitle);
-        tab.appendChild(deleteBtn);
+                    async loadState() {
+                        const state = await this.db.get(`notepad-${this.id}`);
+                        if (state) {
+                            this.pages = state.pages.map(p => ({ title: 'Note', content: '', ...p }));
+                            this.currentPageIndex = state.currentPageIndex;
+                            this.height = state.height || null; // UPDATED: Load the card's height
+                        }
+                        this.render();
+                    }
 
-        if (index === this.currentPageIndex) {
-            tab.classList.add('active');
-        }
-        this.tabsContainer.insertBefore(tab, this.addPageButton);
-    });
-}
-}
+                    async saveState() {
+                        const state = {
+                            pages: this.pages,
+                            currentPageIndex: this.currentPageIndex,
+                            height: this.height // UPDATED: Save the card's height
+                        };
+                        await this.db.save(`notepad-${this.id}`, state);
+                    }
+
+                    addPage() {
+                        this.pages.push({ title: 'New Note', content: '' });
+                        this.currentPageIndex = this.pages.length - 1;
+                        this.render();
+                        this.saveState();
+                    }
+
+                    deletePage(index) {
+                        // If there is more than one page, just delete the page
+                        if (this.pages.length > 1) {
+                            this.pages.splice(index, 1);
+                            if (this.currentPageIndex >= index) {
+                                this.currentPageIndex = Math.max(0, this.currentPageIndex - 1);
+                            }
+                            this.render();
+                            this.saveState();
+                        } else {
+                            // If it's the last page, delete the entire note card
+                            this.soundboardManager.removeNotepad(this.id);
+                        }
+                    }
+
+                    switchPage(index) {
+                        if (index >= 0 && index < this.pages.length) {
+                            this.currentPageIndex = index;
+                            this.render();
+                            this.saveState();
+                        }
+                    }
+
+                    render() {
+                        const currentPage = this.pages[this.currentPageIndex];
+                        this.contentElement.value = currentPage.content;
+
+                        if (this.height) {
+                            this.contentElement.style.height = this.height;
+                        } else {
+                            this.contentElement.style.height = '';
+                        }
+
+                        this.tabsContainer.querySelectorAll('.notepad-tab').forEach(tab => tab.remove());
+
+                        this.pages.forEach((page, index) => {
+                            const tab = document.createElement('div');
+                            tab.className = 'notepad-tab';
+                            tab.dataset.pageIndex = index;
+
+                            const tabTitle = document.createElement('span');
+                            tabTitle.className = 'notepad-tab-title';
+                            tabTitle.textContent = page.title;
+
+                            // UPDATED: Explicitly use strings for contentEditable for better compatibility
+                            tabTitle.contentEditable = (index === this.currentPageIndex) ? 'true' : 'false';
+
+                            const deleteBtn = document.createElement('span');
+                            deleteBtn.className = 'delete-page-btn';
+                            deleteBtn.textContent = 'x';
+
+                            tab.appendChild(tabTitle);
+                            tab.appendChild(deleteBtn);
+
+                            if (index === this.currentPageIndex) {
+                                tab.classList.add('active');
+                            }
+                            this.tabsContainer.insertBefore(tab, this.addPageButton);
+                        });
+                    }
+                }
 
                 class TimerCard {
                     constructor(element, soundboardManager, dbInstance) {
@@ -2348,15 +2383,13 @@ async saveState() {
                     }
 
                     _checkForPriorityPlaying() {
-                        const playersArray = Array.from(this.players.values());
-                        const priorityIsPlaying = playersArray.some(player => {
-                            const playerIndex = playersArray.indexOf(player);
-                            const playerButtonData = this.buttonsData[playerIndex];
-                            return player.isPlaying && playerButtonData.priority;
-                        });
-
-                        if (priorityIsPlaying) { return true; }
-                        return false;
+                        for (const [playerIndex, player] of this.players.entries()) {
+                            // Check if the sound is actually playing AND belongs to a priority button.
+                            if (player.isPlaying && this.buttonsData[playerIndex]?.priority) {
+                                return true; // Found another priority sound playing, so stop checking.
+                            }
+                        }
+                        return false; // No other priority sounds are playing.
                     };
 
 
@@ -2365,19 +2398,28 @@ async saveState() {
                         const player = this.players.get(index);
                         if (!player) return;
 
+                        // Check if the sound that just ended was a priority sound.
                         if (buttonData.priority) {
+                            // Check if any OTHER priority sounds are still playing.
                             let isOtherPriorityPlaying = this._checkForPriorityPlaying();
+
+                            // If no other priority sounds are running, it's safe to un-duck.
                             if (!isOtherPriorityPlaying) {
-                                this.players.forEach(duckedPlayer => {
-                                    const duckedPlayerIndex = [...this.players.entries()].find(([key, val]) => val === duckedPlayer)[0];
+                                // NEW: This loop now correctly gets the index for each ducked player.
+                                this.players.forEach((duckedPlayer, duckedPlayerIndex) => {
                                     const duckedPlayerButtonData = this.buttonsData[duckedPlayerIndex];
-                                    const targetVolume = duckedPlayerButtonData.volume;
-                                    const slider = this._getVolumeSlider(duckedPlayerIndex);
-                                    this._lerpVolume(duckedPlayer.audio, slider, duckedPlayer.audio.volume, targetVolume, duckedPlayer.fadeSpeed);
+
+                                    // Only restore volume on sounds that were actually ducked (i.e., non-priority and still playing).
+                                    if (duckedPlayer.isPlaying && !duckedPlayerButtonData.priority) {
+                                        const targetVolume = duckedPlayerButtonData.volume;
+                                        const slider = this._getVolumeSlider(duckedPlayerIndex);
+                                        this._lerpVolume(duckedPlayer.audio, slider, duckedPlayer.audio.volume, targetVolume, duckedPlayer.fadeSpeed);
+                                    }
                                 });
                             }
                         }
 
+                        // This handles the autoplay/loop logic after the ducking is resolved.
                         if (buttonData.loop) {
                             this.playFile(index, player.playback.currentFileIndex, buttonData.priority);
                         } else if (buttonData.autoplay) {
@@ -2480,21 +2522,21 @@ async saveState() {
                     // ================================================================
 
                     openSettingsModal(index) {
-    this.activeModalIndex = index;
-    const buttonData = this.buttonsData[index];
-    const modal = document.getElementById('settings-modal');
+                        this.activeModalIndex = index;
+                        const buttonData = this.buttonsData[index];
+                        const modal = document.getElementById('settings-modal');
 
-    // Set the initial value of the color picker
-    document.getElementById('button-color-picker').value = buttonData.color;
+                        // Set the initial value of the color picker
+                        document.getElementById('button-color-picker').value = buttonData.color;
 
-    document.getElementById('button-name-input').value = buttonData.name;
-    document.getElementById('shuffle-checkbox').checked = buttonData.shuffle;
-    document.getElementById('autoplay-checkbox').checked = buttonData.autoplay;
-    document.getElementById('priority-checkbox').checked = buttonData.priority;
-    this._renderFileList(buttonData.files);
-    
-    modal.style.display = 'flex';
-}
+                        document.getElementById('button-name-input').value = buttonData.name;
+                        document.getElementById('shuffle-checkbox').checked = buttonData.shuffle;
+                        document.getElementById('autoplay-checkbox').checked = buttonData.autoplay;
+                        document.getElementById('priority-checkbox').checked = buttonData.priority;
+                        this._renderFileList(buttonData.files);
+
+                        modal.style.display = 'flex';
+                    }
 
                     closeSettingsModal() {
                         const modal = document.getElementById('settings-modal');
