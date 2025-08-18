@@ -4,6 +4,7 @@
     - ADD LOOP FUNCTIONALITY (EASY)
     - ADD 'TIMER CARD' TO AUTOMATICALLY PLAY US OUT
 -->
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -367,8 +368,10 @@
 
         .file-list {
             list-style: none;
+            max-height: 40vh;
+            overflow-y: auto;
             padding: 0;
-            margin: 0;
+            list-style-type: none;
         }
 
         .file-list li {
@@ -627,6 +630,8 @@
             z-index: 2;
             /* Puts the label in front of the color picker */
         }
+
+        
     </style>
 </head>
 
@@ -640,11 +645,12 @@
                     <button id="rearrange-mode-btn" style="background-color:var(--highlight-color)"
                         class="span-two-columns">Rearrange</button>
                     <button id="upload-config-btn">Upload</button>
-                    <button id="download-config-btn">Download</button>
                     <button id="db-manager-btn">Storage</button>
+                    <button id="download-config-btn">Download</button>
                     <button id="cosmetics-btn">Cosmetics</button>
                 </div>
             </div>
+            
         </div>
 
     </div>
@@ -790,6 +796,24 @@
         </div>
 
         <script>
+
+            function lerpVolume(audio, from, to, duration) {
+                const start = performance.now();
+
+                function step(now) {
+                    const t = Math.min((now - start) / duration, 1); // 0 → 1
+                    audio.volume = from + (to - from) * t;           // linear interpolation
+
+                    if (t < 1) {
+                        requestAnimationFrame(step);
+                    }
+                }
+
+                requestAnimationFrame(step);
+            }
+
+            // don't fucking judge me I'm lazy
+
             function loadGoogleFonts(fontNames) {
                 if (!fontNames || fontNames.length === 0) {
                     console.warn("No font names provided to loadGoogleFonts.");
@@ -839,6 +863,7 @@
                         this.audio = audioElement || new Audio();
                         this.isPlaying = false;
                         this.duckAmount = 0.3;
+                        this.fadeSpeed = 200;
                         this.playback = {
                             currentFileIndex: 0,
                         };
@@ -1463,7 +1488,21 @@
                         }
                     }
 
+                    _lerpVolume(audio, slider, from, to, duration) {
+                        const start = performance.now();
 
+                        function step(now) {
+                            const t = Math.min((now - start) / duration, 1); // 0 → 1
+                            audio.volume = Math.max(0, Math.min(1, from + (to - from) * t));
+                            slider.value = audio.volume;
+
+                            if (t < 1) {
+                                requestAnimationFrame(step);
+                            }
+                        }
+
+                        requestAnimationFrame(step);
+                    }
 
                     handlePriorityDucking() {
                         this.players.forEach((player, playerIndex) => {
@@ -1471,11 +1510,10 @@
 
                             // Duck non-priority sounds
                             if (!playerButtonData.priority) {
-                                player.audio.volume = playerButtonData.volume * 0.36;
+                                const duckTarget = playerButtonData.volume * player.duckAmount;
                                 const slider = this._getVolumeSlider(playerIndex);
-                                if (slider) {
-                                    slider.value = player.audio.volume;
-                                }
+                                this._lerpVolume(player.audio, slider, player.audio.volume, duckTarget, player.fadeSpeed);
+
                             }
                         });
                     }
@@ -1495,11 +1533,6 @@
 
                         // Use .some() on the new array to efficiently check for a condition.
                         const priorityIsPlaying = playersArray.some(player => {
-                            // You'll need a way to get the button data.
-                            // Assuming your players are stored in the same order as your button data.
-                            // If not, you need to find the matching button data for the player.
-                            // A better approach would be to store the button data on the player object itself.
-                            // For now, let's assume the order is the same, so we can use playerIndex from the loop.
                             const playerIndex = playersArray.indexOf(player);
                             const playerButtonData = this.buttonsData[playerIndex];
 
@@ -1527,11 +1560,9 @@
                                 this.players.forEach(duckedPlayer => {
                                     const duckedPlayerIndex = [...this.players.entries()].find(([key, val]) => val === duckedPlayer)[0];
                                     const duckedPlayerButtonData = this.buttonsData[duckedPlayerIndex];
-                                    duckedPlayer.audio.volume = duckedPlayerButtonData.volume; // Restore original volume
+                                    const targetVolume = duckedPlayerButtonData.volume;
                                     const slider = this._getVolumeSlider(duckedPlayerIndex);
-                                    if (slider) {
-                                        slider.value = duckedPlayer.audio.volume;
-                                    }
+                                    this._lerpVolume(duckedPlayer.audio, slider, duckedPlayer.audio.volume, targetVolume, 200);
                                 });
                             }
 
