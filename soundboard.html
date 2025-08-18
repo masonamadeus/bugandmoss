@@ -1143,6 +1143,19 @@
                 document.head.appendChild(link);
             };
 
+            function getContrastColor(hexColor) {
+                    // 1. Remove '#' and convert hex to R, G, B numbers
+                    const r = parseInt(hexColor.substr(1, 2), 16);
+                    const g = parseInt(hexColor.substr(3, 2), 16);
+                    const b = parseInt(hexColor.substr(5, 2), 16);
+
+                    // 2. Calculate the luminance using the standard formula
+                    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+                    // 3. Return dark or light color based on a threshold
+                    return luminance > 0.5 ? 'var(--primary-color)' : 'var(--secondary-color)'; // Returns dark for light backgrounds, and vice-versa
+                }
+
             document.addEventListener('DOMContentLoaded', () => {
 
                 function getRandom(min, max) {
@@ -2079,6 +2092,7 @@
 
                     _createSoundCardElement(buttonData, index) {
                         const card = document.createElement('div');
+                        const textColor = getContrastColor(buttonData.color);
                         card.className = 'sound-card';
                         // REFACTOR: Use distinct data attributes for type and ID.
                         card.dataset.cardType = 'sound';
@@ -2086,7 +2100,7 @@
                         card.dataset.index = index; // Keep for compatibility
                         card.setAttribute('draggable', this.isRearranging);
                         card.innerHTML = `
-<button class="sound-button" data-action="play" style="background-color: ${buttonData.color};">
+<button class="sound-button" data-action="play" style="background-color: ${buttonData.color}; color: ${textColor}">
 <div class="progress-overlay" style="width: 0%;"></div>
 <span class="button-text">${buttonData.name}</span>
 <div class="settings-triangle-btn" data-action="settings">
