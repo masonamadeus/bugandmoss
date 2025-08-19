@@ -2241,11 +2241,14 @@
 
                 // REFACTOR: New method to create a default layout if none exists.
                 _generateDefaultLayout() {
-                    this.gridLayout = [];
-                    this.buttonsData.forEach((btn) => this.gridLayout.push({ type: 'sound', id: btn.id }));
-                    this.timerCards.forEach((timer) => this.gridLayout.push({ type: 'timer', id: timer.id }));
-                    this.notepadCards.forEach((note) => this.gridLayout.push({ type: 'notepad', id: note.id }));
-                    this.gridLayout.push({ type: 'control', id: 'control-card' });
+                    this.gridLayout = [
+                        { type: 'sound', id: 0 },
+                        { type: 'sound', id: 1 },
+                        { type: 'sound', id: 2 },
+                        { type: 'sound', id: 3 },
+                        { type: 'timer', id: 0 },
+                        { type: 'control', id: 'control-card' }
+                    ];
                 }
 
                 async loadNotepads() {
@@ -2416,8 +2419,11 @@
                     const soundData = await this.db._dbRequest(this.db.SOUNDS_STORE, 'readonly', 'getAll');
                     let configData = await this.db.get(this.db.CONFIG_KEY);
                     if (!configData) {
-                        configData = { id: this.db.CONFIG_KEY, numButtons: 8 };
+                        configData = { id: this.db.CONFIG_KEY, numButtons: 4 };
                         await this.db.save(configData.id, configData);
+
+                        // Set the default number of timers to 1
+                        await this.db.save('timerCount', { id: 'timerCount', count: 1 });
                     }
 
                     const numButtons = configData.numButtons;
