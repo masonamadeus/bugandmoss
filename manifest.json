@@ -3,6 +3,7 @@
   "short_name": "Really Simple Soundboard",
   "description": "A simple, feature-rich, slightly-janky, offline-capable soundboard app for broad (and pod) casting.",
   "start_url": "./soundboard.html",
+  "id": "./soundboard.html",
   "display": "standalone",
   "background_color": "#3bb273",
   "theme_color": "#ff914d",

@@ -1,5 +1,5 @@
 // A version number for our cache. Change this string to force an update.
-const CACHE_NAME = 'Bug-And-Moss-Soundboard-v011';
+const CACHE_NAME = 'Bug-And-Moss-Soundboard-v013'; // lucky 13
 
 // The list of files that make up the "app shell".
 const urlsToCache = [
