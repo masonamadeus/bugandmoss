@@ -1373,6 +1373,16 @@
                 .join(' ');          // -> "My Gaming Sounds"
         }
 
+        function debounce(func, delay) {
+                let timeoutId;
+                return function (...args) {
+                    clearTimeout(timeoutId);
+                    timeoutId = setTimeout(() => {
+                        func.apply(this, args);
+                    }, delay);
+                };
+            }
+
         function slugify(text) {
             return text.toString().toLowerCase().trim()
                 .replace(/\s+/g, '-')           // Replace spaces with -
@@ -2547,7 +2557,8 @@
                     });
 
                     this.soundboardGrid.addEventListener('click', (event) => this.handleGridClick(event));
-                    this.soundboardGrid.addEventListener('input', (event) => this.handleSliderChange(event));
+                    // debounce the slider input to save to DB only after the user stops sliding for 250ms
+                    this.soundboardGrid.addEventListener('input', debounce((event) => this.handleSliderChange(event), 250));
                     this.soundboardGrid.addEventListener('dblclick', (event) => this.handleGridDoubleClick(event));
 
                     this.soundboardGrid.addEventListener('dragstart', (e) => this.handleDragStart(e));
