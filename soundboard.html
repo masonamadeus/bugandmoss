@@ -1381,17 +1381,28 @@
         }
 
         function loadGoogleFonts(fontNames) {
-            if (!fontNames || fontNames.length === 0) {
-                console.warn("No font names provided to loadGoogleFonts.");
-                return;
-            }
-            const formattedNames = fontNames.map(name => name.replace(/\s+/g, '+'));
-            const fontUrl = `https://fonts.googleapis.com/css?family=${formattedNames.join('|')}&display=swap`;
-            const link = document.createElement('link');
-            link.href = fontUrl;
-            link.rel = 'stylesheet';
-            document.head.appendChild(link);
-        };
+                if (!fontNames || fontNames.length === 0) {
+                    console.warn("No font names provided to loadGoogleFonts.");
+                    return;
+                }
+
+                const FONT_STYLESHEET_ID = 'google-fonts-stylesheet';
+
+                // Check for and remove the old font link, if it exists
+                const oldLink = document.getElementById(FONT_STYLESHEET_ID);
+                if (oldLink) {
+                    oldLink.remove();
+                }
+
+                // Create and add the new font link
+                const formattedNames = fontNames.map(name => name.replace(/\s+/g, '+'));
+                const fontUrl = `https://fonts.googleapis.com/css?family=${formattedNames.join('|')}&display=swap`;
+                const link = document.createElement('link');
+                link.id = FONT_STYLESHEET_ID; // Give the new link a consistent ID
+                link.href = fontUrl;
+                link.rel = 'stylesheet';
+                document.head.appendChild(link);
+            };
 
         function getContrastColor(hexColor) {
             // 1. Remove '#' and convert hex to R, G, B numbers
