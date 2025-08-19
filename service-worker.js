@@ -1,5 +1,5 @@
 // A version number for our cache. Change this string to force an update.
-const CACHE_NAME = 'Bug-And-Moss-Soundboard-v015'; 
+const CACHE_NAME = 'Bug-And-Moss-Soundboard-v016'; 
 
 // The list of files that make up the "app shell".
 const urlsToCache = [
@@ -38,18 +38,24 @@ self.addEventListener('activate', event => {
 
 // The 'fetch' event intercepts all network requests.
 self.addEventListener('fetch', event => {
-  // We only apply our special logic for navigation requests (i.e., for HTML pages).
+  // We only apply special logic for navigation requests (i.e., for HTML pages).
   if (event.request.mode === 'navigate') {
-    // For any page navigation, always respond with the cached app shell.
-    event.respondWith(
-      caches.match('./soundboard.html').then(response => {
-        return response || fetch(event.request);
-      })
-    );
+    const requestUrl = new URL(event.request.url);
+
+    // ONLY if the navigation is for the soundboard, serve the cached app shell.
+    if (requestUrl.pathname.endsWith('/soundboard.html')) {
+      event.respondWith(
+        caches.match('./soundboard.html').then(response => {
+          return response || fetch(event.request);
+        })
+      );
+    }
+    // For all other navigation requests (like the homepage), we do nothing.
+    // The request will pass through to the network as if the service worker wasn't here.
     return;
   }
 
-  // For all other requests (like images, etc.), use a standard "cache-first" strategy.
+  // For all other requests (like images), use a "cache-first" strategy.
   event.respondWith(
     caches.match(event.request).then(response => {
       return response || fetch(event.request);
