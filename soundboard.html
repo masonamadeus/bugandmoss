@@ -1758,48 +1758,76 @@
                 }
 
                 startTimer(isResume = false) {
-                    // Check if a timer is already running
-                    if (this.isTimerRunning || this.timerCountdown <= 0) return;
+    if (this.isTimerRunning || this.timerCountdown <= 0) return;
 
-                    if (!isResume) { this.hasPlayedEndSound = false; this.preloadedEndSound = null; }
+    // Reset state for a new run
+    this.hasPlayedEndSound = false;
+    this.endSoundData = null;
 
-                    // Get the outro sound's duration if it's valid
-                    const endSoundId = parseInt(this.timerEndSoundSelect.value);
+    const endSoundId = parseInt(this.timerEndSoundSelect.value);
+    
+    // --- NEW LOGIC ---
+    // 1. Get the essential sound data immediately (synchronously).
+    if (!isNaN(endSoundId)) {
+        const buttonData = this.soundboardManager.buttonsData[endSoundId];
+        if (buttonData && buttonData.files.length > 0) {
+            const player = this.soundboardManager._getAudioPlayer(endSoundId);
+            const fileIndex = buttonData.shuffle
+                ? randomButNot(0, buttonData.files.length, player.playback.currentFileIndex)
+                : player.playback.currentFileIndex;
+            
+            this.endSoundData = {
+                index: endSoundId,
+                fileIndex: fileIndex,
+                priority: buttonData.priority,
+                duration: null // Duration is still unknown
+            };
 
-                    if (!isNaN(endSoundId)) {
-                        this.preloadEndSound(endSoundId);
+            // 2. Start calculating the duration in the background, but DO NOT wait for it.
+            this.getAudioDuration(buttonData.files[fileIndex].arrayBuffer)
+                .then(duration => {
+                    if (this.endSoundData) { // Check if timer is still relevant
+                        this.endSoundData.duration = duration;
                     }
+                }).catch(err => console.error("Could not get audio duration:", err));
+        }
+    }
+    // --- END NEW LOGIC ---
 
-                    // Play start sound
-                    const startSoundId = parseInt(this.timerStartSoundSelect.value);
-                    if (!isNaN(startSoundId) && startSoundId !== '' && !isResume) {
-                        this.soundboardManager.togglePlay(startSoundId).catch(error => {
-                            console.error('Failed to play start sound:', error);
-                        });
-                    }
+    // Play the start sound (if any)
+    const startSoundId = parseInt(this.timerStartSoundSelect.value);
+    if (!isNaN(startSoundId) && startSoundId !== '' && !isResume) {
+        this.soundboardManager.togglePlay(startSoundId).catch(error => {
+            console.error('Failed to play start sound:', error);
+        });
+    }
 
-                    this.isTimerRunning = true;
-                    this.timerDisplay.classList.add('running');
+    this.isTimerRunning = true;
+    this.timerDisplay.classList.add('running');
 
-                    // Set up the interval
-                    this.timerInterval = setInterval(() => {
-                        this.timerCountdown--;
-                        this.renderTimerDisplay();
-                        this.saveTimerState();
+    // 3. The timer starts ticking immediately.
+    this.timerInterval = setInterval(() => {
+        this.timerCountdown--;
+        this.renderTimerDisplay();
+        this.saveTimerState();
 
-                        // New logic: Check if the outro sound should play
-                        if (this.preloadedEndSound && !this.hasPlayedEndSound && this.timerCountdown <= this.preloadedEndSound.duration) {
-                            this.playEndSound();
-                            this.hasPlayedEndSound = true;
-                        }
+        // The "play-out" check. This only works if the duration was calculated in time.
+        if (this.endSoundData && this.endSoundData.duration && !this.hasPlayedEndSound && this.timerCountdown <= this.endSoundData.duration) {
+            this.playEndSound();
+            this.hasPlayedEndSound = true;
+        }
 
-                        if (this.timerCountdown <= 0) {
-                            this.stopTimer(true); // Call stop and indicate that it's from a countdown end
-                        }
-                    }, 1000);
+        if (this.timerCountdown <= 0) {
+            // The "LAST RESORT" check. This fires on the final tick.
+            if (!this.hasPlayedEndSound) {
+                this.playEndSound(); // This works because we saved the essential data at the start.
+            }
+            this.stopTimer(true);
+        }
+    }, 1000);
 
-                    this.saveTimerState();
-                }
+    this.saveTimerState();
+}
 
                 stopTimer(isEnded = false) {
                     clearInterval(this.timerInterval);
@@ -1835,15 +1863,14 @@
                 }
 
                 playEndSound() {
-                    const endSoundId = parseInt(this.timerEndSoundSelect.value);
-                    const preloaded = this.preloadedEndSound;
-
-                    if (!isNaN(endSoundId) && endSoundId !== '' && preloaded) {
-                        this.soundboardManager.playFile(preloaded.index, preloaded.fileIndex, preloaded.priority).catch(error => {
-                            console.error('Failed to play end sound:', error);
-                        });
-                    }
-                }
+    // This now uses the new endSoundData object
+    if (this.endSoundData) {
+        this.soundboardManager.playFile(this.endSoundData.index, this.endSoundData.fileIndex, this.endSoundData.priority).catch(error => {
+            console.error('Failed to play end sound:', error);
+        });
+        this.hasPlayedEndSound = true; // Mark as played
+    }
+}
 
                 async removeTimer() {
                     const confirmed = await this.soundboardManager.showConfirmModal('Are you sure you want to delete this timer?');
