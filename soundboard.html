@@ -926,14 +926,14 @@
             color: var(--primary-color);
             resize: vertical;
             box-sizing: border-box;
-            min-height:126px
+            min-height: 126px
         }
 
         .notepad-content:focus {
             outline: 1px solid var(--highlight-color);
         }
 
-        
+
         .help-accordion {
             width: 100%;
         }
@@ -981,7 +981,8 @@
             white-space: pre-line;
         }
 
-        .accordion-content p, .accordion-content ul {
+        .accordion-content p,
+        .accordion-content ul {
             margin-block-start: 0;
         }
 
@@ -1026,41 +1027,84 @@
         }
 
         @keyframes skitter {
-  /* Start and end in the original position */
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  
-  /* Quick dash and turn */
-  4% { transform: translate(15px, 5px) rotate(25deg); }
-  /* Pause */
-  8% { transform: translate(15px, 5px) rotate(25deg); }
-  
-  /* Fast dash back across the screen */
-  15% { transform: translate(-10px, -10px) rotate(-15deg); }
-  
-  /* A small, quick jitter */
-  18% { transform: translate(-8px, -12px) rotate(-20deg); }
-  20% { transform: translate(-10px, -10px) rotate(-15deg); }
-  
-  /* Another dash and a longer pause */
-  28% { transform: translate(20px, -5px) rotate(40deg); }
-  35% { transform: translate(20px, -5px) rotate(40deg); }
-  
-  /* A long, slow drift down */
-  50% { transform: translate(-15px, 20px) rotate(-30deg); }
-  
-  /* Pause again */
-  60% { transform: translate(-15px, 20px) rotate(-30deg); }
 
-  /* Jitter in place */
-  63% { transform: translate(-12px, 22px) rotate(-35deg); }
-  65% { transform: translate(-15px, 20px) rotate(-30deg); }
+            /* Start and end in the original position */
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
 
-  /* Final quick dash before returning home */
-  75% { transform: translate(10px, 10px) rotate(15deg); }
-  85% { transform: translate(10px, 10px) rotate(15deg); }
+            /* Quick dash and turn */
+            4% {
+                transform: translate(15px, 5px) rotate(25deg);
+            }
 
-  /* Settle back to origin */
-  95% { transform: translate(2px, 2px) rotate(5deg); }
+            /* Pause */
+            8% {
+                transform: translate(15px, 5px) rotate(25deg);
+            }
+
+            /* Fast dash back across the screen */
+            15% {
+                transform: translate(-10px, -10px) rotate(-15deg);
+            }
+
+            /* A small, quick jitter */
+            18% {
+                transform: translate(-8px, -12px) rotate(-20deg);
+            }
+
+            20% {
+                transform: translate(-10px, -10px) rotate(-15deg);
+            }
+
+            /* Another dash and a longer pause */
+            28% {
+                transform: translate(20px, -5px) rotate(40deg);
+            }
+
+            35% {
+                transform: translate(20px, -5px) rotate(40deg);
+            }
+
+            /* A long, slow drift down */
+            50% {
+                transform: translate(-15px, 20px) rotate(-30deg);
+            }
+
+            /* Pause again */
+            60% {
+                transform: translate(-15px, 20px) rotate(-30deg);
+            }
+
+            /* Jitter in place */
+            63% {
+                transform: translate(-12px, 22px) rotate(-35deg);
+            }
+
+            65% {
+                transform: translate(-15px, 20px) rotate(-30deg);
+            }
+
+            /* Final quick dash before returning home */
+            75% {
+                transform: translate(10px, 10px) rotate(15deg);
+            }
+
+            85% {
+                transform: translate(10px, 10px) rotate(15deg);
+            }
+
+            /* Settle back to origin */
+            95% {
+                transform: translate(2px, 2px) rotate(5deg);
+            }
+        }
+
+        .install-button-modal:disabled {
+    background-color: #a0aec0; /* A neutral grey color */
+    cursor: not-allowed;
+    opacity: 0.6;
 }
     </style>
 </head>
@@ -1137,6 +1181,7 @@
                 Board</button>
             <button id="cosmetics-btn">Cosmetics</button>
             <button id="db-manager-btn">Storage</button>
+            
 
         </div>
     </div>
@@ -1244,6 +1289,9 @@
             </div>
 
             <div class="modal-section">
+        </div>
+
+            <div class="modal-section">
                 <button id="clear-database-btn" class="danger">Delete Everything & Try Again</button>
             </div>
         </div>
@@ -1255,7 +1303,8 @@
                 <h4>Font Selection</h4>
                 <label for="font-input">Enter a font name:</label>
                 <input type="text" id="font-input" placeholder="Wellfleet">
-                <small>You can use any font from <a href="https://fonts.google.com/" target="_blank" rel="noopener noreferrer">Google
+                <small>You can use any font from <a href="https://fonts.google.com/" target="_blank"
+                        rel="noopener noreferrer">Google
                         Fonts</a>.</small>
             </div>
             <div class="modal-section">
@@ -1357,6 +1406,45 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+
+            // --- PWA INSTALL HANDLER ---
+            let deferredPrompt; // This variable will save the event
+            const installButton = document.getElementById('install-pwa-btn');
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // Prevent the mini-infobar from appearing on mobile
+                e.preventDefault();
+                // Stash the event so it can be triggered later.
+                deferredPrompt = e;
+                // Update UI to notify the user they can install the PWA
+                if (installButton) {
+                    installButton.disabled = false;
+                }
+            });
+
+            if (installButton) {
+                installButton.addEventListener('click', async () => {
+                    if (!deferredPrompt) {
+                        return; // The prompt isn't available
+                    }
+                    // Show the install prompt
+                    deferredPrompt.prompt();
+                    // Wait for the user to respond to the prompt
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`User response to the install prompt: ${outcome}`);
+                    // We've used the prompt, and can't use it again, throw it away
+                    deferredPrompt = null;
+                    // Hide the button
+                    installButton.disabled = true;
+                });
+            }
+
+            // Listen for the appinstalled event to know when the PWA was successfully installed
+            window.addEventListener('appinstalled', () => {
+                // Clear the deferredPrompt so it can be garbage collected
+                deferredPrompt = null;
+                console.log('PWA was installed');
+            });
 
             function getRandom(min, max) {
                 const minCeiled = Math.ceil(min);
@@ -1870,7 +1958,7 @@
                     this.timerDisplay.textContent = displayString;
                 }
 
-                
+
 
                 getAudioDuration(arrayBuffer) {
                     return new Promise((resolve, reject) => {
@@ -2969,7 +3057,7 @@
                         fileListElement.appendChild(listItem);
                     });
                 }
-                
+
                 async addFilesToModalButton(event) {
                     if (this.activeModalIndex === null) return;
                     const files = event.target.files;
@@ -3295,24 +3383,24 @@
                 // helper bug more stuff
 
                 async initBugMovement() {
-    const checkbox = document.getElementById('toggle-bug-movement-checkbox');
-    const bug = document.getElementById('help-bug-btn');
+                    const checkbox = document.getElementById('toggle-bug-movement-checkbox');
+                    const bug = document.getElementById('help-bug-btn');
 
-    // Load the state and set the initial UI
-    const state = await this.db.get("bug-movement");
-    const isStill = state ? state.state : false; // Default to false (bug is moving)
-    checkbox.checked = isStill;
-    
-    // Invert the logic: if the bug is 'still', remove the 'bug-moving' class
-    bug.classList.toggle('bug-moving', !isStill);
+                    // Load the state and set the initial UI
+                    const state = await this.db.get("bug-movement");
+                    const isStill = state ? state.state : false; // Default to false (bug is moving)
+                    checkbox.checked = isStill;
 
-    // Attach the single listener for all future changes
-    checkbox.addEventListener('change', async () => {
-        const isNowStill = checkbox.checked;
-        await this.db.save("bug-movement", { id: "bug-movement", state: isNowStill });
-        bug.classList.toggle('bug-moving', !isNowStill);
-    });
-}
+                    // Invert the logic: if the bug is 'still', remove the 'bug-moving' class
+                    bug.classList.toggle('bug-moving', !isStill);
+
+                    // Attach the single listener for all future changes
+                    checkbox.addEventListener('change', async () => {
+                        const isNowStill = checkbox.checked;
+                        await this.db.save("bug-movement", { id: "bug-movement", state: isNowStill });
+                        bug.classList.toggle('bug-moving', !isNowStill);
+                    });
+                }
 
             }
 
@@ -3328,7 +3416,54 @@
 
     <!-- THE HELPFUL BUG -->
     <button id="help-bug-btn" title="Help">
-        <svg width="100%" height="100%" viewBox="0 0 224 240" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;"><g id="Layer3"></g><rect id="Artboard1" x="0" y="0" width="224" height="240" style="fill:none;"/><clipPath id="_clip1"><rect x="0" y="0" width="224" height="240"/></clipPath><g clip-path="url(#_clip1)"><g id="Layer4"><path d="M60.644,104.58c-11.256,-5.528 -12.727,-5.926 -26.493,-14.801c-13.766,-8.874 -18.652,-15.658 -20.973,-18.747" style="fill:none;stroke:#00a200;stroke-width:8.23px;"/><path d="M95.436,55.756c-13.129,-12.407 2.698,-28.163 -0.73,-38.025c-5.141,-14.784 -20.837,-13.943 -29.852,-4.11c-5.483,5.98 -8.152,13.151 -7.828,22.714" style="fill:none;stroke:#00a200;stroke-width:6.64px;"/><path d="M127.345,55.361c13.72,-11.75 -1.318,-28.262 2.589,-37.944c5.858,-14.515 21.493,-12.908 30.017,-2.645c5.184,6.241 7.499,13.533 6.708,23.07" style="fill:none;stroke:#00a200;stroke-width:6.64px;"/><path d="M57.333,140.553c-25.39,8.88 -28.701,38.481 -44.155,44.402" style="fill:none;stroke:#00a200;stroke-width:8.23px;"/><path d="M76.551,178.048c-12.254,11.196 -24.092,15.043 -26.945,27.627c-2.853,12.585 -12.143,20.721 -22.078,31.575" style="fill:none;stroke:#00a200;stroke-width:8.23px;"/><path d="M163.356,104.58c11.256,-5.528 12.727,-5.926 26.493,-14.801c13.766,-8.874 18.652,-15.658 20.973,-18.747" style="fill:none;stroke:#00a200;stroke-width:8.23px;"/><path d="M166.667,140.553c25.39,8.88 28.701,38.481 44.155,44.402" style="fill:none;stroke:#00a200;stroke-width:8.23px;"/><path d="M147.449,178.048c12.254,11.196 24.092,15.043 26.945,27.627c2.853,12.585 12.143,20.721 22.078,31.575" style="fill:none;stroke:#00a200;stroke-width:8.23px;"/><path d="M111.527,48.602c19.855,0 35.975,1.319 35.975,15.263c-0,13.945 -16.12,43.015 -35.975,43.015c-19.856,0 -35.521,-29.07 -35.521,-43.015c-0,-13.944 15.665,-15.263 35.521,-15.263Z" style="fill:#00a200;"/><path d="M110.517,76.417c33.618,-0 60.195,16.364 60.195,55.302c0,38.937 -26.577,85.797 -60.195,85.797c-33.618,-0 -61.263,-46.86 -61.263,-85.797c0,-38.938 27.645,-55.302 61.263,-55.302Z" style="fill:#00a200;"/><path d="M110.517,115.143l-36.286,83.255c-0,-0 13.666,19.426 37.464,19.118c21.992,-0.285 36.807,-21.893 36.807,-21.893l-37.985,-80.48Z" style="fill:#a7b700;"/><circle cx="108.983" cy="193.638" r="14.362" style="fill:#e2ff00;"/><path d="M89.067,113.981c2.248,-8.99 10.114,-17.981 22.21,-17.981c10.381,-0 20.733,6.575 21.619,19.105c0.887,12.53 -14.482,22.051 -20.679,23.6c-4.495,1.124 -4.045,11.614 -4.045,22.852" style="fill:none;stroke:#e2ff00;stroke-width:25.54px;"/></g></g></svg>
+        <svg width="100%" height="100%" viewBox="0 0 224 240" version="1.1" xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/"
+            style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+            <g id="Layer3"></g>
+            <rect id="Artboard1" x="0" y="0" width="224" height="240" style="fill:none;" />
+            <clipPath id="_clip1">
+                <rect x="0" y="0" width="224" height="240" />
+            </clipPath>
+            <g clip-path="url(#_clip1)">
+                <g id="Layer4">
+                    <path
+                        d="M60.644,104.58c-11.256,-5.528 -12.727,-5.926 -26.493,-14.801c-13.766,-8.874 -18.652,-15.658 -20.973,-18.747"
+                        style="fill:none;stroke:#00a200;stroke-width:8.23px;" />
+                    <path
+                        d="M95.436,55.756c-13.129,-12.407 2.698,-28.163 -0.73,-38.025c-5.141,-14.784 -20.837,-13.943 -29.852,-4.11c-5.483,5.98 -8.152,13.151 -7.828,22.714"
+                        style="fill:none;stroke:#00a200;stroke-width:6.64px;" />
+                    <path
+                        d="M127.345,55.361c13.72,-11.75 -1.318,-28.262 2.589,-37.944c5.858,-14.515 21.493,-12.908 30.017,-2.645c5.184,6.241 7.499,13.533 6.708,23.07"
+                        style="fill:none;stroke:#00a200;stroke-width:6.64px;" />
+                    <path d="M57.333,140.553c-25.39,8.88 -28.701,38.481 -44.155,44.402"
+                        style="fill:none;stroke:#00a200;stroke-width:8.23px;" />
+                    <path
+                        d="M76.551,178.048c-12.254,11.196 -24.092,15.043 -26.945,27.627c-2.853,12.585 -12.143,20.721 -22.078,31.575"
+                        style="fill:none;stroke:#00a200;stroke-width:8.23px;" />
+                    <path
+                        d="M163.356,104.58c11.256,-5.528 12.727,-5.926 26.493,-14.801c13.766,-8.874 18.652,-15.658 20.973,-18.747"
+                        style="fill:none;stroke:#00a200;stroke-width:8.23px;" />
+                    <path d="M166.667,140.553c25.39,8.88 28.701,38.481 44.155,44.402"
+                        style="fill:none;stroke:#00a200;stroke-width:8.23px;" />
+                    <path
+                        d="M147.449,178.048c12.254,11.196 24.092,15.043 26.945,27.627c2.853,12.585 12.143,20.721 22.078,31.575"
+                        style="fill:none;stroke:#00a200;stroke-width:8.23px;" />
+                    <path
+                        d="M111.527,48.602c19.855,0 35.975,1.319 35.975,15.263c-0,13.945 -16.12,43.015 -35.975,43.015c-19.856,0 -35.521,-29.07 -35.521,-43.015c-0,-13.944 15.665,-15.263 35.521,-15.263Z"
+                        style="fill:#00a200;" />
+                    <path
+                        d="M110.517,76.417c33.618,-0 60.195,16.364 60.195,55.302c0,38.937 -26.577,85.797 -60.195,85.797c-33.618,-0 -61.263,-46.86 -61.263,-85.797c0,-38.938 27.645,-55.302 61.263,-55.302Z"
+                        style="fill:#00a200;" />
+                    <path
+                        d="M110.517,115.143l-36.286,83.255c-0,-0 13.666,19.426 37.464,19.118c21.992,-0.285 36.807,-21.893 36.807,-21.893l-37.985,-80.48Z"
+                        style="fill:#a7b700;" />
+                    <circle cx="108.983" cy="193.638" r="14.362" style="fill:#e2ff00;" />
+                    <path
+                        d="M89.067,113.981c2.248,-8.99 10.114,-17.981 22.21,-17.981c10.381,-0 20.733,6.575 21.619,19.105c0.887,12.53 -14.482,22.051 -20.679,23.6c-4.495,1.124 -4.045,11.614 -4.045,22.852"
+                        style="fill:none;stroke:#e2ff00;stroke-width:25.54px;" />
+                </g>
+            </g>
+        </svg>
     </button>
 
     <div id="help-modal" class="modal">
@@ -3341,24 +3476,24 @@
 
                 <div class="accordion-item">
                     <button class="accordion-header active">Really Simple Overview</button>
-                    <div class="accordion-content active">
-                        <p>Welcome to the Really Simple Soundboard!
-                            
+                    <div class="accordion-content active"><p>Welcome to the Really Simple Soundboard!
+
                             I made this for the daily "morning radio" style <a href="https://bugandmoss.com/" target="_blank" rel="noopener noreferrer">podcast</a> that my wife Bug and I make, but then I got carried away...
-                            
+
                             I think this thing is SUPER useful! Not only for podcasting, but for loads of stuff (like my friend Ty who uses it for D&D).
 
                             The driving principle behind this project was to create a dashboard that is designed to be used WHILE recording.
 
-                            It's a simple, customizable soundboard that works in your browser and can be installed as a Progressive Web App (PWA) to use offline.
-                            
+                            It's a simple, customizable soundboard that works in your browser and can be installed as a Progressive Web App (PWA) to use offline. (There's an install button in the section about this!)
+
                             It's also all packed into ONE big HTML file (which I know is bad practice lol) so if you want to copy this whole thing over to your site, all you have to do is save this page.
-                            
-                            All of your files stay on your device - nothing is uploaded anywhere except your local browser storage! 
-                            
+
+                            All of your files stay on your device - nothing is uploaded anywhere except your local browser storage!
+
                             Initially, it was just a customizable local soundboard, but it has since grown to have different kinds of cards with various features that you can explore in the list below!
 
-                            <a href="https://github.com/masonamadeus/bugandmoss/blob/main/soundboard.html" target="_blank" rel="noopener noreferrer">Steal this, change it, use it however you'd like!</a> I don't care what you do with it, except for ONE rule: you cannot monetize it.
+                            <a href="https://github.com/masonamadeus/bugandmoss/blob/main/soundboard.html"
+                                target="_blank" rel="noopener noreferrer">Steal this, change it, use it however you'd like!</a> I don't care what you do with it, except for ONE rule: you cannot monetize it.
 
                             (Tip: click the title at the top to change it to whatever you want!)
 
@@ -3371,36 +3506,39 @@
 
                 <div class="accordion-item">
                     <button class="accordion-header">The Control Card</button>
-                    <div class="accordion-content">
-                        <p>This is the card with a bunch of buttons. It's the main hub for managing your soundboard.</p>
-                        <ul>
-                            <li><b>Add Sound/Timer/Note:</b> Creates a new card of that type!
-
+                    <div class="accordion-content"><p>This is the card with a bunch of buttons. It's the main hub for managing your soundboard.</p>
+                        <ul><li><b>Add Sound/Timer/Note:</b> Creates a new card of that type!
+                                
                                 They'll spawn immediately to the LEFT of the control card.
 
                                 (More details about each type can be found in their own dropdowns.)
                             </li>
+                            
                             <li><b>Rearrange:</b> Toggles rearrange mode. Click and drag cards to SWAP their positions.
-                                
+
                                 I know this is a bit of a PITA. Someday I hope to make it so you can drop cards in-between, and they'll scoot over instead of swapping. If you wanna help, this thing is <a href="https://github.com/masonamadeus/bugandmoss/blob/main/soundboard.html" target="_blank">on github</a>.
                             </li>
+
                             <li><b>Upload/Download:</b> Save or load your entire board configuration, INCLUDING THE SOUNDS, to a JSON file!
-                                
+
                                 It'll pop into your downloads without a popup (probably), and the title will be whatever your board title is.
-                                
+
                                 (Nerds: the files are stored as an array buffer in IndexedDB, and converted to base64 when they go into the json)
                             </li>
+
                             <li><b>Storage:</b> An overview of how much of your browser storage is being used, as well as a setting to toggle "storage durability" which should provide a little extra protection against accidental data loss!
-                            
+
                                 This is also where you go to delete your entire board, if you want to do that! It also deletes the associated sound files.
                             </li>
-                            <li><b>Cosmetics:</b> Change the colors and font of your soundboard.
-                                
-                                This is probably the jankiest cosmetic menu on earth, and I'm particularly proud of the font selector lmao.</li>
-                            <li><b>Switch Board:</b> Switch between different soundboards, or create new ones!
-                                
-                                Make as many boards as you want! Just beware that I haven't tested any of this with an extreme amount of buttons/boards/data, so I have no idea what happens if it gets too big.</li>
 
+                            <li><b>Cosmetics:</b> Change the colors and font of your soundboard.
+
+                                This is probably the jankiest cosmetic menu on earth, and I'm particularly proud of the font selector lmao.
+                            </li>
+
+                            <li><b>Switch Board:</b> Switch between different soundboards, or create new ones!
+
+                                Make as many boards as you want! Just beware that I haven't tested any of this with an extreme amount of buttons/boards/data, so I have no idea what happens if it gets too big.</li>
                                 (Nerds: This works by changing the url to have a parameter named after the board name you choose, which causes a new IndexedDB database to be created. I dunno what happens if you make two boards with the same name, but it probably breaks.)
                         </ul>
                     </div>
@@ -3408,74 +3546,69 @@
 
                 <div class="accordion-item">
                     <button class="accordion-header">Sound Buttons</button>
-                    <div class="accordion-content">
-                    <p>
-                        <b>Play a sound</b> by clicking the big button.
+                    <div class="accordion-content"><p>
+                            <b>Play a sound</b> by clicking the big button.
 
-                        <b>Stop a sound</b> by clicking the button while a sound is playing.
+                            <b>Stop a sound</b> by clicking the button while a sound is playing. If there are multiple files in the button, this will skip to the next file (depending on the other options explained below).
 
-                        If there are multiple files, this will skip to the next file (depending on the other options explained below).
+                            <b>Volume</b> affects how loud the sound plays.
 
-                        <b>Volume</b> affects how loud the sound plays.
+                            <b>Speed</b> affects the playback speed of the sound. It's a bit jank, but it's pretty fun.
 
-                        <b>Speed</b> affects the playback speed of the sound. It's a bit jank, but it's pretty fun.
+                            <b>Edit the button</b> by clicking the colorful triangle corner in the bottom right of the button.
 
-                        <b>Edit the button</b> by clicking the colorful triangle corner in the bottom right of the button.
+                            Inside the settings menu you can:
 
-                        Inside the settings menu you can:
+                            <b>Change the button color</b> using the little colored square to the left of the button title field.
 
-                        <b>Change the button color</b> using the little colored square to the left of the button title field.
+                            <b>Change the button name</b> by clicking on the title field and typing a new name.
 
-                        <b>Change the button name</b> by clicking on the title field and typing a new name.
+                            <b>Multiple sounds</b> can be added to a button. There is no limit! You can remove individual files from the list, or clear them all using labeled buttons.
 
-                        <b>Multiple sounds</b> can be added to a button. There is no limit! You can remove individual files from the list, or clear them all using labeled buttons.
+                            <b>Random</b> will randomly select a file from that button each time it is clicked to play.
 
-                        <b>Random</b> will randomly select a file from that button each time it is clicked to play.
+                            <b>Autoplay</b> will automatically play the next sound when the currently playing sound ends.
 
-                        <b>Autoplay</b> will automatically play the next sound when the currently playing sound ends.
+                            <b>Priority</b> is useful for situations like playing a bumper over music. Any buttons with "Priority" will temporarly turn down any non-priority buttons until the priority sound finishes. It's auto-ducking, basically!
 
-                        <b>Priority</b> is useful for situations like playing a bumper over music. Any buttons with "Priority" will temporarly turn down any non-priority buttons until the priority sound finishes.
-                        It's auto-ducking, basically!
-
-                        <b>Loop</b> will loop whatever sound is playing, restarting it when it ends.
-                    </p>
+                            <b>Loop</b> will loop whatever sound is playing, restarting it when it ends.
+                        </p>
                     </div>
                 </div>
 
                 <div class="accordion-item">
                     <button class="accordion-header">Timers</button>
-                    <div class="accordion-content">
-                        <p>Timers run a countdown, and can also trigger buttons at the start and end!
-                            
-                            Uncheck "Lock Timer Settings" to edit the timer properties:
+                    <div class="accordion-content"><p>Timers run a countdown, and can also trigger buttons at the start and end!
+
+                            <b>Start</b> will start the timer.
+
+                            <b>Reset</b> will stop and reset the timer to its initial time, but WILL NOT reset any other settings (like Starts & Ends With cues).
+
+                            Uncheck "Lock Timer Settings" to edit the following timer properties:
 
                             <b>"Starts With"</b> lets you select a button to play when the timer starts.
 
                             <b>"Ends With"</b> lets you select a button to play at the end of the timer -- with a catch!
 
                             When you have selected an "Ends With" sound, <b><i>the timer will hit 0:00 exactly as the "Ends With" sound FINISHES playing!</b></i>
-                            
+
                             This makes it a powerful tool for timed segments, as you can input the desired segment length and your outro cue will 'play you out' automagically!
-                            
+
                             Sometimes this function fails to calculate the length of the end cue (I've only had it fail on mobile), and as a fallback - it will play when the timer ends. But 99% of the time, the Timer Card should end WITH the sound.
-                            The timer is pretty accurate, and stays running even if the tab is in the background or the page is refreshed!
-
-                            <b>Start</b> will start the timer
-
-                            <b>Reset</b> will stop and reset the timer to its initial time, but WILL NOT reset any other settings (like Starts & Ends With cues)
+                            
+                            The timer is pretty darn accurate, and stays running even if the tab is in the background or the page is refreshed!
                         </p>
                     </div>
                 </div>
 
                 <div class="accordion-item">
                     <button class="accordion-header">Notepads</button>
-                    <div class="accordion-content">
-                        <p>A simple place to keep notes!
-                            
+                    <div class="accordion-content"><p>A simple place to keep notes!
+
                             I like to use it to copy/paste URLs for articles or stuff we talk about on the show. Or to jot down stuff to talk about on future shows.
 
                             You can even store multiple notes in a single card. Click the little "+" button to add a new tab inside the note card.
-                            
+
                             You can edit the title of a note by clicking the text "New Note" and changing it to whatever you want.
 
                             Other than that it's just a text box. Go crazy!
@@ -3485,25 +3618,23 @@
 
                 <div class="accordion-item">
                     <button class="accordion-header">Offline Use (PWA)</button>
-                    <div class="accordion-content">
-                        <p>This soundboard is an installable Progressive Web App (PWA).
+                    <div class="accordion-content"><p>This soundboard is an installable Progressive Web App (PWA).
+
+                            <b>IMPORTANT:</b> When you install this as an app, your boards will NOT transfer over automatically. You will not lose any data, but any boards you have already created will need to be downloaded from the website and then uploaded to the app.
+
+            <button id="install-pwa-btn" class="install-button-modal" disabled>Install App for Offline Use</button>
+                            <b>If the install button is greyed-out or disabled,</b> it means your browser isn't ready. Sometimes this takes a second. Try waiting a minute and reloading the page.
+
+                            If you're on mobile, you might have to go to "Share Page" and then "Add to Home Screen" (or something like that).
                             
-                            Use the "Install" button in your browser's address bar to add it to your desktop. Some browsers hide this, and you have to right click the tab or something. You can google your browser name + "install pwa" to figure it out, I'm sure.
+                            As always, ALL of your data is stored ONLY on your device. Even if you use the website version. I don't want to pay for a server lmao.
 
-                            If you're on mobile, you have to go to "Share Page" and then "Add to Home Screen" (or something like that).
+                            Your data is stored locally and can be double-protected from automatic cleanup by enabling "Storage Durability" in the Storage menu. Mobile doesn't seem to like that.
 
-                            <b>IMPORTANT:</b> When you install this as an app, your boards and database will NOT transfer over. If you've already created a board, you'll need to download your config for it and then upload it into the new board.
-
-                            Unfortunately you have to do this for every board you've created, but it's pretty quick and easy.
-                            
-                            The upside is that it will work completely offline! As always, ALL of your data is stored ONLY on your device. I don't want to pay for a server lmao.
-                            
-                            Your data is stored locally and can be protected from automatic cleanup by enabling "Storage Durability" in the Storage menu. Mobile doesn't seem to like that.
-
-                            IndexedDB is pretty robust, and doesn't tend to clear out unless you're REALLY low on space - so you probably don't even need to worry.
+                            IndexedDB is pretty robust, and doesn't tend to clear out unless you're REALLY low on space - so you probably don't even need to worry about it.
 
                             (Tip: if you REALLY want to use this soundboard on mobile, create the boards on a computer first, download your config, email it to yourself, download it from the email on your phone, and upload the config to the mobile site/app. Badaboom, it works.)
-                        
+
                         </p>
                     </div>
                 </div>
@@ -3513,10 +3644,10 @@
                         <input type="checkbox" id="toggle-bug-movement-checkbox">
                         Hold still, Bug!
                     </label>
-            </div>
+                </div>
 
+            </div>
         </div>
-    </div>
 </body>
 
 </html>
