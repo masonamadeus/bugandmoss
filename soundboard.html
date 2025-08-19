@@ -3124,6 +3124,7 @@
 
                                 await this._loadBoardData();
                                 alert("Configuration uploaded successfully!");
+                                window.location.reload();
                             }
                         } catch (e) {
                             alert("Failed to read file. Please ensure it is a valid JSON configuration file.");
@@ -3480,13 +3481,21 @@
                     <div class="accordion-content">
                         <p>This soundboard is an installable Progressive Web App (PWA).
                             
-                            Use the "Install" button in your browser's address bar to add it to your desktop.
+                            Use the "Install" button in your browser's address bar to add it to your desktop. Some browsers hide this, and you have to right click the tab or something. You can google your browser name + "install pwa" to figure it out, I'm sure.
+
+                            If you're on mobile, you have to go to "Share Page" and then "Add to Home Screen" (or something like that).
+
+                            <b>IMPORTANT:</b> When you install this as an app, your boards and database will NOT transfer over. If you've already created a board, you'll need to download your config for it and then upload it into the new board.
+
+                            Unfortunately you have to do this for every board you've created, but it's pretty quick and easy.
                             
-                            It will work completely offline! ALL of your data is stored ONLY on your device. I don't want to pay for a server lmao.
+                            The upside is that it will work completely offline! As always, ALL of your data is stored ONLY on your device. I don't want to pay for a server lmao.
                             
-                            Your data is stored locally and can be protected from automatic cleanup by enabling "Storage Durability" in the Storage menu.
+                            Your data is stored locally and can be protected from automatic cleanup by enabling "Storage Durability" in the Storage menu. Mobile doesn't seem to like that.
 
                             IndexedDB is pretty robust, and doesn't tend to clear out unless you're REALLY low on space - so you probably don't even need to worry.
+
+                            (Tip: if you REALLY want to use this soundboard on mobile, create the boards on a computer first, download your config, email it to yourself, download it from the email on your phone, and upload the config to the mobile site/app. Badaboom, it works.)
                         
                         </p>
                     </div>
