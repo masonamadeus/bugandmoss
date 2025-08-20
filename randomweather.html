@@ -6,13 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moss's Random Weather Forecast</title>
 
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Wellfleet:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         /* --- Base & Layout Styles --- */
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
         :root {
             --color-bg: #f7fafc;
             --color-panel: #e3f0ff;
@@ -36,39 +42,29 @@
             color: var(--color-text-primary);
             display: flex;
             flex-direction: column;
+            /* Keep this line */
             align-items: center;
-            justify-content: center;
+            /* Keep this line */
+            /* REMOVE this line: justify-content: center; */
             min-height: 100vh;
-            padding: 1rem;
+            min-height: 100dvh;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            touch-action: manipulation;
         }
 
         .container {
-    width: 100%; /* Ensures the container always uses 100% of the available width */
-    max-width: 64rem;
-    margin: auto;
-    background-color: var(--color-panel);
-    box-shadow: var(--shadow-xl);
-    padding: 1.5rem; /* This padding can cause overflow on small screens */
-    border: 1px solid var(--color-border);
-    box-sizing: border-box; /* This is the key fix */
-}
-
-        /* --- Header & Controls --- */
-        header {
-            margin-bottom: 2rem;
+            width: 100%;
+            max-width: 64rem;
+            background-color: var(--color-panel);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--color-border);
+            box-sizing: border-box;
+            margin-top: 2rem;
         }
 
-        .main-title {
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
 
-        .main-title h1 {
-            font-size: 2.25rem;
-            font-weight: 700;
-        }
+
 
         .subheading-row {
             display: flex;
@@ -171,21 +167,6 @@
             width: 1.25rem;
             height: 1.25rem;
             color: var(--color-primary);
-        }
-
-        .action-button {
-            padding: 0.75rem 1.5rem;
-            background-color: var(--color-accent);
-            color: white;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            white-space: nowrap;
-        }
-
-        .action-button:hover {
-            background-color: var(--color-accent-hover);
         }
 
         .unit-toggle {
@@ -369,7 +350,8 @@
         .card-description {
             font-size: 0.9rem;
             color: var(--color-text-primary);
-            text-align: center;
+            text-align: left;
+            /* Changed from 'center' */
             margin-bottom: 1rem;
             flex-grow: 1;
         }
@@ -436,7 +418,7 @@
         }
 
         .attribution {
-            margin-top: 2rem;
+            margin-top: 0;
             font-size: 0.8rem;
             color: var(--color-text-secondary);
             text-align: center;
@@ -456,15 +438,56 @@
                 padding: 2rem;
             }
         }
+
+        .main-title {
+            text-align: left;
+        }
+
+        .main-title h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+
+        }
+
+        .main-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .action-button {
+            padding: 1.75rem 2.75rem;
+            background-color: var(--color-accent);
+            color: white;
+            font-weight: 600;
+            font-family: 'Wellfleet';
+            font-size:large;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+
+        .action-button:hover {
+            background-color: var(--color-accent-hover);
+        }
+
     </style>
 </head>
 
 <body>
-
     <div class="container">
         <header>
-            <div class="main-title">
-                <h1>Moss's Random Weather Forecast!</h1>
+            <div class="main-title-row">
+
+                
+                <div class="main-title">
+                    <h1>Moss's Random Weather Forecast!</h1>
+
+                </div>
+
+                <button id="random-btn" class="action-button">Random Location</button>
             </div>
             <div class="controls-row">
                 <div class="search-container">
@@ -485,7 +508,7 @@
                         </button>
                     </div>
                 </div>
-                <button id="random-btn" class="action-button">Random Location</button>
+
                 <div class="settings-selector">
                     <label for="region-select">Region</label>
                     <select id="region-select">
@@ -541,7 +564,6 @@
         </main>
     </div>
 
-    <!-- Wikipedia Modal -->
     <div id="wiki-modal" class="modal-overlay">
         <div class="modal-content">
             <button id="modal-close-btn" class="modal-close">&times;</button>
@@ -552,10 +574,21 @@
         </div>
     </div>
 
-    <!-- Attribution Footer -->
     <footer class="attribution">
-        <p>Weather data provided by the <a href="https://api.met.no" target="_blank" rel="noopener noreferrer">Norwegian
-                Meteorological Institute</a>.</p>
+        <p>
+            Weather data provided by the <a href="https://api.met.no" target="_blank"
+                rel="noopener noreferrer">Norwegian Meteorological Institute</a>.
+            Reverse-geocoding for random location provided via <a href="https://www.bigdatacloud.com/free-api"
+                target="_blank" rel="noopener noreferrer">Big Data Cloud</a>.
+        </p>
+        <p>
+            Reverse-geocoding for Search provided via <a href="https://nominatim.org" target="_blank"
+                rel="noopener noreferrer">Nominatim</a>.
+            Wikipedia summaries powered by <a href="https://www.wikipedia.org" target="_blank"
+                rel="noopener noreferrer">Wikipedia</a>.
+            Time zone data from <a href="https://open-meteo.com" target="_blank"
+                rel="noopener noreferrer">Open-Meteo</a>
+        </p>
     </footer>
 
     <script>
@@ -583,6 +616,7 @@
                 forecastDays: 4,
                 currentForecast: null,
                 currentTimezone: null,
+                currentLocationData: null,
                 timeUpdater: null,
                 landmasses: {
                     contiguous_us: { minLat: 24.52, maxLat: 49.38, minLon: -124.77, maxLon: -66.95 },
@@ -590,13 +624,14 @@
                     asia: { minLat: -10, maxLat: 82, minLon: 25, maxLon: 180 },
                     africa: { minLat: -35, maxLat: 38, minLon: -18, maxLon: 52 },
                     australia: { minLat: -44, maxLat: -10, minLon: 112, maxLon: 154 },
-                    south_america: { minLat: -56, maxLat: 13, minLon: -82, maxLon: -34 }
+                    south_america: { minLat: -56, maxLat: 13, minLon: -82, maxLon: -34 },
+                    oceania: { minLat: -50, maxLat: 20, minLon: 140, maxLon: -120 }
                 }
             };
 
             const celsiusToFahrenheit = (celsius) => Math.round(celsius * 9 / 5 + 32);
-            const mpsToMph = (mps) => Math.round(mps * 2.237);
-            const mmToInches = (mm) => (mm * 0.0393701).toFixed(2);
+            const mpsToMph = (mps) => (mps * 2.237);
+            const mmToInches = (mm) => (mm * 0.0393701);
 
             const getRandomCoordinates = () => {
                 const regionKey = elements.regionSelect.value;
@@ -605,7 +640,7 @@
                 if (regionKey === 'contiguous_us') {
                     region = state.landmasses.contiguous_us;
                 } else {
-                    const landmassKeys = Object.keys(state.landmasses).filter(k => k !== 'contiguous_us');
+                    const landmassKeys = Object.keys(state.landmasses);
                     const randomLandmassKey = landmassKeys[Math.floor(Math.random() * landmassKeys.length)];
                     region = state.landmasses[randomLandmassKey];
                 }
@@ -621,15 +656,152 @@
                 elements.weatherContainer.classList.toggle('hidden', view !== 'content');
             };
 
-            /**
-             * REFACTORED: Definitive fix for timezone handling.
-             * This function now uses Intl.DateTimeFormat to reliably determine the local date
-             * for each UTC timestamp, ensuring accurate daily grouping.
-             */
+            const getPrettyName = (symbolCode) => {
+                const nameMap = {
+                    'clearsky': 'Clear skies',
+                    'fair': 'Fair',
+                    'partlycloudy': 'Partly cloudy skies',
+                    'cloudy': 'Cloudy skies',
+                    'lightrainshowers': 'Light rain showers',
+                    'rainshowers': 'Rain showers',
+                    'heavyrainshowers': 'Heavy rain showers',
+                    'lightrain': 'Light rain',
+                    'rain': 'Rain',
+                    'heavyrain': 'Heavy Rain',
+                    'lightsnow': 'Light Snow',
+                    'snow': 'Snow',
+                    'heavysnow': 'Heavy snow',
+                    'sleet': 'Sleet',
+                    'thunder': 'Thunderstorms',
+                    'fog': 'Foggy',
+                    'default': '',
+                };
+                const baseCode = symbolCode.replace('_day', '').replace('_night', '');
+                return nameMap[baseCode] || nameMap['default'];
+            };
+
+            const getEventFamily = (symbolCode) => {
+                if (symbolCode.includes('rain') || symbolCode.includes('sleet') || symbolCode.includes('thunder')) {
+                    return 'rain_or_similar';
+                }
+                if (symbolCode.includes('snow')) {
+                    return 'snow';
+                }
+                if (symbolCode.includes('cloudy') || symbolCode.includes('fair')) {
+                    return 'cloudy_or_clear';
+                }
+                return 'other';
+            };
+
+            const groupDailyPeriods = (hourlyData, timezone, eventSignificance) => {
+                const periods = {
+                    'morning': { name: 'Morning', startHour: 4, endHour: 12, entries: [] },
+                    'afternoon': { name: 'Afternoon', startHour: 12, endHour: 18, entries: [] },
+                    'evening': { name: 'Evening', startHour: 18, endHour: 22, entries: [] },
+                    'night': { name: 'Night', startHour: 22, endHour: 4, entries: [] }
+                };
+
+                for (const entry of hourlyData) {
+                    const utcDate = new Date(entry.time);
+                    const localHour = utcDate.toLocaleTimeString('en-US', { timeZone: timezone, hour: 'numeric', hour12: false });
+                    const hour = parseInt(localHour, 10);
+
+                    if (hour >= periods.morning.startHour && hour < periods.morning.endHour) {
+                        periods.morning.entries.push(entry);
+                    } else if (hour >= periods.afternoon.startHour && hour < periods.afternoon.endHour) {
+                        periods.afternoon.entries.push(entry);
+                    } else if (hour >= periods.evening.startHour && hour < periods.evening.endHour) {
+                        periods.evening.entries.push(entry);
+                    }
+
+                    if (hour >= periods.night.startHour || hour < periods.night.endHour) {
+                        periods.night.entries.push(entry);
+                    }
+                }
+
+                const summaries = [];
+                for (const periodKey in periods) {
+                    const period = periods[periodKey];
+                    if (period.entries.length === 0) continue;
+
+                    let mostSignificantEvent = { code: 'default', significance: 1, type: '' };
+                    let totalPrecipitation = 0;
+                    let maxWind = 0;
+
+                    for (const entry of period.entries) {
+                        const summary = entry.data?.next_1_hours?.summary;
+                        if (!summary) continue;
+
+                        const symbolCode = summary.symbol_code.replace('_day', '').replace('_night', '');
+                        const significance = eventSignificance[symbolCode] || 1;
+                        if (significance > mostSignificantEvent.significance) {
+                            mostSignificantEvent.significance = significance;
+                            mostSignificantEvent.type = symbolCode;
+                        }
+
+                        totalPrecipitation += summary.precipitation_amount || 0;
+                        const windSpeed = entry.data.instant.details.wind_speed;
+                        if (windSpeed > maxWind) {
+                            maxWind = windSpeed;
+                        }
+                    }
+
+                    // Only push a summary if a valid event was found
+                    if (mostSignificantEvent.type !== '') {
+                        summaries.push({
+                            name: period.name,
+                            type: mostSignificantEvent.type,
+                            symbolCode: mostSignificantEvent.code,
+                            totalPrecipitation: totalPrecipitation,
+                            maxWind: maxWind
+                        });
+                    }
+                }
+
+                return summaries;
+            };
+
+            const generateDailyDescription = (dailyBucket, eventSignificance, timezone) => {
+                const hasDetailedSummary = dailyBucket.hourlyData.some(entry => entry.data?.next_1_hours?.summary);
+
+                if (hasDetailedSummary) {
+                    const dailyPeriods = groupDailyPeriods(dailyBucket.hourlyData, timezone, eventSignificance);
+                    if (dailyPeriods.length === 0) {
+                        return '';
+                    }
+                    const summaryList = dailyPeriods.map(period => {
+                        const prettyWeather = getPrettyName(period.type);
+                        let part = `<strong>${period.name}:</strong> ${prettyWeather}`;
+
+                        if (period.totalPrecipitation > 0 && period.totalPrecipitation < 0.01) {
+                            part += `, Trace precipitation`;
+                        } else if (period.totalPrecipitation >= 0.01) {
+                            const precipDisplay = state.isFahrenheit ? `${mmToInches(period.totalPrecipitation).toFixed(2)} in` : `${period.totalPrecipitation.toFixed(2)} mm`;
+                            part += `, ${precipDisplay} of rain`;
+                        }
+
+                        const windSpeed = state.isFahrenheit ? mpsToMph(period.maxWind) : period.maxWind;
+                        if (windSpeed >= 25) {
+                            const windDisplay = state.isFahrenheit ? `${Math.round(windSpeed)} mph` : `${Math.round(windSpeed)} m/s`;
+                            part += `, Gusts up to ${windDisplay}`;
+                        }
+                        return part;
+                    });
+                    return summaryList.join('<br>');
+                } else {
+                    const dailySummaryCode = dailyBucket.mostSignificantEvent.type;
+                    const prettyWeather = getPrettyName(dailySummaryCode);
+                    if (prettyWeather) {
+                        return `${prettyWeather} for the day.`;
+                    }
+                    return '';
+                }
+            };
+
             const processForecastData = (timeseries) => {
                 if (!timeseries || timeseries.length === 0 || !state.currentTimezone) return [];
 
-                // This formatter is correct and remains unchanged. It reliably gets the local date.
+                const dailyBuckets = new Map();
                 const dateFormatter = new Intl.DateTimeFormat('en-CA', {
                     timeZone: state.currentTimezone,
                     year: 'numeric',
@@ -637,92 +809,80 @@
                     day: '2-digit',
                 });
 
-                const dailyBuckets = new Map();
+                const eventSignificance = {
+                    'thunder': 8,
+                    'heavyrain': 7,
+                    'rain': 6,
+                    'sleet': 9,
+                    'snow': 10,
+                    'cloudy': 5,
+                    'partlycloudy': 4,
+                    'fair': 3,
+                    'clearsky': 2,
+                    'default': 1
+                };
 
                 for (const entry of timeseries) {
                     const utcDate = new Date(entry.time);
-                    const localDateString = dateFormatter.format(utcDate); // e.g., "2025-08-21"
+                    const localDateString = dateFormatter.format(utcDate);
 
                     if (!dailyBuckets.has(localDateString)) {
                         dailyBuckets.set(localDateString, {
-                            // FIX: Create a reliable Date object. It represents midnight UTC
-                            // on that specific local date, which is perfect for sorting and filtering.
                             date: new Date(localDateString),
-                            entries: [],
-                            temps: [],
-                            windSpeeds: [],
+                            highTemp: -Infinity,
+                            lowTemp: Infinity,
+                            maxWind: 0,
+                            hourlyData: [],
+                            mostSignificantEvent: { code: 'default', significance: 1, type: '' },
                         });
                     }
 
                     const bucket = dailyBuckets.get(localDateString);
-                    bucket.entries.push(entry);
-                    if (entry.data?.instant?.details?.air_temperature !== undefined) {
-                        bucket.temps.push(entry.data.instant.details.air_temperature);
+
+                    const temp = entry.data?.instant?.details?.air_temperature;
+                    if (temp !== undefined) {
+                        bucket.highTemp = Math.max(bucket.highTemp, temp);
+                        bucket.lowTemp = Math.min(bucket.lowTemp, temp);
                     }
-                    if (entry.data?.instant?.details?.wind_speed !== undefined) {
-                        bucket.windSpeeds.push(entry.data.instant.details.wind_speed);
+                    const wind = entry.data?.instant?.details?.wind_speed;
+                    if (wind !== undefined) {
+                        bucket.maxWind = Math.max(bucket.maxWind, wind);
                     }
+
+                    const summary = entry.data?.next_6_hours?.summary || entry.data?.next_1_hours?.summary;
+                    if (summary) {
+                        const symbolCode = summary.symbol_code.replace('_day', '').replace('_night', '');
+                        const significance = eventSignificance[symbolCode] || 1;
+                        if (significance > bucket.mostSignificantEvent.significance) {
+                            bucket.mostSignificantEvent.code = summary.symbol_code;
+                            bucket.mostSignificantEvent.significance = significance;
+                            bucket.mostSignificantEvent.type = symbolCode;
+                        }
+                    }
+                    bucket.hourlyData.push(entry);
                 }
 
                 const finalSummary = [];
-                for (const [localDateString, bucket] of dailyBuckets.entries()) {
-                    if (bucket.entries.length === 0) continue;
-
-                    let representativeEntry = null;
-
-// Find a forecast that represents a mid-day period (12 PM - 6 PM)
-representativeEntry = bucket.entries.find(e => {
-    const localHour = new Date(e.time).toLocaleTimeString('en-US', {
-        timeZone: state.currentTimezone,
-        hour: 'numeric',
-        hour12: false
-    });
-    return parseInt(localHour, 10) >= 12 && parseInt(localHour, 10) <= 18;
-});
-
-// Fallback to the entry with the most significant weather event
-if (!representativeEntry) {
-    representativeEntry = bucket.entries.reduce((bestEntry, currentEntry) => {
-        const currentPrecip = currentEntry.data?.next_6_hours?.summary?.precipitation_amount || 0;
-        const bestPrecip = bestEntry.data?.next_6_hours?.summary?.precipitation_amount || 0;
-        
-        // If the current entry has more precipitation, or a better icon, select it.
-        // You could add more complex logic here (e.g., prioritize storms, then showers, then clear skies)
-        if (currentPrecip > bestPrecip) {
-            return currentEntry;
-        }
-        return bestEntry;
-    }, bucket.entries[0]);
-}
-                    let symbolCode = 'default', description = 'Forecast unavailable.', precipitation = 0;
-
-                    if (representativeEntry) {
-                        const summary = representativeEntry.data.next_6_hours?.summary || representativeEntry.data.next_1_hours?.summary;
-                        if (summary) {
-                            symbolCode = summary.symbol_code;
-                            precipitation = summary.precipitation_amount || 0;
-                        }
-                        const details = representativeEntry.data.next_1_hours?.details || representativeEntry.data.instant?.details;
-                        if (details) {
-                            description = `Humidity: ${details.relative_humidity?.toFixed(0) || 'N/A'}%.`;
-                        }
-                    }
-
-                    finalSummary.push({
-                        date: bucket.date,
-                        high: bucket.temps.length > 0 ? Math.round(Math.max(...bucket.temps)) : 'N/A',
-                        low: bucket.temps.length > 0 ? Math.round(Math.min(...bucket.temps)) : 'N/A',
-                        wind: bucket.windSpeeds.length > 0 ? Math.max(...bucket.windSpeeds) : 0,
-                        symbolCode, description, precipitation
-                    });
-                }
-
-                // FIX: Get today's date in the target timezone without unreliable parsing.
                 const todayDateString = dateFormatter.format(new Date());
                 const today = new Date(todayDateString);
 
+                for (const [localDateString, bucket] of dailyBuckets.entries()) {
+                    if (bucket.highTemp === -Infinity || bucket.hourlyData.length === 0) continue;
+
+                    const descriptionText = generateDailyDescription(bucket, eventSignificance, state.currentTimezone);
+
+                    finalSummary.push({
+                        date: bucket.date,
+                        high: Math.round(bucket.highTemp),
+                        low: Math.round(bucket.lowTemp),
+                        wind: Math.round(bucket.maxWind),
+                        symbolCode: bucket.mostSignificantEvent.code,
+                        description: descriptionText,
+                    });
+                }
+
                 return finalSummary
-                    .filter(day => day.date >= today) // Now the filter works correctly.
+                    .filter(day => day.date >= today)
                     .sort((a, b) => a.date - b.date);
             };
 
@@ -733,11 +893,8 @@ if (!representativeEntry) {
                 dailySummaries.slice(0, state.forecastDays).forEach(day => {
                     const highTemp = state.isFahrenheit ? celsiusToFahrenheit(day.high) : day.high;
                     const lowTemp = state.isFahrenheit ? celsiusToFahrenheit(day.low) : day.low;
-                    const windSpeedMph = mpsToMph(day.wind);
-                    const precip = state.isFahrenheit ? `${mmToInches(day.precipitation)} in` : `${day.precipitation} mm`;
                     const unit = state.isFahrenheit ? 'F' : 'C';
 
-                    // Use the correct timezone for display
                     const dayName = day.date.toLocaleDateString('en-US', { timeZone: state.currentTimezone, weekday: 'long' });
                     const dateString = day.date.toLocaleDateString('en-US', { timeZone: state.currentTimezone });
 
@@ -751,8 +908,7 @@ if (!representativeEntry) {
                         <div class="card-body">
                             <span class="high-temp">${highTemp}°</span><span class="low-temp">${lowTemp}°</span><span class="unit">${unit}</span>
                         </div>
-                        <p class="card-description">Precipitation: ${precip}<br>${day.description}</p>
-                        <div class="card-footer"><p><strong>Wind:</strong> ${windSpeedMph} mph</p></div>
+                        <p class="card-description">${day.description}</p>
                     `;
                     elements.weatherContainer.appendChild(card);
                 });
@@ -766,7 +922,6 @@ if (!representativeEntry) {
                 };
                 state.currentTimezone = timezone;
 
-                // Use Intl.DateTimeFormat for reliable time display
                 const timeFormatter = new Intl.DateTimeFormat('en-US', {
                     timeZone: timezone,
                     hour: 'numeric',
@@ -787,18 +942,12 @@ if (!representativeEntry) {
                 elements.weatherContainer.innerHTML = '';
                 showView('loading');
 
-
-
-                state.currentCoords = coords; // Save the current coordinates
+                state.currentCoords = coords;
+                state.currentLocationData = locationData;
                 elements.locationDisplay.innerHTML = `Forecast for <span id="location-display-clickable" title="Click for more info">${locationData.displayName}</span>`;
-                const clickableSpan = document.getElementById('location-display-clickable');
-                if (clickableSpan) {
-                    clickableSpan.addEventListener('click', () => fetchWikipediaSummary(locationData));
-                }
 
-                // This block fetches a precise timezone from Open-Meteo before getting weather data.
+
                 try {
-                    // We ask for minimal forecast data just to get the timezone information.
                     const timezoneApiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${coords.latitude}&longitude=${coords.longitude}&current_weather=false&hourly=temperature_2m&forecast_days=1&timezone=auto`;
                     const timezoneResponse = await fetch(timezoneApiUrl);
                     if (!timezoneResponse.ok) throw new Error('Open-Meteo timezone fetch failed');
@@ -806,16 +955,15 @@ if (!representativeEntry) {
                     const timezoneData = await timezoneResponse.json();
                     if (timezoneData.timezone) {
                         console.log(`Timezone resolved to '${timezoneData.timezone}' via Open-Meteo.`);
-                        state.currentTimezone = timezoneData.timezone; // Use the more accurate timezone
+                        state.currentTimezone = timezoneData.timezone;
                     } else {
                         throw new Error('Timezone not found in Open-Meteo response');
                     }
                 } catch (tzError) {
                     console.warn(`Could not fetch timezone from Open-Meteo, falling back. Error:`, tzError.message);
-                    state.currentTimezone = locationData.timezone; // Fallback to the less reliable timezone
+                    state.currentTimezone = locationData.timezone;
                 }
 
-                // The clock is now started with the best available timezone.
                 startClock(state.currentTimezone);
 
                 try {
@@ -838,7 +986,6 @@ if (!representativeEntry) {
                 elements.locationDisplay.textContent = `Searching for "${query}"...`;
                 elements.localTimeDisplay.textContent = '';
                 try {
-                    // --- CHANGED: Using OpenStreetMap's Nominatim API ---
                     const geocodeUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`;
 
                     const response = await fetch(geocodeUrl, {
@@ -848,18 +995,15 @@ if (!representativeEntry) {
 
                     const data = await response.json();
 
-                    // --- CHANGED: Parsing the new API response format ---
                     if (data && data.length > 0) {
                         const { lat, lon, display_name } = data[0];
 
-                        // For the Wikipedia search, let's grab the first part of the display name.
-                        const queryName = display_name.split(',')[0];
+                        const queryName = display_name.split(',')[0].trim();
+                        const fullName = display_name;
 
-                        // OpenStreetMap doesn't provide a timezone, so we'll default to UTC.
-                        // This is fine because our app already fetches the correct timezone from Open-Meteo.
                         const locationData = {
                             displayName: display_name,
-                            queryName: queryName,
+                            queryNames: [display_name, queryName],
                             timezone: 'UTC'
                         };
 
@@ -868,6 +1012,8 @@ if (!representativeEntry) {
                         elements.locationDisplay.textContent = `Could not find "${query}"`;
                         showView('error');
                     }
+
+
                 } catch (error) {
                     console.error("Geocoding error:", error);
                     showView('error');
@@ -876,9 +1022,25 @@ if (!representativeEntry) {
 
             const findRandomNamedLocation = async () => {
                 elements.weatherContainer.innerHTML = '';
+                elements.searchInput.value = '';
                 showView('loading');
                 elements.locationDisplay.textContent = `Finding a random named location...`;
                 elements.localTimeDisplay.textContent = '';
+
+                const EXCLUDED_LOCATIONS = [" ocean", " sea", " bay", "strait ", " sound", "gulf ", " channel", " river", " channel", " bight"];
+
+                const isExcluded = (data) => {
+                    // Check multiple fields that may contain the location name
+                    const namesToCheck = [data.displayName, data.locality, data.city, data.principalSubdivision];
+
+                    return namesToCheck.some(name => {
+                        if (typeof name !== 'string') {
+                            return false;
+                        }
+                        const lowerCaseName = name.toLowerCase();
+                        return EXCLUDED_LOCATIONS.some(term => lowerCaseName.includes(term));
+                    });
+                };
 
                 const MAX_ATTEMPTS = 15;
                 for (let i = 0; i < MAX_ATTEMPTS; i++) {
@@ -889,21 +1051,25 @@ if (!representativeEntry) {
                         if (!response.ok) continue;
                         const data = await response.json();
 
-                        if (data.locality || data.city) {
+                        // Corrected Logic: Always check for excluded terms using all relevant data fields.
+                        if (isExcluded(data)) {
+                            console.warn(`Attempt ${i + 1} filtered out: ${data.displayName || data.locality || "Unnamed Location"}`);
+                            continue;
+                        }
+
+                        // After passing the exclusion check, verify that it's a named location.
+                        const isNamedLocation = data.locality || data.city;
+                        if (isNamedLocation) {
                             const locationParts = [data.locality, data.city, data.principalSubdivision, data.countryName];
                             const uniqueParts = [...new Set(locationParts.filter(Boolean))];
                             const displayName = uniqueParts.join(', ');
                             const timezone = data.localityInfo?.informative?.find(i => i.description === 'time-zone')?.name || 'UTC';
 
-                            // Create a list of prioritized search queries
                             const searchQueries = [
-                                // Most specific: "City, State/Subdivision, Country"
                                 `${data.city || data.locality}, ${data.principalSubdivision}, ${data.countryName}`,
-                                // Less specific: "City, Country"
                                 `${data.city || data.locality}, ${data.countryName}`,
-                                // Least specific: just "City"
                                 `${data.city || data.locality}`
-                            ].filter(query => query.trim() !== ""); // Filter out empty strings
+                            ].filter(query => query.trim() !== "");
 
                             fetchWeather(
                                 { latitude: data.latitude, longitude: data.longitude },
@@ -920,7 +1086,6 @@ if (!representativeEntry) {
                 showView('error');
                 elements.locationDisplay.textContent = 'Could not find a random location.';
             };
-
             async function fetchWikipediaSummary(locationData) {
                 if (!locationData || !locationData.queryNames || locationData.queryNames.length === 0) return;
 
@@ -928,34 +1093,35 @@ if (!representativeEntry) {
                 elements.wikiTitle.textContent = `Finding info for ${locationData.displayName}...`;
                 elements.wikiSummary.innerHTML = '<p>Searching Wikipedia...</p>';
 
-                for (const query of locationData.queryNames) {
+                // Prioritize the simpler queries first, which are more likely to be direct article titles
+                const prioritizedQueries = locationData.queryNames;
+
+                console.log(`Searching Wikipedia for: "${prioritizedQueries.join('", "')}"`);
+
+                for (const query of prioritizedQueries) {
                     try {
                         const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*&srlimit=1`;
                         const searchResponse = await fetch(searchUrl);
                         const searchData = await searchResponse.json();
                         const searchResults = searchData?.query?.search;
 
-                        // If an article is found, proceed to fetch the summary and stop the loop.
                         if (searchResults && searchResults.length > 0) {
                             const articleTitle = searchResults[0].title;
                             const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(articleTitle)}`;
                             const summaryResponse = await fetch(summaryUrl);
                             const summaryData = await summaryResponse.json();
 
-                            elements.wikiTitle.textContent = `About ${articleTitle}`;
-                            elements.wikiSummary.innerHTML = summaryData.type === 'disambiguation'
-                                ? `<p>The search result "${articleTitle}" is a disambiguation page. No specific summary is available.</p>`
-                                : summaryData.extract_html;
-
-                            return; // Exit the function after a successful find.
+                            if (summaryData.type !== 'disambiguation' && summaryData.type !== 'no-summary') {
+                                elements.wikiTitle.textContent = `About ${articleTitle}`;
+                                elements.wikiSummary.innerHTML = summaryData.extract_html;
+                                return; // Exit after the first successful search
+                            }
                         }
                     } catch (error) {
                         console.error(`Attempt to search for "${query}" failed.`, error);
-                        // Continue the loop to try the next, less specific query.
                     }
                 }
 
-                // If the loop completes without finding an article.
                 elements.wikiTitle.textContent = 'Information Unavailable';
                 elements.wikiSummary.innerHTML = `<p>Sorry, no Wikipedia summary could be found for this location.</p>`;
             }
@@ -984,7 +1150,14 @@ if (!representativeEntry) {
                 elements.daysSelect.addEventListener('change', handleDaysChange);
                 elements.modalCloseBtn.addEventListener('click', () => elements.wikiModal.classList.remove('visible'));
                 elements.wikiModal.addEventListener('click', (e) => { if (e.target === elements.wikiModal) { elements.wikiModal.classList.remove('visible'); } });
-
+                elements.locationDisplay.addEventListener('click', (event) => {
+                    // Check if the clicked element or its parent has the specific ID
+                    const clickableSpan = event.target.closest('#location-display-clickable');
+                    if (clickableSpan) {
+                        // Use the saved locationData from the state
+                        fetchWikipediaSummary(state.currentLocationData);
+                    }
+                });
                 findRandomNamedLocation();
             };
 
