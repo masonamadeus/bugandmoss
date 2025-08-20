@@ -55,6 +55,12 @@
             margin: 0 auto;
         }
 
+        .card-playing {
+            box-shadow: 0px 0px 8px var(--highlight-color)!important;
+            transform: scale(1.02);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
         .global-controls {
             display: flex;
             flex-wrap: wrap;
@@ -1515,11 +1521,17 @@
                         currentFileIndex: 0,
                     };
                     this.progressOverlay = null; // A reference to the progress bar element
+                    this.card = null; // a reference to the card itself
                     this.setupListeners();
                 }
 
                 setupListeners() {
-                    this.audio.onplaying = () => this.isPlaying = true;
+                    this.audio.onplaying = () => {
+                        this.isPlaying = true;
+                        if (this.card) {
+                            this.card.classList.add('card-playing');
+                        }
+                    };
                     this.audio.onpause = () => {
                         this.isPlaying = false;
                         this.resetProgress();
@@ -1543,6 +1555,9 @@
                 resetProgress() {
                     if (this.progressOverlay) {
                         this.progressOverlay.style.width = '0%';
+                    }
+                    if (this.card) {
+                        this.card.classList.remove('card-playing');
                     }
                 }
 
@@ -2978,6 +2993,7 @@
                     const card = this.soundboardGrid.querySelector(`[data-index="${index}"]`);
                     if (card) {
                         player.progressOverlay = card.querySelector('.progress-overlay');
+                        player.card = card;
                     }
                     return player;
                 }
