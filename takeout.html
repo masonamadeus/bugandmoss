@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script>
+        const config = {
+            theme: {
+                fontHeading: 'Cinzel', // Google Font name
+                fontBody: 'Inter',     // Google Font name
+                // CSS variables for easy access if needed in JS
+                paperColor: '#F8F4E8',
+                inkColor: '#3d3522',
+                stampColor: '#b83b2a',
+            },
+            content: {
+                cover: {
+                    title: 'Bug & Moss',
+                    subtitle: 'DIGITAL TAKEOUT MENU',
+                    imageUrl: 'https://placehold.co/150x150/b83b2a/FFFFFF?text=BUG',
+                    address: 'Based in Winchester, KY<br>Available for new projects'
+                },
+                panels: {
+                    center: [
+                        {
+                            category: "Creative Coding",
+                            subcategories: [
+                                {
+                                    subheading: "Generative Art",
+                                    items: [
+                                        { id: "C1", title: "Parametric Equations", description: "Exploring algorithms to create unique visual art.", url: "#" },
+                                        { id: "C2", title: "Audio-Reactive Visuals", description: "A WebGL-powered experience for a local artist.", url: "#" }
+                                    ]
+                                },
+                                {
+                                    subheading: "Interactive Experiences",
+                                    items: [
+                                        { id: "C3", title: "3D Portfolio Showcase", description: "Showcasing work in an immersive 3D environment.", url: "#" }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            category: "UI/UX Design",
+                            subcategories: [
+                                {
+                                    // You can leave subheading blank if a category only has one group
+                                    subheading: "",
+                                    items: [
+                                        { id: "U1", title: "Mobile Banking App", description: "A concept design focused on user-friendly workflows.", url: "#" }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+
+                    left: [
+                        {
+                            category: "Creative Coding",
+                            subcategories: [
+                                {
+                                    subheading: "Generative Art",
+                                    items: [
+                                        { id: "C1", title: "Parametric Equations", description: "Exploring algorithms to create unique visual art.", url: "#" },
+                                        { id: "C2", title: "Audio-Reactive Visuals", description: "A WebGL-powered experience for a local artist.", url: "#" }
+                                    ]
+                                },
+                                {
+                                    subheading: "Interactive Experiences",
+                                    items: [
+                                        { id: "C3", title: "3D Portfolio Showcase", description: "Showcasing work in an immersive 3D environment.", url: "#" }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            category: "UI/UX Design",
+                            subcategories: [
+                                {
+                                    // You can leave subheading blank if a category only has one group
+                                    subheading: "",
+                                    items: [
+                                        { id: "U1", title: "Mobile Banking App", description: "A concept design focused on user-friendly workflows.", url: "#" }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+
+                    right: [
+                        {
+                            category: "Creative Coding",
+                            subcategories: [
+                                {
+                                    subheading: "Generative Art",
+                                    items: [
+                                        { id: "C1", title: "Parametric Equations", description: "Exploring algorithms to create unique visual art.", url: "#" },
+                                        { id: "C2", title: "Audio-Reactive Visuals", description: "A WebGL-powered experience for a local artist.", url: "#" }
+                                    ]
+                                },
+                                {
+                                    subheading: "Interactive Experiences",
+                                    items: [
+                                        { id: "C3", title: "3D Portfolio Showcase", description: "Showcasing work in an immersive 3D environment.", url: "#" }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            category: "UI/UX Design",
+                            subcategories: [
+                                {
+                                    // You can leave subheading blank if a category only has one group
+                                    subheading: "",
+                                    items: [
+                                        { id: "U1", title: "Mobile Banking App", description: "A concept design focused on user-friendly workflows.", url: "#" }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+
+                }
+            }
+        };
+    </script>
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug & Moss Digital Takeout Menu</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        /* --- Refactored Theming & Setup --- */
+        :root {
+            --paper-color: #F8F4E8;
+            --ink-color: #3d3522;
+            --stamp-color: #b83b2a;
+            --font-body: 'Inter', sans-serif;
+            --font-heading: 'Cinzel', serif;
+        }
+
+        /* --- Custom Scrollbar Styling --- */
+.content-wrapper {
+    /* For Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--stamp-color) var(--paper-color);
+}
+
+/* For Chrome, Safari, and Edge */
+.content-wrapper::-webkit-scrollbar {
+    width: 8px;
+}
+
+.content-wrapper::-webkit-scrollbar-track {
+    background-color: var(--paper-color);
+    border-radius: 4px;
+}
+
+.content-wrapper::-webkit-scrollbar-thumb {
+    background-color: var(--stamp-color);
+    border-radius: 4px;
+    border: 2px solid var(--paper-color);
+}
+
+.content-wrapper::-webkit-scrollbar-thumb:hover {
+    background-color: #a13426; /* A slightly darker red for hover */
+}
+
+/* --- Mobile Panel Stacking Order --- */
+.menu-container {
+    /* Creates a single column for vertical stacking */
+    grid-template-columns: 1fr; 
+    gap: 1rem; 
+}
+#center-panel { order: 1; }
+#left-flipper { order: 2; }
+#right-flipper { order: 3; }
+
+/* Make panels stack vertically without overlapping on mobile */
+.flipper, .panel {
+    position: relative;
+}
+
+/* --- Flip Scrollbar on Left Panel --- */
+
+/* 1. Move the scrollbar to the left edge */
+#left-flipper .content-wrapper {
+    direction: rtl;
+}
+
+/* 2. Reset the text direction for the actual content */
+#left-flipper .content-wrapper > * {
+    direction: ltr;
+}
+
+        body {
+            font-family: var(--font-body);
+            background-color: #5a5245;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v--9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            color: var(--ink-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            font-size: 0.6rem;
+        }
+
+        /* --- Menu Container & Panels --- */
+        .menu-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            width: 100%;
+            max-width: 800px;
+            /* You can adjust this for wider menus */
+            perspective: 3000px;
+            height: 85vh;
+            max-height: 800px;
+        }
+
+        .flipper,
+        .panel {
+            grid-row: 1 / 2;
+            transform-style: preserve-3d;
+            height: 100%;
+            padding: 2rem;
+        }
+
+        .flipper {
+            transition: transform 1.2s cubic-bezier(0.6, 0.01, 0.3, 1);
+        }
+
+        .panel-face {
+            background-color: var(--paper-color);
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.025"/></svg>');
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .panel-face::before {
+            content: '';
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            right: 1rem;
+            bottom: 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            pointer-events: none;
+        }
+
+        .panel-face-back {
+            transform: rotateY(180deg);
+        }
+
+        .content-wrapper {
+            flex-grow: 1;
+            overflow-y: hidden;
+            padding: 1.5rem 2.5rem;
+        }
+
+        /* --- Content Styling --- */
+        .panel-face h1{
+            font-family: var(--font-heading);
+            color: var(--ink-color);
+            text-align:left;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+
+        }
+        .panel-face h2 {
+            font-family: var(--font-heading);
+            color: var(--stamp-color);
+            text-align: left;
+            margin-bottom: 1rem;
+            font-size:1.2rem;
+            font-weight: 700;
+        }
+
+        .panel-face h3 {
+    font-family: var(--font-body);
+    font-weight: 500;
+    text-align: left;
+    font-size: 1rem;
+    margin-top: 2rem;
+    margin-bottom: 1.25rem;
+    color: var(--stamp-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.8;
+}
+
+
+        .menu-item {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            margin-bottom: 1.25rem;
+        }
+
+        .menu-item strong {
+            flex-grow: 1;
+            margin-right: 1rem;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .menu-item strong::after {
+            content: '................................................................................................';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            padding-left: 0.5rem;
+            color: rgba(0, 0, 0, 0.3);
+        }
+
+        .menu-item em {
+            font-style: normal;
+            font-size: 0.8rem;
+            color: var(--stamp-color);
+            font-weight: 500;
+        }
+
+        .menu-item span {
+            width: 100%;
+            padding-left: 1rem;
+            font-size: 0.7rem;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+        }
+
+        /* New styles for the link wrapper */
+.menu-item-link {
+    display: block; /* Allows the link to behave like a container */
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease-out;
+}
+
+/* Add a subtle visual cue on hover */
+.menu-item-link:hover {
+    transform: scale(1.02);
+}
+
+/* Change the title color on hover for an extra highlight */
+.menu-item-link:hover strong {
+    color: var(--stamp-color);
+}
+
+        .panel-face hr {
+            border: none;
+            height: 3px;
+            background-image: linear-gradient(90deg, transparent, var(--stamp-color), transparent);
+            margin: 2rem 0;
+            opacity: 0.3;
+        }
+
+        .cover-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100%;
+        }
+
+        .cover-content .subtitle {
+            font-size: 1rem;
+            letter-spacing: 4px;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .cover-content img {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 6px double var(--stamp-color);
+            padding: 5px;
+            margin: 1rem auto;
+            filter: sepia(0.4);
+        }
+
+        .cover-content .address {
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: #777;
+        }
+
+        /* Re-enable scrolling only when panels are facing forward */
+#center-panel .content-wrapper,
+.flipper.is-open .panel-face:not(.panel-face-back) .content-wrapper {
+    overflow-y: auto;
+}
+
+        /* --- Desktop Layout & UNFOLDING ANIMATION --- */
+        @media (min-width: 900px) {
+
+            #left-flipper { grid-column: 1; order: 0; }
+    #center-panel { grid-column: 2; order: 0; }
+    #right-flipper { grid-column: 3; order: 0; }
+            .menu-container {
+                grid-template-columns: repeat(3, 1fr);
+                opacity: 100;
+                /* Start fully transparent to fade in */
+                filter: brightness(0);
+                /* Start 100% black */
+                /* Combine transforms: start scaled up, tilted, and slightly rotated */
+                transform: scale(8) rotateX(60deg) rotateZ(-85deg) translateY(-20%) translateX(-40%);
+                /* Set up the transitions for each property */
+                transition: transform 0.3s linear,
+                    /* For motion */
+                    filter 1s ease-out,
+                    /* For brightness fade */
+                    opacity 0.5s ease-out;
+                /* For initial fade-in */
+            }
+
+            .menu-container.is-flipped {
+                opacity: 1;
+                /* Fully visible */
+                filter: brightness(1);
+                /* Return to normal brightness */
+                /* Combine transforms: landed flat with a slight final rotation */
+                transform: scale(1) rotateX(0deg) rotateZ(-2deg);
+            }
+
+            #left-flipper {
+                grid-column: 1;
+            }
+
+            #center-panel {
+                grid-column: 2;
+                
+            }
+
+            #right-flipper {
+                grid-column: 3;
+            }
+
+            /* Initial folded state */
+            #left-flipper {
+                transform-origin: right center;
+                /* UPDATED: Flipped rotation direction */
+                transform: rotateY(180deg);
+                z-index: 30;
+            }
+
+            #right-flipper {
+                transform-origin: left center;
+                /* UPDATED: Flipped rotation direction */
+                transform: rotateY(-180deg);
+                z-index: 20;
+            }
+
+            #center-panel {
+                z-index: 10;
+            }
+
+            /* Open states */
+            #left-flipper.is-open {
+                transform: rotateY(0deg);
+            }
+
+
+            #right-flipper.is-open {
+                transform: rotateY(0deg);
+            }
+
+            
+        }
+    </style>
+</head>
+
+<body>
+
+    <main id="menu-container" class="menu-container"></main>
+
+    <script>
+
+        // ==================================================================
+        // APPLICATION LOGIC (No need to edit below this line)
+        // ==================================================================
+
+        /**
+         * Dynamically loads Google Fonts and applies theme variables from the config.
+         */
+        function applyConfig(themeConfig) {
+            // 1. Apply fonts to CSS variables
+            document.documentElement.style.setProperty('--font-heading', themeConfig.fontHeading);
+            document.documentElement.style.setProperty('--font-body', themeConfig.fontBody);
+
+            // 2. Create and inject the Google Fonts stylesheet
+            const fontFamilies = [
+                `${themeConfig.fontHeading.replace(/ /g, '+')}:wght@700`, // Headings
+                `${themeConfig.fontBody.replace(/ /g, '+')}:wght@400;500` // Body
+            ];
+            const link = document.createElement('link');
+            link.href = `https://fonts.googleapis.com/css2?family=${fontFamilies.join('&family=')}&display=swap`;
+            link.rel = 'stylesheet';
+            document.head.appendChild(link);
+        }
+
+        /**
+         * Renders an array of portfolio categories into an HTML string.
+         */
+        function renderPortfolioContent(categories) {
+    if (!categories) return '';
+
+    return categories.map(category => {
+        const headingHtml = `<h2>${category.category}</h2>`;
+
+        const subcategoriesHtml = category.subcategories.map(subcat => {
+            const subheadingHtml = subcat.subheading ? `<h3>${subcat.subheading}</h3>` : '';
+
+            const itemsHtml = subcat.items.map(item => {
+                const descriptionHtml = item.description ? `<span>${item.description}</span>` : '';
+                
+                // The <a> tag now wraps the entire item
+                return `
+                    <a href="${item.url}" 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       class="menu-item-link" 
+                       aria-label="View project: ${item.title}">
+                        <div class="menu-item">
+                            <strong>${item.title}</strong>
+                            <em>${item.id}</em>
+                            ${descriptionHtml}
+                        </div>
+                    </a>
+                `;
+            }).join('');
+
+            return subheadingHtml + itemsHtml;
+        }).join('');
+
+        return headingHtml + subcategoriesHtml;
+    }).join('');
+}
+
+        /**
+         * Builds the menu structure and inserts it into the DOM.
+         */
+        function buildMenu() {
+            const menuContainer = document.getElementById('menu-container');
+            const { cover, panels } = config.content;
+
+            const coverHtml = `
+                <div class="cover-content">
+                    <h1>${cover.title}</h1>
+                    <p class="subtitle">${cover.subtitle}</p>
+                    <img src="${cover.imageUrl}" alt="Logo">
+                    <div class="address">${cover.address}</div>
+                </div>`;
+
+            const wrapContent = (html) => `<div class="content-wrapper">${html}</div>`;
+
+            // Create and append all panels
+            const leftFlipper = createFlipper('left-flipper', wrapContent(renderPortfolioContent(panels.left)), coverHtml);
+            const centerPanel = createPanel('center-panel', wrapContent(renderPortfolioContent(panels.center)));
+            const rightFlipper = createFlipper('right-flipper', wrapContent(renderPortfolioContent(panels.right)), '');
+
+            menuContainer.append(leftFlipper, centerPanel, rightFlipper);
+
+            // Trigger animations
+            triggerAnimations(leftFlipper, rightFlipper, menuContainer, centerPanel);
+        }
+
+        /**
+         * Helper function to create a flipper element.
+         */
+        function createFlipper(id, frontHtml, backHtml) {
+            const flipper = document.createElement('div');
+            flipper.id = id;
+            flipper.className = 'flipper';
+            flipper.innerHTML = `
+                <div class="panel-face">${frontHtml}</div>
+                <div class="panel-face panel-face-back">${backHtml}</div>
+            `;
+            return flipper;
+        }
+
+        /**
+         * Helper function to create a static panel element.
+         */
+        function createPanel(id, innerHtml) {
+            const panel = document.createElement('div');
+            panel.id = id;
+            panel.className = 'panel';
+            panel.innerHTML = `<div class="panel-face">${innerHtml}</div>`;
+            return panel;
+        }
+
+        function triggerAnimations(leftFlipper, rightFlipper, menuContainer, centerPanel) {
+            if (window.innerWidth < 900) {
+                // Mobile animation
+                menuContainer.style.height = 'auto';
+                document.querySelectorAll('.panel, .flipper').forEach((el, index) => {
+                    const panel = el.classList.contains('panel') ? el : el.querySelector('.panel-face');
+                    panel.style.position = 'relative';
+                    setTimeout(() => {
+                        panel.style.opacity = 1;
+                        panel.style.transform = 'translateY(0) scale(1)';
+                    }, 150 * (index + 1));
+                });
+            } else {
+                // Desktop staged animation
+                setTimeout(() => {
+                    menuContainer.classList.add('is-flipped');
+                    setTimeout(() => {
+                        leftFlipper.classList.add('is-open');
+                        setTimeout(() => {
+                            rightFlipper.classList.add('is-open');
+                            centerPanel.style.classList.add('is-open');
+                        }, 500);
+                    }, 800);
+                }, 200);
+            }
+        }
+        // --- App Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            applyConfig(config.theme);
+            buildMenu();
+        });
+    </script>
+
+</body>
+
+</html>

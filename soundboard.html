@@ -3036,6 +3036,9 @@
                     });
                     const fontSelect = document.getElementById('font-input');
                     fontSelect.value = this.cosmeticsData.fontFamily;
+
+                    const title = document.getElementById('soundboard-title');
+                    title.style.color = getContrastColor(this.cosmeticsData.colors["--background-color"]);
                 }
 
                 openCosmeticsModal() {
