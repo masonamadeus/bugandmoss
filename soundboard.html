@@ -12,432 +12,552 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="manifest.json">
     <title>Soundboard | B&M Really Simple Soundboard</title>
-    <style>
-        /* Define a color palette using CSS variables */
-        :root {
-            --background-color: #f7fafc;
-            /* Not-Quite White */
-            --panel-color: #95c7ff;
-            /* Powdered Bug */
-            --accent-color: #3bb273;
-            /* Mossy Green */
-            --highlight-color: #ff914d;
-            /* Chewy Orange */
-            --primary-color: #234e70;
-            /* Bug Blue */
-            --secondary-color: #cce0ec;
+<style>
+/* =================================================================== */
+/* CORE LAYOUT & THEMING
+/* =================================================================== */
+:root {
+    /* Base Color Palette */
+    --background-color: #f7fafc;
+    --panel-color: #95c7ff;
+    --accent-color: #3bb273;
+    --highlight-color: #ff914d;
+    
+    /* Text Colors (Static) */
+    --primary-color: #234e70;   /* Dark Text */
+    --secondary-color: #cce0ec; /* Light Text */
 
-            --font-family-primary: 'Wellfleet', sans-serif;
-        }
+    /* Dynamic Text Colors (Set by JS) */
+    --panel-color-text: #234e70;
+    --accent-color-text: #234e70;
+    --highlight-color-text: #234e70;
+    --primary-color-text: #cce0ec;
+    --background-color-text: #234e70;
 
-        body {
-            font-family: var(--font-family-primary);
-            background-color: var(--background-color);
-            color: var(--primary-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            min-height: 100dvh;
-            margin: 0;
-            padding: 2rem;
-            box-sizing: border-box;
-            touch-action: manipulation;
-        }
+    /* Typography */
+    --font-family-primary: 'Wellfleet', sans-serif;
+}
 
-        button {
-            font-family: var(--font-family-primary);
-        }
+body {
+    font-family: var(--font-family-primary);
+    background-color: var(--background-color);
+    color: var(--background-color-text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 2rem;
+    box-sizing: border-box;
+    touch-action: manipulation;
+}
 
-        .container {
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+.container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
 
-        .card-playing {
-            box-shadow: 0px 0px 8px var(--highlight-color)!important;
-            transform: scale(1.02);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
+#soundboard-title {
+    text-align: center;
+    cursor: pointer;
+    padding: 1rem;
+    transition: background-color 0.3s ease;
+}
 
-        .global-controls {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 1rem;
-            background-color: var(--panel-color);
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-top: 2rem;
-            margin-bottom: 2rem;
-        }
+#soundboard-title:hover,
+#soundboard-title:focus {
+    background-color: var(--panel-color);
+    outline: none;
+}
 
-        .global-controls button,
-        .modal button,
-        .confirm-modal button {
-            font-weight: bold;
-            padding: 0.75rem 1.5rem;
-            margin-bottom: 0.5rem;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+/* =================================================================== */
+/* BUTTONS & GENERAL CONTROLS
+/* =================================================================== */
+button {
+    font-family: var(--font-family-primary);
+    border: none;
+    cursor: pointer;
+    transition: filter 0.3s ease;
+}
 
-        .global-controls button:hover,
-        .modal button:hover,
-        .confirm-modal button:hover {
-            filter: brightness(50%);
-        }
+#button-color-picker {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 2px solid var(--primary-color);
+    background-color: transparent;
+    cursor: pointer;
+}
 
-        button.danger,
-        .confirm-modal button.danger {
+.title-and-color {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
 
-            padding: 0.75rem 1.5rem;
-            margin-bottom: 0.5rem;
-            background-color: red;
-            color: white;
-        }
+.title-and-color input[type="text"] {
+    flex-grow: 1; /* Allows the text input to fill available space */
+}
 
-        .global-controls button.danger:hover,
-        .confirm-modal button.danger:hover {
-            filter: brightness(50%);
-        }
+button:hover {
+    filter: brightness(90%);
+}
 
-        .soundboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
+.danger {
+    background-color: #d9534f!important; /* A consistent red for danger actions */
+    color: white!important;
+    padding: 1rem;
+}
 
-        .soundboard-grid.rearrange-mode {
-            cursor: grab;
-        }
+.slider-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
 
-        .sound-card {
-            background-color: var(--panel-color);
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            align-self: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+.slider-group label {
+    width: 60px;
+    font-size: 0.875rem;
+    color: var(--panel-color-text);
+}
 
-        .soundboard-grid.rearrange-mode .sound-card:hover {
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
-            transform: scale(1.02);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
+input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 4px;
+    background: var(--secondary-color);
+    outline: none;
+}
 
-        .soundboard-grid.rearrange-mode .sound-card {
-            transform: rotate(2deg);
-            border: 2px solid var(--highlight-color);
-            cursor: grab;
-        }
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--accent-color);
+    cursor: pointer;
+}
 
-        .sound-card.dragging {
-            opacity: 0.5;
-        }
+input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: var(--accent-color);
+    cursor: pointer;
+}
 
-        .soundboard-grid.rearrange-mode .sound-card.drag-over {
-            border: 2px dashed var(--highlight-color);
-            transform: scale(1.05);
-            transition: transform 0.2s ease;
-        }
+/* =================================================================== */
+/* GRIDS & CARDS
+/* =================================================================== */
+.soundboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
 
-        .sound-button {
-            position: relative;
-            width: 100%;
-            height: 100px;
-            background-color: var(--accent-color);
-            color: var(--primary-color);
-            font-size: 1.25rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.5rem;
-            overflow: hidden;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+.sound-card {
+    background-color: var(--panel-color);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    align-self: start; /* Prevents cards from stretching vertically */
+}
 
-        .soundboard-grid.rearrange-mode .sound-button {
-            cursor: grab;
-        }
+.hover-glow {
+    box-shadow: 0px 0px 8px var(--highlight-color) !important;
+}
 
-        .soundboard-grid.rearrange-mode .sound-button:hover {
-            opacity: 1;
-        }
+/* --- Drag & Drop Styles --- */
+.soundboard-grid.rearrange-mode {
+    cursor: grab;
+}
 
-        .sound-button:hover {
-            opacity: 0.9;
-        }
+.soundboard-grid.rearrange-mode .sound-card {
+    transform: rotate(1deg);
+    border: 2px solid var(--highlight-color);
+    cursor: grab;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
-        .progress-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.2);
-            transition: width 0.1s linear;
-        }
+.soundboard-grid.rearrange-mode .sound-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
 
-        .button-text {
-            position: relative;
-            z-index: 1;
-            font-family: var(--font-family-primary);
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+.sound-card.dragging {
+    opacity: 0.5;
+}
 
-        .sound-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
+.soundboard-grid.rearrange-mode .sound-card.drag-over {
+    border: 2px dashed var(--highlight-color);
+    transform: scale(1.05);
+}
 
-        .slider-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+/* =================================================================== */
+/* SOUND BUTTON CARDS
+/* =================================================================== */
+.sound-button {
+    position: relative;
+    width: 100%;
+    height: 100px;
+    background-color: var(--accent-color);
+    color: var(--accent-color-text);
+    font-size: 1.25rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-        .slider-group label {
-            width: 60px;
-            font-size: 0.875rem;
-            color: var(--primary-color);
-        }
+.progress-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+    transition: width 0.1s linear;
+}
 
-        .sound-controls input[type="range"] {
-            width: 100%;
-            -webkit-appearance: none;
-            height: 4px;
-            background: #a8d5e5;
-            outline: none;
-        }
+.button-text {
+    position: relative;
+    z-index: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
-        .sound-controls input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 14px;
-            height: 14px;
-            background: var(--accent-color);
-            cursor: pointer;
-        }
+.settings-triangle-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-bottom: 40px solid var(--highlight-color);
+    border-left: 40px solid transparent;
+    z-index: 2;
+}
 
-        .sound-controls input[type="range"]::-webkit-slider-thumb:active {
-            cursor: grabbing;
-        }
+.settings-triangle-btn svg {
+    position: absolute;
+    top: -30px;
+    left: 10px;
+    z-index: 3;
+    width: 20px;
+    height: 20px;
+    color: var(--highlight-color-text);
+}
 
-        .sound-controls input[type="range"]::-moz-range-thumb {
-            width: 14px;
-            height: 14px;
-            background: var(--accent-color);
-            cursor: pointer;
-        }
+.sound-controls .speed-display {
+    color: var(--panel-color-text);
+}
 
-        .sound-controls input[type="range"]::-moz-range-thumb:active {
-            cursor: grabbing;
-        }
+/* =================================================================== */
+/* CONTROL CARD
+/* =================================================================== */
+#control-card-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
 
-        .settings-triangle-btn {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            cursor: pointer;
-            width: 0;
-            height: 0;
-            border-bottom: 40px solid var(--highlight-color);
-            border-left: 40px solid transparent;
-            z-index: 2;
-        }
+.span-two-columns {
+    grid-column: span 2;
+}
 
-        .settings-triangle-btn svg {
-            position: absolute;
-            top: -30px;
-            left: 10px;
-            z-index: 3;
-            width: 20px;
-            height: 20px;
-            color: #ffffff;
-        }
+/* General button style within the control card */
+#control-card-actions button {
+    padding: 0.75rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    text-align: center;
+    background-color: var(--accent-color);
+    color: var(--accent-color-text);
+}
 
-        .modal,
-        .confirm-modal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(3px);
-            align-items: center;
-            justify-content: center;
-        }
+/* Specific overrides for uniquely colored buttons */
+#rearrange-mode-btn {
+    background-color: var(--highlight-color)!important;
+    color: var(--highlight-color-text)!important;
+}
 
-        .modal-content,
-        .confirm-modal-content {
-            background-color: var(--panel-color);
-            margin: 5% auto;
-            padding: 2rem;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            position: relative;
-            max-height: 75%;
-            overflow-y: auto;
-        }
+#switch-board-btn {
+    background-color: var(--primary-color)!important;
+    color: var(--primary-color-text)!important;
+}
 
-        .confirm-modal button.confirm-yes-btn {
-            /* yeah I know this is shitty */
-            background-color: var(--accent-color);
-            color: #FFFFFF;
-        }
+/* =================================================================== */
+/* TIMER CARDS
+/* =================================================================== */
 
-        .confirm-modal button.confirm-no-btn {
-            background-color: var(--highlight-color);
-            color: auto;
-        }
 
-        .confirm-modal-content {
-            text-align: center;
-            padding: 2rem;
-            max-width: 400px;
-        }
+.timer-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    color: var(--panel-color-text);
+    border: 2px solid transparent;
+    transition: border-color 0.2s ease;
+}
 
-        .modal-header {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
+.timer-title[contenteditable="true"] {
+    background-color: var(--background-color);
+    border-color: var(--highlight-color);
+    outline: none;
+    cursor: text;
+}
 
-        .modal-section {
-            margin-bottom: 1.5rem;
-        }
+.timer-display {
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 0.5rem;
+    background-color: var(--panel-color);
+    color: var(--panel-color-text);
+    border: 2px solid var(--secondary-color);
+        /* Creates a darkening overlay on top of the panel color */
+    background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2));
+}
 
-        .modal-section h3 {
-            font-size: 1.1rem;
-            margin-bottom: 0.75rem;
-            border-bottom: 1px solid var(--secondary-color);
-            padding-bottom: 0.25rem;
-            color: var(--primary-color);
-        }
+.timer-display.running {
+    color: var(--accent-color);
+}
 
-        .modal-section input[type="text"] {
-            width: 100%;
-            padding: 0.5rem;
-            background-color: var(--background-color);
-            border: 1px solid var(--primary-color);
-            color: var(--primary-color);
-        }
+.timer-options-toggle label,
+.timer-mode-selector label,
+.timer-sound-select label {
+    color: var(--panel-color-text);
+    user-select: none;
+}
 
-        .modal-section label {
-            display: block;
-            margin-bottom: 0.5rem;
-        }
+.timer-options-toggle{
+    margin-bottom: 1rem;
+}
+.timer-sound-select {
+    padding-top:0.5rem;
+    padding-bottom:0.5rem;
+}
 
-        .title-and-color {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
+.timer-controls .slider-group span {
+    min-width: 25px;
+    text-align: center;
+    color: var(--panel-color-text);
+}
 
-        #button-color-picker {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            width: 40px;
-            height: 40px;
-            padding: 0;
-            border: 2px solid var(--primary-color);
-            background-color: transparent;
-            /* The actual color comes from the swatch inside */
-            cursor: pointer;
-            transition: border-color 0.3s ease;
-        }
+.timer-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
 
-        #button-color-picker:hover {
-            border-color: var(--highlight-color);
-        }
+.timer-buttons button {
+    flex-grow: 1;
+    font-weight: bold;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--accent-color);
+    color: var(--accent-color-text);
+}
 
-        /* These pseudo-elements style the color preview part of the input */
-        #button-color-picker::-webkit-color-swatch-wrapper {
-            padding: 0;
-        }
+.timer-buttons .reset-timer-btn {
+    background-color: var(--highlight-color);
+    color: var(--highlight-color-text);
+}
 
-        #button-color-picker::-webkit-color-swatch {
-            border: none;
-        }
+.remove-timer-btn {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: var(--highlight-color);
+    color: var(--highlight-color-text);
+}
 
-        #button-color-picker::-moz-color-swatch {
-            border: none;
-        }
+.timer-options-container.hidden-options {
+    display: none;
+}
 
-        .hidden {
-            display: none;
-        }
+/* =================================================================== */
+/* NOTEPAD CARDS
+/* =================================================================== */
+.notepad-card {
+    align-self: stretch; /* Allows notepad to fill vertical space, overriding .sound-card */
+}
 
-        .file-list {
-            list-style: none;
-            max-height: 40vh;
-            overflow-y: auto;
-            padding: 0;
-            list-style-type: none;
-        }
+.notepad-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--secondary-color);
+}
 
-        .file-list li {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: var(--background-color);
-            padding: 0.5rem;
-            margin-bottom: 0.5rem;
-            border: 1px solid var(--panel-color);
-        }
+.notepad-tab, .add-page-btn {
+    border: 1px solid var(--secondary-color);
+    background-color: var(--background-color);
+    padding: 0.1rem 0.4rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    border-radius: 4px;
+}
 
-        .file-list button {
-            background-color: var(--highlight-color);
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+.notepad-tab-title {
+    cursor: pointer;
+    outline: none;
+    font-size: 1rem;
+    white-space: nowrap;
+    user-select: none;
+}
 
-        .file-list button:hover {
-            filter: brightness(50%);
-        }
+.notepad-tab.active {
+    background-color: var(--accent-color);
+    color: var(--accent-color-text);
+    font-weight: bold;
+    border-color: var(--accent-color);
+}
 
-        .file-input-container {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
+.delete-page-btn {
+    color: darkred;
+    font-weight: bold;
+    cursor: pointer;
+}
 
-        .file-input-container label {
-            flex-grow: 1;
-            background-color: var(--accent-color);
-            color: var(--background-color);
-            padding: 0.75rem 1.5rem;
-            text-align: center;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+.notepad-content {
+    flex-grow: 1;
+    width: 100%;
+    border: none;
+    background-color: var(--background-color);
+    padding: 0.5rem;
+    font-family: sans-serif;
+    font-size: 1rem;
+    color: var(--background-color-text);
+    resize: vertical;
+    box-sizing: border-box;
+    min-height: 150px;
+}
 
-        .file-input-container label:hover {
-            filter: brightness(50%);
-        }
+.notepad-content:focus {
+    outline: 1px solid var(--highlight-color);
+}
+
+/* =================================================================== */
+/* MODALS
+/* =================================================================== */
+.modal, .confirm-modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content, .confirm-modal-content {
+    background-color: var(--panel-color);
+    color: var(--panel-color-text);
+    padding: 2rem;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-section {
+    margin-bottom: 1.5rem;
+}
+
+.modal-section h3, .modal-section h4 {
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid var(--secondary-color);
+    padding-bottom: 0.25rem;
+}
+
+.modal-section label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.modal-section input[type="text"] {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: var(--background-color);
+    border: 1px solid var(--primary-color);
+    color: var(--background-color-text);
+}
+
+.modal-actions-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* --- Specific Modal Buttons --- */
+.file-input-container label, .modal-actions-row button, #create-new-board-btn {
+    background-color: var(--accent-color);
+    color: var(--accent-color-text);
+    padding: 0.75rem 1.5rem;
+    text-align: center;
+}
+
+#clear-files-btn {
+    background-color: var(--highlight-color);
+    color: var(--highlight-color-text);
+}
+
+/* --- File List --- */
+.file-list {
+    list-style: none;
+    padding: 0;
+}
+
+.file-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--background-color);
+    color: var(--background-color-text);
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--panel-color);
+}
+
+.file-list button {
+    background-color: var(--highlight-color);
+    color: var(--highlight-color-text);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* --- Checkboxes --- */
+.modal-checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.modal-checkbox-group input[type="checkbox"] {
+    appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid var(--primary-color);
+    cursor: pointer;
+    position: relative;
+     display: flex;
+
+}
+
 
         .modal-actions-row {
             display: flex;
@@ -452,668 +572,159 @@
             flex-wrap: wrap;
         }
 
-        .modal-checkbox-group label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            user-select: none;
-            color: var(--primary-color);
-        }
-
-        .modal-checkbox-group input[type="checkbox"] {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-            appearance: none;
-            width: 1.25rem;
-            height: 1.25rem;
-            border: 2px solid var(--primary-color);
-            cursor: pointer;
-            position: relative;
-        }
-
-        .modal-checkbox-group input[type="checkbox"]:checked {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-
-        .modal-checkbox-group input[type="checkbox"]:checked::after {
-            content: '✔';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: var(--background-color);
-            font-size: 1rem;
-        }
-
-        .modal-checkbox-group h4 {
-            margin: 0;
-            font-size: 1.1rem;
-            /* Matches other h3/h4 elements */
-            font-weight: bold;
-        }
-
-        /* New styles for the Database Manager modal */
-        #db-manager-modal .modal-content {
-            max-width: 500px;
-        }
-
-        #db-stats-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            font-size: 1.1rem;
-        }
-
-        #db-stats-container p {
-            margin: 0;
-            padding: 0.5rem;
-            background-color: var(--background-color);
-            border: 1px solid var(--secondary-color);
-        }
-
-        #db-file-list {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        #db-file-list li {
-            background-color: var(--panel-color);
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--panel-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        #db-file-list li:last-child {
-            border-bottom: none;
-        }
-
-        .stat-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--panel-color);
-        }
-
-        .stat-line:last-of-type {
-            border-bottom: none;
-        }
-
-        .spacer {
-            margin: 0 1rem;
-        }
-
-        #soundboard-title {
-            text-align: center;
-            cursor: pointer;
-            padding: 1rem;
-            transition: background-color 0.3s ease;
-        }
-
-        #soundboard-title:hover,
-        #soundboard-title:focus {
-            background-color: var(--panel-color);
-            outline: none;
-        }
-
-        #control-card-actions {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.5rem;
-            padding-top: 0.5rem;
-        }
-
-        /* New rule for the rearrange button */
-        .span-two-columns {
-            /* Span across two grid columns */
-            grid-column: span 2;
-        }
-
-        #control-card-actions button {
-
-            font-family: var(--font-family-primary);
-            padding: 0.5rem;
-            font-size: 1rem;
-            text-align: center;
-            background-color: var(--accent-color);
-            color: var(--background-color);
-            border-color: var(--highlight-color);
-            border-style: none;
-        }
-
-        #control-card-actions button:hover {
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
-            transform: scale(1.02);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            cursor: pointer;
-        }
-
-        /* New styles for the Cosmetics modal */
-        .color-picker-group {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .color-picker-group input[type="color"] {
-            width: 2rem;
-            height: 2rem;
-            border: none;
-            cursor: pointer;
-        }
-
-        .color-palette-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 1rem;
-        }
-
-        .color-box {
-            position: relative;
-            width: 100%;
-            padding-top: 100%;
-            /* Creates a square aspect ratio */
-            display: flex;
-            flex-direction: column-reverse;
-            justify-content: flex-end;
-            align-items: center;
-        }
-
-        .color-box input[type="color"] {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            padding: 0;
-            border: none;
-            cursor: pointer;
-            z-index: 1;
-            /* Puts the color picker behind the label */
-        }
-
-        .color-box label {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            padding: 0.25rem;
-            font-size: 0.75rem;
-            background-color: rgba(0, 0, 0, 0.5);
-            /* Semi-transparent background */
-            color: white;
-            z-index: 2;
-            /* Puts the label in front of the color picker */
-        }
-
-        /* Styles for the timer card */
-        .timer-card {
-            background-color: var(--panel-color);
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            align-self: start;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .timer-display {
-            font-size: 2.5rem;
-            font-weight: bold;
-            text-align: center;
-            padding: 0.5rem;
-            background-color: var(--background-color);
-            color: var(--primary-color);
-            border: 2px solid var(--secondary-color);
-        }
-
-        .timer-display.running {
-            color: var(--accent-color);
-        }
-
-        .timer-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .timer-controls .slider-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .timer-controls .slider-group label {
-            width: 60px;
-            font-size: 0.875rem;
-            color: var(--primary-color);
-            text-align: right;
-        }
-
-        .timer-controls .slider-group span {
-            min-width: 25px;
-            text-align: center;
-        }
-
-        .timer-controls input[type="range"] {
-            flex-grow: 1;
-            -webkit-appearance: none;
-            height: 4px;
-            background: #a8d5e5;
-            outline: none;
-        }
-
-        .timer-controls input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 14px;
-            height: 14px;
-            background: var(--accent-color);
-            cursor: pointer;
-        }
-
-        .timer-controls input[type="range"]::-moz-range-thumb {
-            width: 14px;
-            height: 14px;
-            background: var(--accent-color);
-            cursor: pointer;
-        }
-
-        .timer-controls .timer-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-        }
-
-        .timer-controls .timer-buttons button {
-            flex-grow: 1;
-            font-weight: bold;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .timer-controls .timer-buttons button:hover {
-            filter: brightness(50%);
-        }
-
-        .timer-controls .timer-buttons .start-timer-btn {
-            background-color: var(--accent-color);
-            color: white;
-        }
-
-        .timer-controls .timer-buttons .stop-timer-btn {
-            background-color: var(--highlight-color);
-            color: white;
-        }
-
-        .timer-options-container.hidden-options {
-            display: none;
-        }
-
-        .confirm-modal-actions {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            color: var(--background-color);
-            font-weight: bold;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .add-timer-btn:hover {
-            filter: brightness(50%);
-        }
-
-        .timer-options-container.hidden-options {
-            display: none;
-        }
-
-        .timer-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-align: center;
-            color: var(--primary-color);
-            cursor: default;
-            border: 2px solid transparent;
-            /* invisible border for focus */
-            transition: border-color 0.2s ease;
-        }
-
-        .timer-title[contenteditable="true"] {
-            background-color: var(--background-color);
-            border-color: var(--highlight-color);
-            outline: none;
-            cursor: text;
-        }
-
-        .timer-options-toggle {
-            user-select: none;
-        }
-
-        /* Style the new remove timer button */
-        .remove-timer-btn {
-            width: 100%;
-            margin-bottom: 1rem;
-            font-weight: bold;
-            padding: 0.75rem;
-            margin-top: 1rem;
-            background-color: var(--highlight-color);
-            color: white;
-        }
-
-        .timer-sound-select {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .timer-sound-select label {
-            flex-shrink: 0;
-            /* Prevents the label from shrinking */
-        }
-
-        .timer-sound-select select {
-            width: 100%;
-            /* This is the key: it allows the dropdown to shrink
-       smaller than its own content, preventing overflow. */
-            min-width: 0;
-        }
-
-        /* UPDATED Styles for the compact Notepad Card */
-        .notepad-card {
-            display: flex;
-            flex-direction: column;
-            padding: 0.5rem;
-            /* Reduced padding on the card itself */
-            align-self: stretch;
-        }
-
-        .notepad-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding-bottom: 0.5rem;
-        }
-
-
-        .notepad-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.25rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--secondary-color);
-            flex-shrink: 0;
-            /* Prevent tabs from shrinking */
-        }
-
-        .notepad-tab {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            border: 1px solid var(--secondary-color);
-            background-color: var(--background-color);
-            padding: 0.1rem 0.4rem;
-            /* Smaller tabs */
-            cursor: pointer;
-            font-size: 0.8rem;
-            border-radius: 4px;
-        }
-
-        .notepad-tab-title {
-            cursor: pointer;
-            outline: none;
-            font-size: 1rem;
-            white-space: nowrap;
-            /* Prevent title from wrapping */
-            user-select: none;
-        }
-
-        .notepad-tab-title[contenteditable="true"] {
-            cursor: text;
-            user-select: text
-        }
-
-        .add-page-btn {
-            border: 1px solid var(--secondary-color);
-            background-color: var(--background-color);
-            padding: 0.1rem 0.4rem;
-            /* Smaller button */
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: bold;
-            border-radius: 4px;
-        }
-
-        .notepad-tab.active {
-            background-color: var(--accent-color);
-            color: white;
-            font-weight: bold;
-            border-color: var(--accent-color);
-            cursor: text;
-        }
-
-        .notepad-tab.active {
-            color: white;
-        }
-
-        .delete-page-btn {
-            color: darkred;
-            font-weight: bold;
-            font-size: 0.9rem;
-            padding: 2px 4px;
-            border-radius: 50%;
-            line-height: 1;
-        }
-
-        .delete-page-btn:hover {
-            background-color: rgba(0, 0, 0, 0.2);
-        }
-
-        .notepad-content {
-            flex-grow: 1;
-            width: 100%;
-            border: none;
-            background-color: var(--background-color);
-            padding: 0.5rem;
-            font-family: sans-serif;
-            font-size: 1rem;
-            color: var(--primary-color);
-            resize: vertical;
-            box-sizing: border-box;
-            min-height: 126px
-        }
-
-        .notepad-content:focus {
-            outline: 1px solid var(--highlight-color);
-        }
-
-
-        .help-accordion {
-            width: 100%;
-        }
-
-        .accordion-item {
-            border-bottom: 1px solid var(--secondary-color);
-        }
-
-        .accordion-item:last-of-type {
-            border-bottom: none;
-        }
-
-        .accordion-header {
-            width: 100%;
-            background-color: transparent;
-            border: none;
-            text-align: left;
-
-            padding: 1rem;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            position: relative;
-            color: var(--primary-color);
-        }
-
-        .accordion-header::after {
-            content: '+';
-            position: absolute;
-            right: 1rem;
-            font-size: 1.5rem;
-            transition: transform 0.2s ease;
-        }
-
-        .accordion-header.active::after {
-            transform: rotate(45deg);
-        }
-
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
-            background-color: var(--background-color);
-            padding: 0 1rem;
-            white-space: pre-line;
-        }
-
-        .accordion-content p,
-        .accordion-content ul {
-            margin-block-start: 0;
-        }
-
-        .accordion-content.active {
-            max-height: 200px;
-            /* Set a max height for the open panel */
-            overflow-y: auto;
-            /* Allow content to scroll if it's too long */
-            padding: 1rem 1rem;
-        }
-
-        .accordion-content ul {
-            padding-left: 1.5rem;
-        }
-
-        .accordion-content li {
-            margin-bottom: 0.5rem;
-        }
-
-        #help-bug-btn {
-            position: fixed;
-            bottom: 1rem;
-            left: 1rem;
-            z-index: 50;
-            /* Above content, below modals */
-            width: 50px;
-            height: 50px;
-            border-radius: 0;
-            padding: 8px;
-            cursor: pointer;
-            background: transparent;
-            border: none;
-        }
-
-        .bug-moving {
-            animation: skitter 8s ease-in-out infinite;
-        }
-
-        #help-bug-btn svg {
-            width: 100%;
-            height: 100%;
-        }
-
-        @keyframes skitter {
-
-            /* Start and end in the original position */
-            0%,
-            100% {
-                transform: translate(0, 0) rotate(0deg);
-            }
-
-            /* Quick dash and turn */
-            4% {
-                transform: translate(15px, 5px) rotate(25deg);
-            }
-
-            /* Pause */
-            8% {
-                transform: translate(15px, 5px) rotate(25deg);
-            }
-
-            /* Fast dash back across the screen */
-            15% {
-                transform: translate(-10px, -10px) rotate(-15deg);
-            }
-
-            /* A small, quick jitter */
-            18% {
-                transform: translate(-8px, -12px) rotate(-20deg);
-            }
-
-            20% {
-                transform: translate(-10px, -10px) rotate(-15deg);
-            }
-
-            /* Another dash and a longer pause */
-            28% {
-                transform: translate(20px, -5px) rotate(40deg);
-            }
-
-            35% {
-                transform: translate(20px, -5px) rotate(40deg);
-            }
-
-            /* A long, slow drift down */
-            50% {
-                transform: translate(-15px, 20px) rotate(-30deg);
-            }
-
-            /* Pause again */
-            60% {
-                transform: translate(-15px, 20px) rotate(-30deg);
-            }
-
-            /* Jitter in place */
-            63% {
-                transform: translate(-12px, 22px) rotate(-35deg);
-            }
-
-            65% {
-                transform: translate(-15px, 20px) rotate(-30deg);
-            }
-
-            /* Final quick dash before returning home */
-            75% {
-                transform: translate(10px, 10px) rotate(15deg);
-            }
-
-            85% {
-                transform: translate(10px, 10px) rotate(15deg);
-            }
-
-            /* Settle back to origin */
-            95% {
-                transform: translate(2px, 2px) rotate(5deg);
-            }
-        }
-
-        .install-button-modal:disabled {
-    background-color: #a0aec0; /* A neutral grey color */
-    cursor: not-allowed;
-    opacity: 0.6;
+.modal-checkbox-group input[type="checkbox"]:checked {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
 }
-    </style>
+
+.modal-checkbox-group input[type="checkbox"]:checked::after {
+    content: '✔';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--accent-color-text);
+    font-size: 1rem;
+}
+
+/* --- Color Pickers --- */
+.color-palette-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 1rem;
+}
+
+.color-box {
+    position: relative;
+    width: 100%;
+    padding-top: 100%; /* Creates a square aspect ratio */
+}
+
+.color-box input[type="color"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+}
+
+.color-box label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    padding: 0.25rem;
+    font-size: 0.75rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    pointer-events: none; /* Allows clicks to go through to the color input */
+}
+
+/* --- Confirmation Modal --- */
+.confirm-modal-content {
+    text-align: center;
+    max-width: 400px;
+}
+
+.confirm-modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.confirm-modal-actions button {
+    padding: 0.75rem 1.5rem;
+    font-weight: bold;
+}
+
+.confirm-yes-btn {
+    background-color: var(--accent-color);
+    color: var(--accent-color-text);
+}
+
+.confirm-no-btn {
+    background-color: var(--highlight-color);
+    color: var(--highlight-color-text);
+}
+
+/* =================================================================== */
+/* HELPER BUG & ACCORDION
+/* =================================================================== */
+#help-bug-btn {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 50;
+    width: 50px;
+    height: 50px;
+    background: transparent;
+}
+
+.bug-moving {
+    animation: skitter 8s ease-in-out infinite;
+}
+
+.accordion-header {
+    width: 100%;
+    background-color: transparent;
+    text-align: left;
+    padding: 1rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    position: relative;
+    color: var(--panel-color-text);
+}
+
+.accordion-header::after {
+    content: '+';
+    position: absolute;
+    right: 1rem;
+    font-size: 1.5rem;
+    transition: transform 0.2s ease;
+}
+
+.accordion-header.active::after {
+    transform: rotate(45deg);
+}
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+    background-color: var(--background-color);
+    padding: 0 1rem;
+    white-space: pre-line;
+}
+
+.accordion-content.active {
+    max-height: 200px; /* Adjust as needed */
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+@keyframes skitter {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    4% { transform: translate(15px, 5px) rotate(25deg); }
+    8% { transform: translate(15px, 5px) rotate(25deg); }
+    15% { transform: translate(-10px, -10px) rotate(-15deg); }
+    18% { transform: translate(-8px, -12px) rotate(-20deg); }
+    20% { transform: translate(-10px, -10px) rotate(-15deg); }
+    28% { transform: translate(20px, -5px) rotate(40deg); }
+    35% { transform: translate(20px, -5px) rotate(40deg); }
+    50% { transform: translate(-15px, 20px) rotate(-30deg); }
+    60% { transform: translate(-15px, 20px) rotate(-30deg); }
+    63% { transform: translate(-12px, 22px) rotate(-35deg); }
+    65% { transform: translate(-15px, 20px) rotate(-30deg); }
+    75% { transform: translate(10px, 10px) rotate(15deg); }
+    85% { transform: translate(10px, 10px) rotate(15deg); }
+    95% { transform: translate(2px, 2px) rotate(5deg); }
+}
+</style>
 </head>
 
 <body>
@@ -1135,44 +746,66 @@
     </template>
 
     <template id="timer-card-template">
-        <div class="sound-card special-function-card timer-card">
-            <div class="timer-title" contenteditable="false">New Timer</div>
-            <div class="timer-display">00:00</div>
-            <div class="timer-controls">
-                <div class="timer-options-toggle">
+    <div class="sound-card special-function-card timer-card">
+        <div class="timer-title" contenteditable="false">New Timer</div>
+        <div class="timer-display">00:00</div>
+        <div class="timer-controls">
+            <div class="timer-options-toggle">
+                <label>
+                    <input type="checkbox" class="hide-timer-options-toggle" value="false">
+                    Lock Timer Settings
+                </label>
+            </div>
+            <div class="timer-options-container">
+                <!-- New: Mode Selection -->
+                <div class="timer-mode-selector" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 0.75rem;">
                     <label>
-                        <input type="checkbox" class="hide-timer-options-toggle" value="false">
-                        Lock Timer Settings
+                        <input type="radio" name="timer-mode" class="timer-mode-radio" value="timer" checked> Timer
+                    </label>
+                    <label>
+                        <input type="radio" name="timer-mode" class="timer-mode-radio" value="stopwatch"> Stopwatch
                     </label>
                 </div>
-                <div class="timer-options-container">
-                    <div class="slider-group">
-                        <label>Minutes:</label>
-                        <input type="range" class="timer-minutes-range" min="0" max="60" value="0">
-                        <span class="timer-minutes-value">0</span>
-                    </div>
-                    <div class="slider-group">
-                        <label>Seconds:</label>
-                        <input type="range" class="timer-seconds-range" min="0" max="59" value="0">
-                        <span class="timer-seconds-value">0</span>
-                    </div>
-                    <div class="timer-sound-select">
-                        <label>Start with:</label>
-                        <select class="timer-start-sound"></select>
-                    </div>
-                    <div class="timer-sound-select">
-                        <label>End with:</label>
-                        <select class="timer-end-sound"></select>
-                    </div>
-                    <button class="remove-timer-btn danger">Remove Timer</button>
+
+                <div class="slider-group">
+                    <label>Minutes:</label>
+                    <input type="range" class="timer-minutes-range" min="0" max="90" value="0">
+                    <span class="timer-minutes-value">0</span>
                 </div>
-                <div class="timer-buttons">
-                    <button class="start-timer-btn">Start</button>
-                    <button class="stop-timer-btn">Reset</button>
+                <div class="slider-group">
+                    <label>Seconds:</label>
+                    <input type="range" class="timer-seconds-range" min="0" max="59" value="30">
+                    <span class="timer-seconds-value">0</span>
+                </div>
+
+                <!-- New: Loop Option -->
+                <div class="timer-sound-select">
+                    <label>
+                        <input type="checkbox" class="timer-loop-checkbox" style="margin-right: 0.5rem;">Loop
+                    </label>
+                </div>
+
+                <div class="timer-sound-select start-sound-container">
+                    <label class="start-sound-label">Start with:</label>
+                    <select class="timer-start-sound"></select>
+                </div>
+                <div class="timer-sound-select end-sound-container">
+                    <label>End with:</label>
+                    <select class="timer-end-sound"></select>
                 </div>
             </div>
+            <div class="timer-buttons">
+                <button class="start-pause-timer-btn">Start</button>
+                <button class="reset-timer-btn">Reset</button>
+            </div>
+
+            <div class="timer-options-container">
+                
+                <button class="remove-timer-btn danger">Remove Timer</button>
+            </div>
         </div>
-    </template>
+    </div>
+</template>
 
     <div id="control-card" class="sound-card special-function-card" data-card-type="control" data-card-id="control-card"
         style="display: none;">
@@ -1180,11 +813,11 @@
             <button id="add-btn-plus" title="Add a new button" class="span-two-columns">Add Sound</button>
             <button id="add-timer-btn">Add Timer</button>
             <button id="add-notepad-btn">Add Note</button>
-            <button id="rearrange-mode-btn" style="background-color:var(--highlight-color)"
+            <button id="rearrange-mode-btn"
                 class="span-two-columns">Rearrange</button>
             <button id="upload-config-btn">Upload</button>
             <button id="download-config-btn">Download</button>
-            <button id="switch-board-btn" class="span-two-columns" style="background-color:var(--primary-color);">Switch
+            <button id="switch-board-btn" class="span-two-columns">Switch
                 Board</button>
             <button id="cosmetics-btn">Cosmetics</button>
             <button id="db-manager-btn">Storage</button>
@@ -1430,7 +1063,7 @@
             const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
 
             // 3. Return dark or light color based on a threshold
-            return luminance > 0.5 ? 'var(--primary-color)' : 'var(--secondary-color)'; // Returns dark for light backgrounds, and vice-versa
+            return luminance > 0.45 ? 'var(--primary-color)' : 'var(--secondary-color)'; // Returns dark for light backgrounds, and vice-versa
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -1529,7 +1162,7 @@
                     this.audio.onplaying = () => {
                         this.isPlaying = true;
                         if (this.card) {
-                            this.card.classList.add('card-playing');
+                            this.card.classList.add('hover-glow');
                         }
                     };
                     this.audio.onpause = () => {
@@ -1557,7 +1190,7 @@
                         this.progressOverlay.style.width = '0%';
                     }
                     if (this.card) {
-                        this.card.classList.remove('card-playing');
+                        this.card.classList.remove('hover-glow');
                     }
                 }
 
@@ -1873,53 +1506,56 @@
 
             class TimerCard {
                 constructor(element, soundboardManager, dbInstance) {
-                    // Pass a reference to the main manager and the element to access its methods
                     this.cardElement = element;
                     this.soundboardManager = soundboardManager;
                     this.db = dbInstance;
                     this.id = parseInt(this.cardElement.dataset.timerId);
 
+                    // --- DOM Element References ---
                     this.timerTitle = this.cardElement.querySelector('.timer-title');
                     this.timerDisplay = this.cardElement.querySelector('.timer-display');
-                    this.startTimerBtn = this.cardElement.querySelector('.start-timer-btn');
-                    this.stopTimerBtn = this.cardElement.querySelector('.stop-timer-btn');
+                    this.startPauseBtn = this.cardElement.querySelector('.start-pause-timer-btn');
+                    this.resetBtn = this.cardElement.querySelector('.reset-timer-btn');
                     this.removeTimerBtn = this.cardElement.querySelector('.remove-timer-btn');
-
-                    this.timerStartSoundSelect = this.cardElement.querySelector('.timer-start-sound');
-                    this.timerEndSoundSelect = this.cardElement.querySelector('.timer-end-sound');
                     this.timerMinutesRange = this.cardElement.querySelector('.timer-minutes-range');
                     this.timerSecondsRange = this.cardElement.querySelector('.timer-seconds-range');
                     this.timerMinutesValue = this.cardElement.querySelector('.timer-minutes-value');
                     this.timerSecondsValue = this.cardElement.querySelector('.timer-seconds-value');
                     this.hideOptionsToggle = this.cardElement.querySelector('.hide-timer-options-toggle');
-                    this.optionsContainer = this.cardElement.querySelector('.timer-options-container');
+                    this.optionsContainers = this.cardElement.querySelectorAll('.timer-options-container');
+                    this.modeRadios = this.cardElement.querySelectorAll('.timer-mode-radio');
+                    this.loopCheckbox = this.cardElement.querySelector('.timer-loop-checkbox');
+                    this.startSoundContainer = this.cardElement.querySelector('.start-sound-container');
+                    this.startSoundLabel = this.cardElement.querySelector('.start-sound-label');
+                    this.endSoundContainer = this.cardElement.querySelector('.end-sound-container');
+                    this.timerStartSoundSelect = this.cardElement.querySelector('.timer-start-sound');
+                    this.timerEndSoundSelect = this.cardElement.querySelector('.timer-end-sound');
 
+                    // --- State Properties ---
+                    this.mode = 'timer';
+                    this.isLooping = false;
+                    this.isRunning = false;
+                    this.totalDurationMs = 0;
+                    this.elapsedMs = 0;
+                    this.startTime = 0;
                     this.timerInterval = null;
-                    this.timerCountdown = 0; // This will be set on load or via sliders
-                    this.isTimerRunning = false; // Add a state flag for clarity
-
-                    // fancy outro logic
                     this.hasPlayedEndSound = false;
-                    this.preloadedEndSound = null;
+                    this.endSoundData = null;
+                    this.highlightColor = this.soundboardManager.cosmeticsData.colors['--highlight-color']
 
                     this.attachListeners();
-                    this.loadTimerState(); // Call the new loading function
+                    this.loadTimerState();
                 }
 
                 attachListeners() {
-                    this.startTimerBtn.addEventListener('click', () => this.startTimer(false));
-                    this.stopTimerBtn.addEventListener('click', () => this.stopTimer(false));
-                    // REFACTOR: The remove button now calls the manager, which handles all state and UI updates.
+                    this.startPauseBtn.addEventListener('click', () => this.handlePlayPause());
+                    this.resetBtn.addEventListener('click', () => this.reset());
                     this.removeTimerBtn.addEventListener('click', () => this.soundboardManager.removeTimer(this.id));
-                    this.timerMinutesRange.addEventListener('input', this.updateTimerDisplay.bind(this));
-                    this.timerSecondsRange.addEventListener('input', this.updateTimerDisplay.bind(this));
-                    this.hideOptionsToggle.addEventListener('change', () => {
-                        const isShowing = this.hideOptionsToggle.checked;
-                        this.optionsContainer.classList.toggle('hidden-options', isShowing);
-                        this.timerTitle.contentEditable = !isShowing;
-                        this.saveTimerState();
-                    });
-                    // Save state on change
+                    this.timerMinutesRange.addEventListener('input', () => this.handleSliderChange());
+                    this.timerSecondsRange.addEventListener('input', () => this.handleSliderChange());
+                    this.hideOptionsToggle.addEventListener('change', () => this.handleOptionsToggle());
+                    this.loopCheckbox.addEventListener('change', (e) => this.handleLoopToggle(e.target.checked));
+                    this.modeRadios.forEach(radio => radio.addEventListener('change', (e) => this.handleModeChange(e.target.value)));
                     this.cardElement.addEventListener('input', () => this.saveTimerState());
                     this.timerStartSoundSelect.addEventListener('change', () => this.saveTimerState());
                     this.timerEndSoundSelect.addEventListener('change', () => this.saveTimerState());
@@ -1933,10 +1569,11 @@
                         startSound: this.timerStartSoundSelect.value,
                         endSound: this.timerEndSoundSelect.value,
                         optionsHidden: this.hideOptionsToggle.checked,
-                        countdown: this.timerCountdown, // Save the current countdown
-                        isTimerRunning: this.isTimerRunning, // Save the running state
-                        hasPlayedEndSound: this.hasPlayedEndSound,
-                        preloadedEndSound: this.preloadedEndSound
+                        mode: this.mode,
+                        isLooping: this.isLooping,
+                        isRunning: this.isRunning,
+                        startTime: this.startTime,
+                        elapsedMs: this.isRunning ? this.elapsedMs + (Date.now() - this.startTime) : this.elapsedMs
                     };
                     this.db.save(`timer-${this.id}`, state);
                 }
@@ -1944,205 +1581,273 @@
                 async loadTimerState() {
                     const state = await this.db.get(`timer-${this.id}`);
                     if (state) {
-                        // Explicitly apply the loaded values to the UI elements
-                        this.timerTitle.textContent = state.title;
-                        this.timerMinutesRange.value = state.minutes;
-                        this.timerSecondsRange.value = state.seconds;
-                        this.timerMinutesValue.textContent = state.minutes;
-                        this.timerSecondsValue.textContent = state.seconds;
-                        this.timerStartSoundSelect.value = state.startSound;
-                        this.timerEndSoundSelect.value = state.endSound;
-                        this.hideOptionsToggle.checked = state.optionsHidden;
-                        this.optionsContainer.classList.toggle('hidden-options', state.optionsHidden);
-                        this.timerTitle.contentEditable = !state.optionsHidden;
-                        this.hasPlayedEndSound = state.hasPlayedEndSound;
-                        this.preloadedEndSound = state.preloadedEndSound;
+                        this.timerTitle.textContent = state.title || 'New Timer';
+                        this.timerMinutesRange.value = state.minutes || 0;
+                        this.timerSecondsRange.value = state.seconds || 30;
+                        this.timerStartSoundSelect.value = state.startSound || '';
+                        this.timerEndSoundSelect.value = state.endSound || '';
+                        this.hideOptionsToggle.checked = state.optionsHidden || false;
+                        this.handleOptionsToggle();
+                        this.loopCheckbox.checked = state.isLooping || false;
+                        this.mode = state.mode || 'timer';
+                        this.cardElement.querySelector(`.timer-mode-radio[value="${this.mode}"]`).checked = true;
 
-                        // Set the countdown from the loaded state
-                        // If the timer was running, resume from the saved countdown
-                        if (state.isTimerRunning && state.countdown > 0) {
-                            this.timerCountdown = state.countdown;
-                            this.startTimer(true); // Immediately resume the timer
-                        } else {
-                            // Otherwise, set the countdown from the slider values
-                            this.timerCountdown = (parseInt(this.timerMinutesRange.value) * 60) + parseInt(this.timerSecondsRange.value);
+                        if (state.isRunning && state.startTime) {
+                            this.elapsedMs = state.elapsedMs;
+                            this.startTime = Date.now();
+                            this.play(true);
                         }
-                    } else {
-                        // Initialize for a new timer
-                        this.timerCountdown = (parseInt(this.timerMinutesRange.value) * 60) + parseInt(this.timerSecondsRange.value);
                     }
-                    this.renderTimerDisplay();
+                    this.handleSliderChange();
+                    this.updateUI();
                 }
 
-                updateTimerDisplay() {
-                    const minutes = this.timerMinutesRange.value;
-                    const seconds = this.timerSecondsRange.value;
+                handleSliderChange() {
+                    const minutes = parseInt(this.timerMinutesRange.value, 10);
+                    const seconds = parseInt(this.timerSecondsRange.value, 10);
                     this.timerMinutesValue.textContent = minutes;
                     this.timerSecondsValue.textContent = seconds;
+                    this.totalDurationMs = (minutes * 60 + seconds) * 1000;
 
-                    // Only update countdown from sliders if the timer is not running
-                    if (!this.isTimerRunning) {
-                        this.timerCountdown = (parseInt(minutes) * 60) + parseInt(seconds);
+                    if (!this.isRunning) {
+                        this.render(this.mode === 'timer' ? this.totalDurationMs : 0);
+                    }
+                }
+
+                handleOptionsToggle() {
+                    const isLocked = this.hideOptionsToggle.checked;
+                    
+                    this.optionsContainers.forEach((optionsContainer) => {
+                        optionsContainer.classList.toggle('hidden-options', isLocked);
+                    })
+                    this.timerTitle.contentEditable = !isLocked;
+                    this.saveTimerState();
+                }
+
+                handleLoopToggle(isLooping) {
+                    this.isLooping = isLooping;
+                    this.updateUI();
+                    this.saveTimerState();
+                }
+
+                handleModeChange(newMode) {
+                    this.mode = newMode;
+                    if (!this.isRunning) {
+                        this.reset();
+                    }
+                    this.updateUI();
+                    this.saveTimerState();
+                }
+
+                
+                updateUI() {
+                    this.startPauseBtn.textContent = this.isRunning ? 'Pause' : 'Start';
+                    this.endSoundContainer.style.display = this.isLooping ? 'none' : '';
+                    this.startSoundLabel.textContent = this.isLooping ? 'Play Sound:' : 'Start with:';
+
+                    const currentElapsed = this.elapsedMs + (this.isRunning ? Date.now() - this.startTime : 0);
+
+                    // NEW: Expanded conditions for applying the glow effect
+                    const isStopwatchFinished = this.mode === 'stopwatch' && currentElapsed >= this.totalDurationMs && this.totalDurationMs > 0;
+                    const isTimerFinished = this.mode === 'timer' && (this.totalDurationMs - currentElapsed) <= 0;
+
+                    if (isStopwatchFinished || (isTimerFinished && !this.isLooping)) {
+                        this.timerDisplay.style.color = this.highlightColor;
+                        this.cardElement.classList.add('hover-glow');
+                    } else {
+                        this.timerDisplay.style.color = '';
+                        this.cardElement.classList.remove('hover-glow');
+                    }
+                }
+
+                handlePlayPause() {
+                    if (this.isRunning) {
+                        this.pause();
+                    } else {
+                        this.play();
+                    }
+                }
+
+                play(isResume = false) {
+                    if (this.isRunning && !isResume) return;
+                    if (this.mode === 'timer' && this.totalDurationMs - this.elapsedMs <= 0 && !this.isLooping) return;
+
+                    this.isRunning = true;
+                    this.startTime = Date.now();
+
+                    if (!isResume) {
+                        this.playStartSound();
+                        this.prepareEndSound();
                     }
 
-                    this.renderTimerDisplay();
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = setInterval(() => this.tick(), 250);
+
+                    this.timerDisplay.classList.add('running');
+                    this.updateUI();
                 }
 
-                renderTimerDisplay() {
-                    const minutes = Math.floor(this.timerCountdown / 60);
-                    const seconds = this.timerCountdown % 60;
-                    const displayString = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-                    this.timerDisplay.textContent = displayString;
+                pause() {
+                    if (!this.isRunning) return;
+                    this.isRunning = false;
+                    this.elapsedMs += Date.now() - this.startTime;
+
+                    clearInterval(this.timerInterval);
+                    this.timerDisplay.classList.remove('running');
+                    this.updateUI();
+                    this.saveTimerState();
                 }
 
+                reset() {
+                    this.isRunning = false;
+                    this.elapsedMs = 0;
+                    this.hasPlayedEndSound = false;
+                    this.endSoundData = null;
 
+                    clearInterval(this.timerInterval);
+
+                    this.render(this.mode === 'timer' ? this.totalDurationMs : 0);
+
+                    this.timerDisplay.classList.remove('running');
+                    this.updateUI(); // This will correctly remove the glow effect
+                    this.saveTimerState();
+                }
+
+                tick() {
+                    const currentElapsed = this.elapsedMs + (Date.now() - this.startTime);
+
+                    if (this.mode === 'timer') {
+                        const remainingMs = Math.max(0, this.totalDurationMs - currentElapsed);
+                        this.render(remainingMs);
+                        this.updateUI();
+
+                        if (this.endSoundData && !this.hasPlayedEndSound && remainingMs <= this.endSoundData.duration * 1000) {
+                            this.playEndSound();
+                        }
+
+                        if (remainingMs <= 0) {
+                            if (this.isLooping) {
+                                this.elapsedMs = 0;
+                                this.startTime = Date.now();
+                                this.playStartSound();
+                                this.prepareEndSound();
+                            } else {
+                                // NEW: Stop the timer at 00:00 instead of resetting
+                                if (!this.hasPlayedEndSound) this.playEndSound();
+                                this.isRunning = false;
+                                this.elapsedMs = this.totalDurationMs; // Lock elapsed time
+                                clearInterval(this.timerInterval);
+                                this.timerDisplay.classList.remove('running');
+                                this.updateUI();
+                                this.saveTimerState();
+                            }
+                        }
+                    } else { // Stopwatch mode
+                        this.render(currentElapsed);
+                        this.updateUI();
+
+                        // NEW: Added the "ends with" timing trick to the stopwatch
+                        if (this.endSoundData && this.endSoundData.duration && !this.hasPlayedEndSound && this.totalDurationMs > 0) {
+                            const soundTriggerTimeMs = this.totalDurationMs - (this.endSoundData.duration * 1000);
+                            if (currentElapsed >= soundTriggerTimeMs) {
+                                this.playEndSound();
+                            }
+                        }
+                    }
+                }
+
+                render(ms) {
+                    const totalSeconds = Math.round(ms / 1000);
+                    const minutes = Math.floor(totalSeconds / 60);
+                    const seconds = totalSeconds % 60;
+                    this.timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                }
+
+                playStartSound() {
+                    const startSoundId = parseInt(this.timerStartSoundSelect.value, 10);
+                    if (!isNaN(startSoundId)) {
+                        this.soundboardManager.togglePlay(startSoundId).catch(error => {
+                            console.error('Failed to play start sound:', error);
+                        });
+                    }
+                }
+
+                playEndSound() {
+                    if (this.endSoundData) {
+                        this.soundboardManager.playFile(this.endSoundData.index, this.endSoundData.fileIndex, this.endSoundData.priority).catch(error => {
+                            console.error('Failed to play end sound:', error);
+                        });
+                        this.hasPlayedEndSound = true;
+                    }
+                }
+
+                prepareEndSound() {
+                    this.hasPlayedEndSound = false;
+                    this.endSoundData = null;
+                    const endSoundId = parseInt(this.timerEndSoundSelect.value, 10);
+
+                    if (isNaN(endSoundId)) return;
+
+                    const buttonData = this.soundboardManager.buttonsData[endSoundId];
+                    if (buttonData && buttonData.files.length > 0) {
+                        const player = this.soundboardManager._getAudioPlayer(endSoundId);
+                        const fileIndex = buttonData.shuffle ?
+                            randomButNot(0, buttonData.files.length, player.playback.currentFileIndex) :
+                            player.playback.currentFileIndex;
+
+                        const playbackRate = buttonData.playbackRate || 1.0;
+
+                        this.endSoundData = {
+                            index: endSoundId,
+                            fileIndex: fileIndex,
+                            priority: buttonData.priority,
+                            duration: null
+                        };
+
+                        this.getAudioDuration(buttonData.files[fileIndex].arrayBuffer)
+                            .then(duration => {
+                                if (this.endSoundData) {
+                                    this.endSoundData.duration = duration / playbackRate;
+                                }
+                            }).catch(err => console.error("Could not get audio duration:", err));
+                    }
+                }
+
+                updateTimerSoundSelectors(sounds) {
+                    const currentStartVal = this.timerStartSoundSelect.value;
+                    const currentEndVal = this.timerEndSoundSelect.value;
+
+                    this.timerStartSoundSelect.innerHTML = '<option value="">None</option>';
+                    this.timerEndSoundSelect.innerHTML = '<option value="">None</option>';
+
+                    sounds.forEach((sound, index) => {
+                        if (sound.name !== "Default Name") {
+                            const optionStart = new Option(sound.name, index);
+                            const optionEnd = new Option(sound.name, index);
+                            this.timerStartSoundSelect.add(optionStart);
+                            this.timerEndSoundSelect.add(optionEnd);
+                        }
+                    });
+
+                    this.timerStartSoundSelect.value = currentStartVal;
+                    this.timerEndSoundSelect.value = currentEndVal;
+                }
 
                 getAudioDuration(arrayBuffer) {
                     return new Promise((resolve, reject) => {
                         const blob = new Blob([arrayBuffer]);
                         const audio = new Audio();
                         const objectURL = URL.createObjectURL(blob);
-
                         audio.addEventListener('loadedmetadata', () => {
-                            const duration = audio.duration;
-                            URL.revokeObjectURL(objectURL); // Clean up the URL
-                            resolve(duration);
-                        }, { once: true }); // Use { once: true } for automatic cleanup
-
+                            URL.revokeObjectURL(objectURL);
+                            resolve(audio.duration);
+                        }, { once: true });
                         audio.addEventListener('error', (e) => {
                             URL.revokeObjectURL(objectURL);
-                            console.error('Error loading audio file:', e);
-                            reject(new Error('Failed to load audio file for duration calculation.'));
+                            reject(new Error('Failed to load audio for duration calculation.'));
                         }, { once: true });
-
                         audio.src = objectURL;
                     });
-                }
-
-                startTimer(isResume = false) {
-                    if (this.isTimerRunning || this.timerCountdown <= 0) return;
-
-                    // Reset state for a new run
-                    this.hasPlayedEndSound = false;
-                    this.endSoundData = null;
-
-                    const totalDurationInMs = this.timerCountdown * 1000;
-                    this.endTime = Date.now() + totalDurationInMs;
-
-                    const endSoundId = parseInt(this.timerEndSoundSelect.value);
-                    // 1. Get the essential sound data immediately (synchronously).
-                    if (!isNaN(endSoundId)) {
-                        const buttonData = this.soundboardManager.buttonsData[endSoundId];
-                        if (buttonData && buttonData.files.length > 0) {
-                            const player = this.soundboardManager._getAudioPlayer(endSoundId);
-                            const fileIndex = buttonData.shuffle
-                                ? randomButNot(0, buttonData.files.length, player.playback.currentFileIndex)
-                                : player.playback.currentFileIndex;
-
-                            const playbackRate = buttonData.playbackRate || 1.0;
-
-                            this.endSoundData = {
-                                index: endSoundId,
-                                fileIndex: fileIndex,
-                                priority: buttonData.priority,
-                                duration: null // Duration is still unknown
-                            };
-
-                            // 2. Start calculating the duration in the background, but DO NOT wait for it.
-                            this.getAudioDuration(buttonData.files[fileIndex].arrayBuffer)
-                                .then(duration => {
-                                    if (this.endSoundData) { // Check if timer is still relevant
-                                        this.endSoundData.duration = duration / playbackRate;
-                                    }
-                                }).catch(err => console.error("Could not get audio duration:", err));
-                        }
-                    }
-
-                    // Play the start sound (if any)
-                    const startSoundId = parseInt(this.timerStartSoundSelect.value);
-                    if (!isNaN(startSoundId) && startSoundId !== '' && !isResume) {
-                        this.soundboardManager.togglePlay(startSoundId).catch(error => {
-                            console.error('Failed to play start sound:', error);
-                        });
-                    }
-
-                    this.isTimerRunning = true;
-                    this.timerDisplay.classList.add('running');
-
-                    // 3. The timer starts ticking immediately.
-                    this.timerInterval = setInterval(() => {
-                        const remainingMs = this.endTime - Date.now();
-                        this.timerCountdown = Math.max(0, Math.round(remainingMs / 1000));
-
-                        this.renderTimerDisplay();
-                        this.saveTimerState();
-
-                        if (this.endSoundData && this.endSoundData.duration && !this.hasPlayedEndSound && this.timerCountdown <= this.endSoundData.duration) {
-                            this.playEndSound();
-                            this.hasPlayedEndSound = true;
-                        }
-
-                        if (remainingMs <= 0) { // Check against the precise remaining time
-                            if (!this.hasPlayedEndSound) {
-                                this.playEndSound();
-                            }
-                            this.stopTimer(true);
-                        }
-                    }, 1000);
-
-                    this.saveTimerState();
-                }
-
-                stopTimer(isEnded = false) {
-                    clearInterval(this.timerInterval);
-                    this.timerInterval = null;
-                    this.isTimerRunning = false;
-                    this.timerDisplay.classList.remove('running');
-
-                    // Only reset the countdown if the timer was manually stopped or on page load
-                    if (!isEnded) {
-                        this.timerCountdown = (parseInt(this.timerMinutesRange.value) * 60) + parseInt(this.timerSecondsRange.value);
-                        this.renderTimerDisplay();
-                    }
-
-                    this.saveTimerState(); // Save the final, stopped state
-                }
-
-                updateTimerSoundSelectors(sounds) {
-                    this.timerStartSoundSelect.innerHTML = '<option value="">None</option>';
-                    this.timerEndSoundSelect.innerHTML = '<option value="">None</option>';
-                    sounds.forEach((sound, index) => {
-                        if (sound.name !== "Default Name") {
-                            const optionStart = document.createElement('option');
-                            optionStart.value = index;
-                            optionStart.textContent = sound.name;
-                            this.timerStartSoundSelect.appendChild(optionStart);
-                            const optionEnd = document.createElement('option');
-                            optionEnd.value = index;
-                            optionEnd.textContent = sound.name;
-                            this.timerEndSoundSelect.appendChild(optionEnd);
-                        }
-                    });
-                    this.loadTimerState();
-                }
-
-                playEndSound() {
-                    // This now uses the new endSoundData object
-                    if (this.endSoundData) {
-                        this.soundboardManager.playFile(this.endSoundData.index, this.endSoundData.fileIndex, this.endSoundData.priority).catch(error => {
-                            console.error('Failed to play end sound:', error);
-                        });
-                        this.hasPlayedEndSound = true; // Mark as played
-                    }
-                }
-
-                async removeTimer() {
-                    const confirmed = await this.soundboardManager.showConfirmModal('Are you sure you want to delete this timer?');
-                    if (confirmed) {
-                        this.stopTimer();
-                        this.cardElement.remove();
-                        this.soundboardManager.removeTimerCardInstance(this.id);
-                    }
                 }
             }
 
@@ -2394,42 +2099,7 @@
                     }
                 }
 
-                async loadCosmetics() {
-                    let cosmeticsData = await this.db.get(this.db.COSMETICS_KEY);
-                    if (!cosmeticsData) {
-                        // Default values if no settings are saved
-                        cosmeticsData = {
-                            id: this.db.COSMETICS_KEY,
-                            fontFamily: 'Wellfleet',
-                            colors: {
-                                '--background-color': '#f7fafc',
-                                '--panel-color': '#e3f0ff',
-                                '--accent-color': '#3bb273',
-                                '--highlight-color': '#ff914d',
-                                '--primary-color': '#234e70',
-                                '--secondary-color': '#cce0ec',
-                                '--dark-accent-color': '#308d5b',
-                            }
-                        };
-                        await this.db.save(cosmeticsData.id, cosmeticsData);
-                    }
-                    this.cosmeticsData = cosmeticsData;
-                    this.applyCosmetics();
-                }
-
-                async deleteCosmeticsKey() {
-                    const confirmed = await this.showConfirmModal('Are you sure you want to delete all cosmetic settings? This cannot be undone.');
-                    if (confirmed) {
-                        await this.db.delete(this.db.COSMETICS_KEY);
-                        // Reload the page to reset to default settings
-                        window.location.reload();
-                    }
-                }
-
-                async _saveCosmetics() {
-                    await this.db.save(this.cosmeticsData.id, this.cosmeticsData);
-                }
-
+                
                 async loadStateFromDB() {
                     const soundData = await this.db._dbRequest(this.db.SOUNDS_STORE, 'readonly', 'getAll');
                     let configData = await this.db.get(this.db.CONFIG_KEY);
@@ -3007,7 +2677,7 @@
                     return {
                         id: index,
                         name: `Button ${index + 1}`,
-                        color: "#3bb273",
+                        color: "var(--accent-color)",
                         volume: 1.0,
                         playbackRate: 1.0,
                         shuffle: false,
@@ -3028,23 +2698,84 @@
                 // ================================================================
                 // COSMETICS MODAL METHODS
                 // ================================================================
+
+                async loadCosmetics() {
+                    let cosmeticsData = await this.db.get(this.db.COSMETICS_KEY);
+                    if (!cosmeticsData) {
+                        // Default values if no settings are saved
+                        cosmeticsData = {
+                            id: this.db.COSMETICS_KEY,
+                            fontFamily: 'Wellfleet',
+                            colors: {
+                                // SET COLOR THEME HERE - COLOR THEME CONFIG - COLOR VARIABLES
+                                '--background-color': '#f7fafc',
+                                '--panel-color': '#e3f0ff',
+                                '--accent-color': '#33a367',
+                                '--highlight-color': '#ff914d',
+                                '--primary-color': '#234e70', // Dark Text
+                                '--secondary-color': '#e7e7e7ff', // Light Text
+                            }
+                        };
+                        await this.db.save(cosmeticsData.id, cosmeticsData);
+                    }
+                    this.cosmeticsData = cosmeticsData;
+                    this.applyCosmetics();
+                }
+
                 applyCosmetics() {
                     const root = document.documentElement;
-                    for (const [key, value] of Object.entries(this.cosmeticsData.colors)) {
+                    const colors = this.cosmeticsData.colors;
+
+                    // Set the base colors first
+                    for (const [key, value] of Object.entries(colors)) {
                         root.style.setProperty(key, value);
                     }
+
+                    // NEW: Dynamically set contrasting text colors
+                    const darkText = colors['--primary-color'];
+                    const lightText = colors['--secondary-color'];
+
+                    // Helper function to avoid repetition
+                    const setContrast = (bgVar, textVar) => {
+                        const bgColor = colors[bgVar];
+                        const luminance = (0.299 * parseInt(bgColor.substr(1, 2), 16) + 0.587 * parseInt(bgColor.substr(3, 2), 16) + 0.114 * parseInt(bgColor.substr(5, 2), 16)) / 255;
+                        root.style.setProperty(textVar, luminance > 0.5 ? darkText : lightText);
+                    };
+
+                    setContrast('--panel-color', '--panel-color-text');
+                    setContrast('--accent-color', '--accent-color-text');
+                    setContrast('--highlight-color', '--highlight-color-text');
+                    setContrast('--primary-color', '--primary-color-text');
+                    setContrast('--background-color', '--background-color-text');
+                    
+                    // Apply font
                     loadGoogleFonts([this.cosmeticsData.fontFamily]);
                     root.style.setProperty('--font-family-primary', `'${this.cosmeticsData.fontFamily}', sans-serif`);
+                    
+                    // Update color pickers in the modal
                     document.querySelectorAll('#cosmetics-modal input[type="color"]').forEach(input => {
                         const cssVar = input.dataset.cssVar;
-                        input.value = this.cosmeticsData.colors[cssVar];
+                        if (colors[cssVar]) {
+                            input.value = colors[cssVar];
+                        }
                     });
-                    const fontSelect = document.getElementById('font-input');
-                    fontSelect.value = this.cosmeticsData.fontFamily;
-
-                    const title = document.getElementById('soundboard-title');
-                    title.style.color = getContrastColor(this.cosmeticsData.colors["--background-color"]);
+                    document.getElementById('font-input').value = this.cosmeticsData.fontFamily;
                 }
+
+                async deleteCosmeticsKey() {
+                    const confirmed = await this.showConfirmModal('Are you sure you want to delete all cosmetic settings? This cannot be undone.');
+                    if (confirmed) {
+                        await this.db.delete(this.db.COSMETICS_KEY);
+                        // Reload the page to reset to default settings
+                        window.location.reload();
+                    }
+                }
+
+                async _saveCosmetics() {
+                    await this.db.save(this.cosmeticsData.id, this.cosmeticsData);
+                }
+
+                
 
                 openCosmeticsModal() {
                     this.applyCosmetics();
@@ -3061,7 +2792,7 @@
                     const modal = document.getElementById('settings-modal');
 
                     // Set the initial value of the color picker
-                    document.getElementById('button-color-picker').value = buttonData.color;
+                    document.getElementById('button-color-picker').value = this.buttonsData[index].color;
 
                     document.getElementById('button-name-input').value = buttonData.name;
                     document.getElementById('shuffle-checkbox').checked = buttonData.shuffle;
