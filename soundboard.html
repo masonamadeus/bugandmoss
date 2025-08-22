@@ -2944,11 +2944,13 @@
                         }
                     }
 
+
                     // This handles the autoplay/loop logic after the ducking is resolved.
                     if (buttonData.loop) {
                         this.playFile(index, player.playback.currentFileIndex, buttonData.priority);
                     } else if (buttonData.autoplay) {
-                        player.playback.currentFileIndex++;
+                        
+                        player.playback.currentFileIndex++
                         if (player.playback.currentFileIndex >= buttonData.files.length) {
                             player.playback.currentFileIndex = 0;
                         }
@@ -2956,6 +2958,9 @@
                             ? randomButNot(0, buttonData.files.length, player.playback.currentFileIndex)
                             : player.playback.currentFileIndex;
                         this.playFile(index, fileIndex, buttonData.priority);
+                    } else {
+                        //always advance to the next track by default
+                        player.playback.currentFileIndex++
                     }
                 }
 
