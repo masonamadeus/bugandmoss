@@ -9,7 +9,7 @@
     <meta property="og:image" content="https://bugandmoss.com/images/soundboardscreenshot.jpg">
     <meta property="og:url" content="https://bugandmoss.com/soundboard.html">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <link rel="manifest" href="manifest.json">
     <title>Soundboard | B&M Really Simple Soundboard</title>
 <style>
@@ -60,7 +60,7 @@ body {
 
 #soundboard-title {
     text-align: center;
-    cursor: pointer;
+    cursor: text;
     padding: 1rem;
     transition: background-color 0.3s ease;
 }
@@ -92,6 +92,7 @@ button {
     background-color: transparent;
     cursor: pointer;
 }
+
 
 .title-and-color {
     display: flex;
@@ -165,6 +166,7 @@ input[type="range"]::-moz-range-thumb {
     gap: 1rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     align-self: start; /* Prevents cards from stretching vertically */
+    align-items: center; /* Keeps card elements centered */
 }
 
 .hover-glow {
@@ -305,11 +307,14 @@ input[type="range"]::-moz-range-thumb {
     text-align: center;
     color: var(--panel-color-text);
     border: 2px solid transparent;
+    width:90%;
+    padding: 0.5rem;
     transition: border-color 0.2s ease;
 }
 
 .timer-title[contenteditable="true"] {
     background-color: var(--background-color);
+    color: var(--background-color-text);
     border-color: var(--highlight-color);
     outline: none;
     cursor: text;
@@ -319,16 +324,52 @@ input[type="range"]::-moz-range-thumb {
     font-size: 2.5rem;
     font-weight: bold;
     text-align: center;
+    position: relative;
     padding: 0.5rem;
     background-color: var(--panel-color);
     color: var(--panel-color-text);
     border: 2px solid var(--secondary-color);
         /* Creates a darkening overlay on top of the panel color */
     background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2));
+    width: 90%;
+}
+
+timer-display span {
+    position: relative;
+    z-index: 1;
+}
+
+.timer-progress-overlay {
+    position:absolute;
+    top: 0;
+    left:0;
+    width: 0%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.3);
 }
 
 .timer-display.running {
     color: var(--accent-color);
+}
+
+.timer-seconds-value,
+.timer-minutes-value {
+    width: 1rem; /* Set a fixed width */
+    text-align: center;
+    border: 1px solid var(--secondary-color);
+    background-color: var(--background-color);
+    color: var(--background-color-text);
+    padding: 0.25rem 0.5rem;
+    -moz-appearance: textfield; /* Hide the Firefox spin buttons */
+}
+
+/* Hide spin buttons for WebKit browsers (Chrome, Safari) */
+.timer-seconds-value::-webkit-inner-spin-button,
+.timer-seconds-value::-webkit-outer-spin-button,
+.timer-minutes-value::-webkit-inner-spin-button,
+.timer-minutes-value::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .timer-options-toggle label,
@@ -338,12 +379,22 @@ input[type="range"]::-moz-range-thumb {
     user-select: none;
 }
 
+.timer-mode-selector{
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 0.75rem;
+}
+
 .timer-options-toggle{
     margin-bottom: 1rem;
 }
 .timer-sound-select {
-    padding-top:0.5rem;
-    padding-bottom:0.5rem;
+    margin-bottom: 1rem;
+}
+
+.timer-controls {
+    width: 100%;
 }
 
 .timer-controls .slider-group span {
@@ -394,6 +445,7 @@ input[type="range"]::-moz-range-thumb {
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
+    width:100%;
     padding-bottom: 0.5rem;
     border-bottom: 1px solid var(--secondary-color);
 }
@@ -401,10 +453,13 @@ input[type="range"]::-moz-range-thumb {
 .notepad-tab, .add-page-btn {
     border: 1px solid var(--secondary-color);
     background-color: var(--background-color);
-    padding: 0.1rem 0.4rem;
+    padding: 0.4rem;
     cursor: pointer;
     font-size: 0.8rem;
-    border-radius: 4px;
+}
+
+.add-page-btn {
+    margin-left: auto;
 }
 
 .notepad-tab-title {
@@ -422,10 +477,20 @@ input[type="range"]::-moz-range-thumb {
     border-color: var(--accent-color);
 }
 
+.notepad-tab.active .notepad-tab-title{
+    cursor:text;
+}
+
 .delete-page-btn {
     color: darkred;
     font-weight: bold;
     cursor: pointer;
+    padding: 0.2rem;
+    margin-right:0.5rem;
+}
+
+.delete-page-btn:hover{
+            background-color: rgba(0, 0, 0, 0.2);
 }
 
 .notepad-content {
@@ -748,7 +813,9 @@ input[type="range"]::-moz-range-thumb {
     <template id="timer-card-template">
     <div class="sound-card special-function-card timer-card">
         <div class="timer-title" contenteditable="false">New Timer</div>
-        <div class="timer-display">00:00</div>
+        <div class="timer-display">
+            <span>00:00</span>
+            <div class="timer-progress-overlay"></div></div>
         <div class="timer-controls">
             <div class="timer-options-toggle">
                 <label>
@@ -757,31 +824,25 @@ input[type="range"]::-moz-range-thumb {
                 </label>
             </div>
             <div class="timer-options-container">
-                <!-- New: Mode Selection -->
-                <div class="timer-mode-selector" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 0.75rem;">
+            
+            
+                <div class="slider-group">
+                    <label>Minutes:</label>
+                    <input type="range" class="timer-minutes-range" min="0" max="90" value="0">
+                    <input type="number" class="timer-minutes-value" data-type="minutes" min="0" max="90" value="0">
+                </div>
+                <div class="slider-group">
+                    <label>Seconds:</label>
+                    <input type="range" class="timer-seconds-range" min="0" max="59" value="30">
+                    <input type="number" class="timer-seconds-value" data-type="seconds" min="0" max="59" value="30">
+                </div>
+
+                <div class="timer-mode-selector">
                     <label>
                         <input type="radio" name="timer-mode" class="timer-mode-radio" value="timer" checked> Timer
                     </label>
                     <label>
                         <input type="radio" name="timer-mode" class="timer-mode-radio" value="stopwatch"> Stopwatch
-                    </label>
-                </div>
-
-                <div class="slider-group">
-                    <label>Minutes:</label>
-                    <input type="range" class="timer-minutes-range" min="0" max="90" value="0">
-                    <span class="timer-minutes-value">0</span>
-                </div>
-                <div class="slider-group">
-                    <label>Seconds:</label>
-                    <input type="range" class="timer-seconds-range" min="0" max="59" value="30">
-                    <span class="timer-seconds-value">0</span>
-                </div>
-
-                <!-- New: Loop Option -->
-                <div class="timer-sound-select">
-                    <label>
-                        <input type="checkbox" class="timer-loop-checkbox" style="margin-right: 0.5rem;">Loop
                     </label>
                 </div>
 
@@ -792,6 +853,11 @@ input[type="range"]::-moz-range-thumb {
                 <div class="timer-sound-select end-sound-container">
                     <label>End with:</label>
                     <select class="timer-end-sound"></select>
+                </div>
+                <div class="timer-sound-select">
+                    <label>
+                        <input type="checkbox" class="timer-loop-checkbox" style="margin-right: 0.5rem;">Auto Restart
+                    </label>
                 </div>
             </div>
             <div class="timer-buttons">
@@ -1383,6 +1449,8 @@ input[type="range"]::-moz-range-thumb {
 
                     this.addPageButton.addEventListener('click', () => this.addPage());
 
+                    
+
                     this.tabsContainer.addEventListener('click', (e) => {
                         // First, handle the delete button action
                         if (e.target.classList.contains('delete-page-btn')) {
@@ -1442,9 +1510,14 @@ input[type="range"]::-moz-range-thumb {
                     this.saveState();
                 }
 
-                deletePage(index) {
+                
+
+                async deletePage(index) {
                     // If there is more than one page, just delete the page
                     if (this.pages.length > 1) {
+                        const confirm = await this.soundboardManager.showConfirmModal('Are you sure you want to delete this page?');
+                        if (!confirm) return;
+
                         this.pages.splice(index, 1);
                         if (this.currentPageIndex >= index) {
                             this.currentPageIndex = Math.max(0, this.currentPageIndex - 1);
@@ -1491,10 +1564,11 @@ input[type="range"]::-moz-range-thumb {
 
                         const deleteBtn = document.createElement('span');
                         deleteBtn.className = 'delete-page-btn';
-                        deleteBtn.textContent = 'x';
+                        deleteBtn.textContent = 'X';
 
-                        tab.appendChild(tabTitle);
+                        
                         tab.appendChild(deleteBtn);
+                        tab.appendChild(tabTitle);
 
                         if (index === this.currentPageIndex) {
                             tab.classList.add('active');
@@ -1509,328 +1583,477 @@ input[type="range"]::-moz-range-thumb {
                     this.cardElement = element;
                     this.soundboardManager = soundboardManager;
                     this.db = dbInstance;
-                    this.id = parseInt(this.cardElement.dataset.timerId);
+                    this.id = parseInt(this.cardElement.dataset.cardId);
 
                     // --- DOM Element References ---
+                    // TITLE AND DISPLAY
                     this.timerTitle = this.cardElement.querySelector('.timer-title');
-                    this.timerDisplay = this.cardElement.querySelector('.timer-display');
+                    this.timerDisplayContainer = this.cardElement.querySelector('.timer-display');
+                    this.timerDisplay = this.timerDisplayContainer.querySelector('span'); 
+                    this.timerProgressOverlay = this.cardElement.querySelector('.timer-progress-overlay');
+
+                    // BUTTONS
                     this.startPauseBtn = this.cardElement.querySelector('.start-pause-timer-btn');
                     this.resetBtn = this.cardElement.querySelector('.reset-timer-btn');
-                    this.removeTimerBtn = this.cardElement.querySelector('.remove-timer-btn');
+
+                    // SLIDERS & THEIR LABELS
                     this.timerMinutesRange = this.cardElement.querySelector('.timer-minutes-range');
-                    this.timerSecondsRange = this.cardElement.querySelector('.timer-seconds-range');
                     this.timerMinutesValue = this.cardElement.querySelector('.timer-minutes-value');
+                    this.timerSecondsRange = this.cardElement.querySelector('.timer-seconds-range');
                     this.timerSecondsValue = this.cardElement.querySelector('.timer-seconds-value');
+
+                    // TIMER OPTIONS SECTION
                     this.hideOptionsToggle = this.cardElement.querySelector('.hide-timer-options-toggle');
                     this.optionsContainers = this.cardElement.querySelectorAll('.timer-options-container');
+
                     this.modeRadios = this.cardElement.querySelectorAll('.timer-mode-radio');
+                    this.modeRadios.forEach(radio => {
+                        radio.name = `timer-mode-${this.id}`;
+                    });
                     this.loopCheckbox = this.cardElement.querySelector('.timer-loop-checkbox');
-                    this.startSoundContainer = this.cardElement.querySelector('.start-sound-container');
                     this.startSoundLabel = this.cardElement.querySelector('.start-sound-label');
-                    this.endSoundContainer = this.cardElement.querySelector('.end-sound-container');
                     this.timerStartSoundSelect = this.cardElement.querySelector('.timer-start-sound');
+                    this.endSoundContainer = this.cardElement.querySelector('.end-sound-container');
                     this.timerEndSoundSelect = this.cardElement.querySelector('.timer-end-sound');
+                    
+                    this.removeTimerBtn = this.cardElement.querySelector('.remove-timer-btn');
 
                     // --- State Properties ---
-                    this.mode = 'timer';
-                    this.isLooping = false;
-                    this.isRunning = false;
-                    this.totalDurationMs = 0;
-                    this.elapsedMs = 0;
-                    this.startTime = 0;
-                    this.timerInterval = null;
-                    this.hasPlayedEndSound = false;
-                    this.endSoundData = null;
-                    this.highlightColor = this.soundboardManager.cosmeticsData.colors['--highlight-color']
+                    this.state = {
+                        title: 'New Timer',
+                        mode: 'timer', // 'timer' or 'stopwatch'
+                        isLooping: false,
+                        isRunning: false,
+                        optionsHidden: false,
+                        targetDurationMs: 30000, // Default to 30s
+                        startTime: null, // Timestamp when the timer was started/resumed
+                        pauseTime: null, // Timestamp when the timer was paused
+                        elapsedMs: 0,    // Total elapsed time when paused
+                        startSoundId: '',
+                        endSoundId: '',
+                        endSoundDuration: 0,
+                        endSoundFileIndex: null, // <-- ADD THIS LINE
+                        hasPlayedEndSound: false,
+                    };
+                    this.animationFrameId = null;
+                    this.debouncedSave = debounce(() => this.saveState(), 300);
+                }
 
+                async init() {
+                    await this.loadState();
                     this.attachListeners();
-                    this.loadTimerState();
+                    this.updateUI();
+                    this.renderDisplay();
                 }
 
                 attachListeners() {
                     this.startPauseBtn.addEventListener('click', () => this.handlePlayPause());
                     this.resetBtn.addEventListener('click', () => this.reset());
                     this.removeTimerBtn.addEventListener('click', () => this.soundboardManager.removeTimer(this.id));
-                    this.timerMinutesRange.addEventListener('input', () => this.handleSliderChange());
-                    this.timerSecondsRange.addEventListener('input', () => this.handleSliderChange());
-                    this.hideOptionsToggle.addEventListener('change', () => this.handleOptionsToggle());
-                    this.loopCheckbox.addEventListener('change', (e) => this.handleLoopToggle(e.target.checked));
-                    this.modeRadios.forEach(radio => radio.addEventListener('change', (e) => this.handleModeChange(e.target.value)));
-                    this.cardElement.addEventListener('input', () => this.saveTimerState());
-                    this.timerStartSoundSelect.addEventListener('change', () => this.saveTimerState());
-                    this.timerEndSoundSelect.addEventListener('change', () => this.saveTimerState());
-                }
 
-                async saveTimerState() {
-                    const state = {
-                        title: this.timerTitle.textContent,
-                        minutes: this.timerMinutesRange.value,
-                        seconds: this.timerSecondsRange.value,
-                        startSound: this.timerStartSoundSelect.value,
-                        endSound: this.timerEndSoundSelect.value,
-                        optionsHidden: this.hideOptionsToggle.checked,
-                        mode: this.mode,
-                        isLooping: this.isLooping,
-                        isRunning: this.isRunning,
-                        startTime: this.startTime,
-                        elapsedMs: this.isRunning ? this.elapsedMs + (Date.now() - this.startTime) : this.elapsedMs
-                    };
-                    this.db.save(`timer-${this.id}`, state);
-                }
+                    // Listeners that change state and require a save
+                    const controlsToListen = [
+                        this.timerMinutesRange, this.timerSecondsRange, this.hideOptionsToggle,
+                        this.loopCheckbox, this.timerStartSoundSelect, this.timerEndSoundSelect
+                    ];
+                    controlsToListen.forEach(el => el.addEventListener('input', () => this.handleControlChange()));
+                    controlsToListen.forEach(el => el.addEventListener('change', () => this.handleControlChange()));
+                    this.modeRadios.forEach(radio => radio.addEventListener('change', () => this.handleControlChange()));
+                    // Handle the title separately to keep the saving from being every keystroke
+                    this.timerTitle.addEventListener('blur', () => {
+                        this.state.title = this.timerTitle.textContent;
+                        this.saveState();
+                    });
 
-                async loadTimerState() {
-                    const state = await this.db.get(`timer-${this.id}`);
-                    if (state) {
-                        this.timerTitle.textContent = state.title || 'New Timer';
-                        this.timerMinutesRange.value = state.minutes || 0;
-                        this.timerSecondsRange.value = state.seconds || 30;
-                        this.timerStartSoundSelect.value = state.startSound || '';
-                        this.timerEndSoundSelect.value = state.endSound || '';
-                        this.hideOptionsToggle.checked = state.optionsHidden || false;
-                        this.handleOptionsToggle();
-                        this.loopCheckbox.checked = state.isLooping || false;
-                        this.mode = state.mode || 'timer';
-                        this.cardElement.querySelector(`.timer-mode-radio[value="${this.mode}"]`).checked = true;
+                    // text editable minutes/seconds
+                    this.timerMinutesValue.addEventListener('blur', (e) => this.handleManualTimeInput(e));
+                    this.timerSecondsValue.addEventListener('blur', (e) => this.handleManualTimeInput(e));
 
-                        if (state.isRunning && state.startTime) {
-                            this.elapsedMs = state.elapsedMs;
-                            this.startTime = Date.now();
-                            this.play(true);
-                        }
-                    }
-                    this.handleSliderChange();
-                    this.updateUI();
-                }
-
-                handleSliderChange() {
-                    const minutes = parseInt(this.timerMinutesRange.value, 10);
-                    const seconds = parseInt(this.timerSecondsRange.value, 10);
-                    this.timerMinutesValue.textContent = minutes;
-                    this.timerSecondsValue.textContent = seconds;
-                    this.totalDurationMs = (minutes * 60 + seconds) * 1000;
-
-                    if (!this.isRunning) {
-                        this.render(this.mode === 'timer' ? this.totalDurationMs : 0);
-                    }
-                }
-
-                handleOptionsToggle() {
-                    const isLocked = this.hideOptionsToggle.checked;
                     
-                    this.optionsContainers.forEach((optionsContainer) => {
-                        optionsContainer.classList.toggle('hidden-options', isLocked);
-                    })
-                    this.timerTitle.contentEditable = !isLocked;
-                    this.saveTimerState();
-                }
 
-                handleLoopToggle(isLooping) {
-                    this.isLooping = isLooping;
-                    this.updateUI();
-                    this.saveTimerState();
-                }
-
-                handleModeChange(newMode) {
-                    this.mode = newMode;
-                    if (!this.isRunning) {
-                        this.reset();
-                    }
-                    this.updateUI();
-                    this.saveTimerState();
+                    
                 }
 
                 
-                updateUI() {
-                    this.startPauseBtn.textContent = this.isRunning ? 'Pause' : 'Start';
-                    this.endSoundContainer.style.display = this.isLooping ? 'none' : '';
-                    this.startSoundLabel.textContent = this.isLooping ? 'Play Sound:' : 'Start with:';
 
-                    const currentElapsed = this.elapsedMs + (this.isRunning ? Date.now() - this.startTime : 0);
-
-                    // NEW: Expanded conditions for applying the glow effect
-                    const isStopwatchFinished = this.mode === 'stopwatch' && currentElapsed >= this.totalDurationMs && this.totalDurationMs > 0;
-                    const isTimerFinished = this.mode === 'timer' && (this.totalDurationMs - currentElapsed) <= 0;
-
-                    if (isStopwatchFinished || (isTimerFinished && !this.isLooping)) {
-                        this.timerDisplay.style.color = this.highlightColor;
-                        this.cardElement.classList.add('hover-glow');
-                    } else {
-                        this.timerDisplay.style.color = '';
-                        this.cardElement.classList.remove('hover-glow');
+                destroy() {
+                    if (this.animationFrameId) {
+                        cancelAnimationFrame(this.animationFrameId);
                     }
+                }
+
+                // ================================================================
+                // State Management
+                // ================================================================
+
+                async saveState() {
+                    // If running, calculate current elapsed time before saving
+                    if (this.state.isRunning) {
+                        this.state.elapsedMs += Date.now() - this.state.startTime;
+                        this.state.startTime = Date.now();
+                    }
+                    await this.db.save(`timer-${this.id}`, this.state);
+                }
+
+                async loadState() {
+                    const savedState = await this.db.get(`timer-${this.id}`);
+                    if (savedState) {
+                        // Merge saved state with defaults
+                        this.state = { ...this.state, ...savedState };
+
+                        // If the timer was running when the page was closed, calculate the time that has passed since.
+                        if (this.state.isRunning && this.state.startTime) {
+                            const timePassedSinceSave = Date.now() - this.state.startTime;
+                            this.state.elapsedMs += timePassedSinceSave;
+                            this.startTimer();
+                        } else {
+                            this.state.isRunning = false; // Ensure it's not running if it wasn't saved as such
+                        }
+                    }
+                    // Ensure dropdowns have a valid value, defaulting to "" (None)
+                    this.state.startSoundId = this.state.startSoundId || "";
+                    this.state.endSoundId = this.state.endSoundId || "";
+                }
+
+                // ================================================================
+                // Event Handlers
+                // ================================================================
+
+                startTimer(){
+                    if (!this.state.isLooping){
+                        this.prepareEndSound();
+                    }
+                    this.state.startTime = Date.now();
+                    if (this.state.elapsedMs === 0){ // ONLY play sound on fresh start not every click.
+                        this.playStartSound();
+                    }
+                    this.tick();
                 }
 
                 handlePlayPause() {
-                    if (this.isRunning) {
-                        this.pause();
+
+                    const isFinished = this.state.mode === 'timer' && this.state.elapsedMs >= this.state.targetDurationMs;
+
+                    if (!this.state.isRunning && isFinished) {
+                        this.reset();
+                    }
+
+                    this.state.isRunning = !this.state.isRunning; // TOGGLE THE RUNNING STATE
+                    
+                    if (this.state.isRunning) { // REMEMBER WE JUST TOGGLED THE RUNNING STATE
+                        this.startTimer();
                     } else {
-                        this.play();
+                        // --- PAUSING ---
+                        this.state.elapsedMs += Date.now() - this.state.startTime;
+                        cancelAnimationFrame(this.animationFrameId);
                     }
-                }
-
-                play(isResume = false) {
-                    if (this.isRunning && !isResume) return;
-                    if (this.mode === 'timer' && this.totalDurationMs - this.elapsedMs <= 0 && !this.isLooping) return;
-
-                    this.isRunning = true;
-                    this.startTime = Date.now();
-
-                    if (!isResume) {
-                        this.playStartSound();
-                        this.prepareEndSound();
-                    }
-
-                    clearInterval(this.timerInterval);
-                    this.timerInterval = setInterval(() => this.tick(), 250);
-
-                    this.timerDisplay.classList.add('running');
                     this.updateUI();
-                }
-
-                pause() {
-                    if (!this.isRunning) return;
-                    this.isRunning = false;
-                    this.elapsedMs += Date.now() - this.startTime;
-
-                    clearInterval(this.timerInterval);
-                    this.timerDisplay.classList.remove('running');
-                    this.updateUI();
-                    this.saveTimerState();
+                    this.saveState();
                 }
 
                 reset() {
-                    this.isRunning = false;
-                    this.elapsedMs = 0;
-                    this.hasPlayedEndSound = false;
-                    this.endSoundData = null;
+                    this.state.isRunning = false;
+                    this.state.elapsedMs = 0;
+                    this.state.hasPlayedEndSound = false;
+                    this.state.endSoundDuration = 0;
 
-                    clearInterval(this.timerInterval);
-
-                    this.render(this.mode === 'timer' ? this.totalDurationMs : 0);
-
-                    this.timerDisplay.classList.remove('running');
-                    this.updateUI(); // This will correctly remove the glow effect
-                    this.saveTimerState();
+                    this.updateUI();
+                    this.renderDisplay();
+                    this.saveState();
                 }
 
+                handleControlChange() {
+                    // Sync state object with UI controls
+                    this.state.title = this.timerTitle.textContent;
+                    this.state.targetDurationMs = (parseInt(this.timerMinutesRange.value, 10) * 60 + parseInt(this.timerSecondsRange.value, 10)) * 1000;
+                    this.state.optionsHidden = this.hideOptionsToggle.checked;
+                    this.state.isLooping = this.loopCheckbox.checked;
+                    this.state.mode = this.cardElement.querySelector('.timer-mode-radio:checked').value;
+                    this.state.startSoundId = this.timerStartSoundSelect.value;
+                    this.state.endSoundId = this.timerEndSoundSelect.value;
+
+                    // Check if the timer is not running before resetting it
+                    if (!this.state.isRunning) {
+                        this.reset();
+                    }
+
+                    this.updateUI();
+
+                    // Only prepare the end sound if the timer is not running or in loop mode
+                    if (!this.state.isRunning && !this.state.isLooping) {
+                        this.prepareEndSound();
+                    }
+
+                    this.debouncedSave();
+                }
+
+                handleManualTimeInput(e) {
+                    const value = parseInt(e.target.value, 10);
+                    const type = e.target.dataset.type;
+
+                    if (type === 'minutes') {
+                        // Validate minutes to be within a reasonable range (e.g., 0-90)
+                        let validatedValue = isNaN(value) ? 0 : Math.max(0, Math.min(value, 90));
+                        this.timerMinutesRange.value = validatedValue;
+                        this.state.targetDurationMs = (validatedValue * 60 + parseInt(this.timerSecondsRange.value, 10)) * 1000;
+                    } else if (type === 'seconds') {
+                        // Validate seconds to be between 0-59
+                        let validatedValue = isNaN(value) ? 0 : Math.max(0, Math.min(value, 59));
+                        this.timerSecondsRange.value = validatedValue;
+                        this.state.targetDurationMs = (parseInt(this.timerMinutesRange.value, 10) * 60 + validatedValue) * 1000;
+                    }
+
+                    this.updateUI();
+                    // Re-render the display to show the formatted value (e.g., single digit to double)
+                    this.renderDisplay();
+
+                    // Call the debounced save to persist the change
+                    this.debouncedSave();
+                }
+
+                handleButtonDeletion(deletedIndex) {
+                    let stateChanged = false;
+                    const startId = parseInt(this.state.startSoundId, 10);
+                    const endId = parseInt(this.state.endSoundId, 10);
+
+                    // Handle Start Sound ID
+                    if (!isNaN(startId)) {
+                        if (startId === deletedIndex) {
+                            this.state.startSoundId = ""; // The selected button was deleted, reset to "None"
+                            stateChanged = true;
+                        } else if (startId > deletedIndex) {
+                            this.state.startSoundId = (startId - 1).toString(); // A button before it was deleted, so shift the index down
+                            stateChanged = true;
+                        }
+                    }
+
+                    // Handle End Sound ID
+                    if (!isNaN(endId)) {
+                        if (endId === deletedIndex) {
+                            this.state.endSoundId = ""; // The selected button was deleted, reset to "None"
+                            stateChanged = true;
+                        } else if (endId > deletedIndex) {
+                            this.state.endSoundId = (endId - 1).toString(); // A button before it was deleted, so shift the index down
+                            stateChanged = true;
+                        }
+                    }
+
+                    if (stateChanged) {
+                        this.saveState();
+                    }
+                }
+
+                // ================================================================
+                // Core Timer Logic & Rendering
+                // ================================================================
+
                 tick() {
-                    const currentElapsed = this.elapsedMs + (Date.now() - this.startTime);
+                    if (!this.state.isRunning) return;
 
-                    if (this.mode === 'timer') {
-                        const remainingMs = Math.max(0, this.totalDurationMs - currentElapsed);
-                        this.render(remainingMs);
-                        this.updateUI();
+                    const currentElapsed = this.state.elapsedMs + (Date.now() - this.state.startTime);
 
-                        if (this.endSoundData && !this.hasPlayedEndSound && remainingMs <= this.endSoundData.duration * 1000) {
+                    if (this.state.mode === 'timer') {
+                        const remainingMs = this.state.targetDurationMs - currentElapsed;
+
+                        // Check for end sound trigger
+                        if (!this.state.isLooping &&  this.state.endSoundId && !this.state.hasPlayedEndSound && remainingMs <= this.state.endSoundDuration) {
                             this.playEndSound();
                         }
 
+                        // Check for timer completion
                         if (remainingMs <= 0) {
-                            if (this.isLooping) {
-                                this.elapsedMs = 0;
-                                this.startTime = Date.now();
+                            if (this.state.isLooping) {
+                                this.state.elapsedMs = 0;
+                                this.state.startTime = Date.now()
                                 this.playStartSound();
-                                this.prepareEndSound();
+                                // There is no "end sound" when looping and we just use the start sound like it's the only sound
                             } else {
-                                // NEW: Stop the timer at 00:00 instead of resetting
-                                if (!this.hasPlayedEndSound) this.playEndSound();
-                                this.isRunning = false;
-                                this.elapsedMs = this.totalDurationMs; // Lock elapsed time
-                                clearInterval(this.timerInterval);
-                                this.timerDisplay.classList.remove('running');
+                                this.state.isRunning = false;
+                                this.state.elapsedMs = this.state.targetDurationMs; // Clamp to the end
                                 this.updateUI();
-                                this.saveTimerState();
+                                this.renderDisplay();
+                                this.saveState();
+                                return; // Stop the loop
                             }
                         }
                     } else { // Stopwatch mode
-                        this.render(currentElapsed);
-                        this.updateUI();
-
-                        // NEW: Added the "ends with" timing trick to the stopwatch
-                        if (this.endSoundData && this.endSoundData.duration && !this.hasPlayedEndSound && this.totalDurationMs > 0) {
-                            const soundTriggerTimeMs = this.totalDurationMs - (this.endSoundData.duration * 1000);
-                            if (currentElapsed >= soundTriggerTimeMs) {
+                        // Check for end sound trigger
+                        if (!this.state.isLooping && this.state.endSoundId && !this.state.hasPlayedEndSound && this.state.targetDurationMs > 0) {
+                            const triggerTime = this.state.targetDurationMs - this.state.endSoundDuration;
+                            if (currentElapsed >= triggerTime) {
                                 this.playEndSound();
                             }
                         }
                     }
+
+                    this.renderDisplay(currentElapsed);
+                    this.animationFrameId = requestAnimationFrame(() => this.tick());
                 }
 
-                render(ms) {
-                    const totalSeconds = Math.round(ms / 1000);
+                updateUI() {
+                    // Sync UI controls with the state object
+                    this.timerTitle.textContent = this.state.title;
+                    this.timerMinutesRange.value = Math.floor(this.state.targetDurationMs / 60000);
+                    this.timerSecondsRange.value = Math.floor((this.state.targetDurationMs % 60000) / 1000);
+                    
+                        this.timerMinutesValue.value = this.timerMinutesRange.value;
+                    
+                        this.timerSecondsValue.value = this.timerSecondsRange.value;
+                    
+                    this.hideOptionsToggle.checked = this.state.optionsHidden;
+                    this.loopCheckbox.checked = this.state.isLooping;
+                    this.cardElement.querySelector(`.timer-mode-radio[value="${this.state.mode}"]`).checked = true;
+                    this.timerStartSoundSelect.value = this.state.startSoundId;
+                    this.timerEndSoundSelect.value = this.state.endSoundId;
+
+                    // Update dynamic UI elements
+                    this.startPauseBtn.textContent = this.state.isRunning ? 'Pause' : 'Start';
+                    this.startPauseBtn.style.backgroundColor = this.state.isRunning? 'var(--primary-color)' : 'var(--accent-color)'
+                    this.startPauseBtn.style.color = this.state.isRunning? 'var(--primary-color-text)' : 'var(--accent-color-text)'
+                    this.optionsContainers.forEach(c => c.classList.toggle('hidden-options', this.state.optionsHidden));
+                    this.timerTitle.contentEditable = !this.state.optionsHidden;
+                    this.endSoundContainer.style.display = this.state.isLooping ? 'none' : '';
+                    this.startSoundLabel.textContent = this.state.isLooping ? 'Play Sound:' : 'Start with:';
+
+                    
+                }
+
+                renderDisplay(currentElapsed = this.state.elapsedMs) {
+                    let msToDisplay;
+                    if (this.state.mode === 'timer') {
+                        msToDisplay = Math.max(0, this.state.targetDurationMs - currentElapsed);
+                    } else { // stopwatch
+                        msToDisplay = currentElapsed;
+                    }
+
+                    // Round UP seconds because this is a soundboard for live broadcast, so it's important to USE the entire last second - displaying 1 rather than 0 helps with that.
+                    const totalSeconds = Math.ceil(msToDisplay / 1000);
                     const minutes = Math.floor(totalSeconds / 60);
                     const seconds = totalSeconds % 60;
                     this.timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-                }
 
-                playStartSound() {
-                    const startSoundId = parseInt(this.timerStartSoundSelect.value, 10);
-                    if (!isNaN(startSoundId)) {
-                        this.soundboardManager.togglePlay(startSoundId).catch(error => {
-                            console.error('Failed to play start sound:', error);
-                        });
+                    if (this.state.mode === 'timer' && msToDisplay > 0 && msToDisplay < 3000){
+                        const progress = 100 - (msToDisplay/3000)*100;
+                        this.timerProgressOverlay.style.width = `${progress}%`;
+                    } else {
+                        this.timerProgressOverlay.style.width = '0%';
                     }
-                }
 
-                playEndSound() {
-                    if (this.endSoundData) {
-                        this.soundboardManager.playFile(this.endSoundData.index, this.endSoundData.fileIndex, this.endSoundData.priority).catch(error => {
-                            console.error('Failed to play end sound:', error);
-                        });
-                        this.hasPlayedEndSound = true;
-                    }
-                }
+                    // Apply glow effect for finished states
+                    const isStopwatchFinished = this.state.mode === 'stopwatch' && currentElapsed >= this.state.targetDurationMs && this.state.targetDurationMs > 0;
+                    const isTimerFinished = this.state.mode === 'timer' && (this.state.targetDurationMs - currentElapsed) <= 0;
+                    const shouldGlow = isStopwatchFinished || (isTimerFinished && !this.state.isLooping);
 
-                prepareEndSound() {
-                    this.hasPlayedEndSound = false;
-                    this.endSoundData = null;
-                    const endSoundId = parseInt(this.timerEndSoundSelect.value, 10);
+                    this.cardElement.classList.toggle('hover-glow', shouldGlow);
+                    this.timerDisplay.style.color = shouldGlow ? this.soundboardManager.cosmeticsData.colors['--highlight-color'] : '';
 
-                    if (isNaN(endSoundId)) return;
 
-                    const buttonData = this.soundboardManager.buttonsData[endSoundId];
-                    if (buttonData && buttonData.files.length > 0) {
-                        const player = this.soundboardManager._getAudioPlayer(endSoundId);
-                        const fileIndex = buttonData.shuffle ?
-                            randomButNot(0, buttonData.files.length, player.playback.currentFileIndex) :
-                            player.playback.currentFileIndex;
-
-                        const playbackRate = buttonData.playbackRate || 1.0;
-
-                        this.endSoundData = {
-                            index: endSoundId,
-                            fileIndex: fileIndex,
-                            priority: buttonData.priority,
-                            duration: null
-                        };
-
-                        this.getAudioDuration(buttonData.files[fileIndex].arrayBuffer)
-                            .then(duration => {
-                                if (this.endSoundData) {
-                                    this.endSoundData.duration = duration / playbackRate;
-                                }
-                            }).catch(err => console.error("Could not get audio duration:", err));
-                    }
                 }
 
                 updateTimerSoundSelectors(sounds) {
-                    const currentStartVal = this.timerStartSoundSelect.value;
-                    const currentEndVal = this.timerEndSoundSelect.value;
-
+                    // Clear the existing options
                     this.timerStartSoundSelect.innerHTML = '<option value="">None</option>';
                     this.timerEndSoundSelect.innerHTML = '<option value="">None</option>';
 
-                    sounds.forEach((sound, index) => {
+                    if (!sounds) return;
+
+                    // Populate the dropdowns with all available sounds
+                    sounds.forEach((sound) => {
+                        // We'll use the button's unique ID for the value
                         if (sound.name !== "Default Name") {
-                            const optionStart = new Option(sound.name, index);
-                            const optionEnd = new Option(sound.name, index);
+                            const optionStart = new Option(sound.name, sound.id);
+                            const optionEnd = new Option(sound.name, sound.id);
                             this.timerStartSoundSelect.add(optionStart);
                             this.timerEndSoundSelect.add(optionEnd);
                         }
                     });
 
-                    this.timerStartSoundSelect.value = currentStartVal;
-                    this.timerEndSoundSelect.value = currentEndVal;
+                    // **THE FIX**: After populating, set the select element's value
+                    // directly from our loaded state. this.state is the source of truth.
+                    this.timerStartSoundSelect.value = this.state.startSoundId;
+                    this.timerEndSoundSelect.value = this.state.endSoundId;
+                }
+
+                validateSoundSelections(existingSoundIds) {
+                    let stateChanged = false;
+                    const startId = parseInt(this.state.startSoundId, 10);
+                    const endId = parseInt(this.state.endSoundId, 10);
+
+                    // Check if the selected start sound ID is still valid
+                    if (this.state.startSoundId && !existingSoundIds.includes(startId)) {
+                        this.state.startSoundId = ""; // Reset to "None"
+                        stateChanged = true;
+                    }
+
+                    // Check if the selected end sound ID is still valid
+                    if (this.state.endSoundId && !existingSoundIds.includes(endId)) {
+                        this.state.endSoundId = ""; // Reset to "None"
+                        stateChanged = true;
+                    }
+
+                    // If we made a change, save the state. The next render will pick this up.
+                    if (stateChanged) {
+                        this.saveState();
+                    }
+                }
+
+                // ================================================================
+                // Sound Logic
+                // ================================================================
+
+                playStartSound() {
+                    if (this.state.startSoundId !== "") {
+                        this.soundboardManager.togglePlay(parseInt(this.state.startSoundId, 10));
+                    }
+                }
+
+                playEndSound() {
+                    if (this.state.endSoundId !== "" && this.state.endSoundFileIndex !== null && !this.state.hasPlayedEndSound) {
+                        const buttonId = parseInt(this.state.endSoundId, 10);
+                        const buttonData = this.soundboardManager.buttonsData.find(b => b.id === buttonId);
+
+                        // Directly play the pre-selected file, bypassing togglePlay's own shuffle logic
+                        this.soundboardManager.playFile(buttonId, this.state.endSoundFileIndex, buttonData.priority);
+
+                        this.state.hasPlayedEndSound = true; // Prevent re-triggering
+                    }
+                }
+                async prepareEndSound() {
+                    this.state.hasPlayedEndSound = false;
+                    this.state.endSoundFileIndex = null; // Reset the chosen file index
+
+                    if (this.state.endSoundId === "") {
+                        this.state.endSoundDuration = 0;
+                        return;
+                    }
+
+                    const buttonId = parseInt(this.state.endSoundId, 10);
+                    const buttonData = this.soundboardManager.buttonsData.find(b => b.id === buttonId);
+
+                    if (buttonData && buttonData.files.length > 0) {
+                        let fileIndexToPlay;
+                        const player = this.soundboardManager._getAudioPlayer(buttonId);
+
+                        if (buttonData.shuffle) {
+                            // Pre-determine the random file to play
+                            fileIndexToPlay = randomButNot(0, buttonData.files.length, player.playback.currentFileIndex);
+                        } else {
+                            // Use the next file in sequence
+                            fileIndexToPlay = player.playback.currentFileIndex >= buttonData.files.length ? 0 : player.playback.currentFileIndex;
+                        }
+
+                        this.state.endSoundFileIndex = fileIndexToPlay; // Store our choice
+                        const file = buttonData.files[fileIndexToPlay];
+                        const playbackRate = buttonData.playbackRate || 1.0;
+
+                        try {
+                            const duration = await this.getAudioDuration(file.arrayBuffer);
+                            this.state.endSoundDuration = (duration / playbackRate) * 1000; // Convert to ms
+                        } catch (err) {
+                            console.error("Could not get audio duration for timer:", err);
+                            this.state.endSoundDuration = 0;
+                        }
+                    }
                 }
 
                 getAudioDuration(arrayBuffer) {
@@ -1842,7 +2065,7 @@ input[type="range"]::-moz-range-thumb {
                             URL.revokeObjectURL(objectURL);
                             resolve(audio.duration);
                         }, { once: true });
-                        audio.addEventListener('error', (e) => {
+                        audio.addEventListener('error', () => {
                             URL.revokeObjectURL(objectURL);
                             reject(new Error('Failed to load audio for duration calculation.'));
                         }, { once: true });
@@ -1850,7 +2073,7 @@ input[type="range"]::-moz-range-thumb {
                     });
                 }
             }
-
+            
             // ====================================================================
             // SECTION: Application Manager Class
             // Manages the state and business logic of the soundboard.
@@ -2026,59 +2249,53 @@ input[type="range"]::-moz-range-thumb {
                     const numTimers = timerCountData ? timerCountData.count : 0;
                     const timerTemplate = document.getElementById('timer-card-template');
 
+                    // Use Promise.all to initialize all timers in parallel for speed
+                    const timerPromises = [];
                     for (let i = 0; i < numTimers; i++) {
-                        const timerId = i;
+                        const timerId = i; // This might need to be more robust if IDs aren't sequential
                         const newCard = timerTemplate.content.cloneNode(true).querySelector('.timer-card');
-                        newCard.dataset.timerId = timerId;
-                        // REFACTOR: Add card type and ID for drag-and-drop identification.
                         newCard.dataset.cardType = 'timer';
                         newCard.dataset.cardId = timerId;
-                        this.timerCards.push(new TimerCard(newCard, this, this.db));
+
+                        const timerInstance = new TimerCard(newCard, this, this.db);
+                        this.timerCards.push(timerInstance);
+                        timerPromises.push(timerInstance.init()); // Add the init promise to the array
                     }
+                    await Promise.all(timerPromises); // Wait for all timers to be initialized
                 }
 
                 async addTimer() {
                     const nextTimerIndex = this.timerCards.length > 0 ? Math.max(...this.timerCards.map(t => t.id)) + 1 : 0;
                     const newCard = document.getElementById('timer-card-template').content.cloneNode(true).querySelector('.timer-card');
-                    newCard.dataset.timerId = nextTimerIndex;
                     newCard.dataset.cardType = 'timer';
                     newCard.dataset.cardId = nextTimerIndex;
 
-                    this.timerCards.push(new TimerCard(newCard, this, this.db));
+                    const newTimer = new TimerCard(newCard, this, this.db);
+                    this.timerCards.push(newTimer);
+                    await newTimer.init(); // Await initialization before proceeding
 
-                    // REFACTOR: Add the new timer to the layout and re-render.
                     const controlCardIndex = this.gridLayout.findIndex(item => item.type === 'control');
-                    if (controlCardIndex > -1) {
-                        this.gridLayout.splice(controlCardIndex, 0, { type: 'timer', id: nextTimerIndex });
-                    } else {
-                        this.gridLayout.push({ type: 'timer', id: nextTimerIndex });
-                    }
+                    this.gridLayout.splice(controlCardIndex, 0, { type: 'timer', id: nextTimerIndex });
 
                     await this.db.save('timerCount', { id: 'timerCount', count: this.timerCards.length });
                     await this._saveLayout();
                     this.renderGrid();
                 }
 
-                // REFACTOR: New unified remove method for timers.
                 async removeTimer(idToRemove) {
                     const confirmed = await this.showConfirmModal('Are you sure you want to delete this timer?');
                     if (!confirmed) return;
 
                     const timerInstance = this.timerCards.find(t => t.id === idToRemove);
                     if (timerInstance) {
-                        timerInstance.stopTimer();
+                        timerInstance.destroy(); // Clean up the animation frame loop
                     }
 
-                    // Remove from instance array
                     this.timerCards = this.timerCards.filter(t => t.id !== idToRemove);
-
-                    // Remove from layout
                     this.gridLayout = this.gridLayout.filter(item => !(item.type === 'timer' && item.id === idToRemove));
 
-                    // Delete DB entries
                     await this.db.delete(`timer-${idToRemove}`);
                     await this.db.save('timerCount', { id: 'timerCount', count: this.timerCards.length });
-
                     await this._saveLayout();
                     this.renderGrid();
                 }
@@ -2713,7 +2930,7 @@ input[type="range"]::-moz-range-thumb {
                                 '--accent-color': '#33a367',
                                 '--highlight-color': '#ff914d',
                                 '--primary-color': '#234e70', // Dark Text
-                                '--secondary-color': '#e7e7e7ff', // Light Text
+                                '--secondary-color': '#e7e7e7', // Light Text
                             }
                         };
                         await this.db.save(cosmeticsData.id, cosmeticsData);
@@ -2747,6 +2964,7 @@ input[type="range"]::-moz-range-thumb {
                     setContrast('--highlight-color', '--highlight-color-text');
                     setContrast('--primary-color', '--primary-color-text');
                     setContrast('--background-color', '--background-color-text');
+                    setContrast('--secondary-color', '--secondary-color-text');
                     
                     // Apply font
                     loadGoogleFonts([this.cosmeticsData.fontFamily]);
@@ -2756,6 +2974,7 @@ input[type="range"]::-moz-range-thumb {
                     document.querySelectorAll('#cosmetics-modal input[type="color"]').forEach(input => {
                         const cssVar = input.dataset.cssVar;
                         if (colors[cssVar]) {
+                            console.log(colors[cssVar])
                             input.value = colors[cssVar];
                         }
                     });
@@ -2791,8 +3010,20 @@ input[type="range"]::-moz-range-thumb {
                     const buttonData = this.buttonsData[index];
                     const modal = document.getElementById('settings-modal');
 
-                    // Set the initial value of the color picker
-                    document.getElementById('button-color-picker').value = this.buttonsData[index].color;
+                    const colorPicker = document.getElementById('button-color-picker');
+                    let colorValue = this.buttonsData[index].color;
+
+                    // Check if the stored color is a CSS variable
+                    if (colorValue.startsWith('var(')) {
+                        // Extract the variable name (e.g., '--accent-color') from the string.
+                        const cssVarName = colorValue.match(/--[\w-]+/)[0];
+
+                        // Get the computed style from the root element and retrieve the variable's value.
+                        colorValue = getComputedStyle(document.documentElement).getPropertyValue(cssVarName).trim();
+                    }
+
+                    // 3. Set the color picker's value to the resolved hex code.
+                    colorPicker.value = colorValue;
 
                     document.getElementById('button-name-input').value = buttonData.name;
                     document.getElementById('shuffle-checkbox').checked = buttonData.shuffle;
@@ -2924,6 +3155,8 @@ input[type="range"]::-moz-range-thumb {
                     if (this.buttonsData.length <= 1) {
                         return;
                     }
+
+                    this.timerCards.forEach(timer => timer.handleButtonDeletion(indexToRemove)); // notify timer cards of the change to prevent start/end cues shifting
 
                     this.buttonsData.splice(indexToRemove, 1);
                     if (this.players.has(indexToRemove)) {
