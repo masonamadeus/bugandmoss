@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+    <!-- TO DO :
+     
+        - OBS INTEGRATIONS
+        - CACHE GOOGLE FONTS
+        - SELF-PACKING SERVICE WORKER PWA SELF-CONTAINED
+    
+
+    -->
 
 <head>
 
@@ -9,619 +17,742 @@
     <meta property="og:image" content="https://bugandmoss.com/images/soundboardscreenshot.jpg">
     <meta property="og:url" content="https://bugandmoss.com/soundboard.html">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <link rel="manifest" href="manifest.json">
     <title>Soundboard | B&M Really Simple Soundboard</title>
-<style>
+    <style>
+        /* =================================================================== */
+        /* CORE LAYOUT & THEMING
 /* =================================================================== */
-/* CORE LAYOUT & THEMING
-/* =================================================================== */
-:root {
-    /* Base Color Palette */
-    --background-color: #f7fafc;
-    --panel-color: #95c7ff;
-    --accent-color: #3bb273;
-    --highlight-color: #ff914d;
-    
-    /* Text Colors (Static) */
-    --primary-color: #234e70;   /* Dark Text */
-    --secondary-color: #cce0ec; /* Light Text */
+        :root {
+            /* Base Color Palette */
+            --background-color: #f7fafc;
+            --panel-color: #95c7ff;
+            --accent-color: #3bb273;
+            --highlight-color: #ff914d;
 
-    /* Dynamic Text Colors (Set by JS) */
-    --panel-color-text: #234e70;
-    --accent-color-text: #234e70;
-    --highlight-color-text: #234e70;
-    --primary-color-text: #cce0ec;
-    --background-color-text: #234e70;
+            /* Text Colors (Static) */
+            --primary-color: #234e70;
+            /* Dark Text */
+            --secondary-color: #cce0ec;
+            /* Light Text */
 
-    /* Typography */
-    --font-family-primary: 'Wellfleet', sans-serif;
-}
+            /* Dynamic Text Colors (Set by JS) */
+            --panel-color-text: #234e70;
+            --accent-color-text: #234e70;
+            --highlight-color-text: #234e70;
+            --primary-color-text: #cce0ec;
+            --background-color-text: #234e70;
 
-body {
-    font-family: var(--font-family-primary);
-    background-color: var(--background-color);
-    color: var(--background-color-text);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    padding: 2rem;
-    box-sizing: border-box;
-    touch-action: manipulation;
-}
+            /* Typography */
+            --font-family-primary: 'Wellfleet', sans-serif;
+        }
 
-.container {
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-}
+        .accent-color {
+            background-color: var(--accent-color) !important;
+            color: var(--accent-color-text) !important;
+        }
 
-#soundboard-title {
-    text-align: center;
-    cursor: text;
-    padding: 1rem;
-    transition: background-color 0.3s ease;
-}
+        .primary-color {
+            background-color: var(--primary-color) !important;
+            color: var(--primary-color-text) !important;
+        }
 
-#soundboard-title:hover,
-#soundboard-title:focus {
-    background-color: var(--panel-color);
-    outline: none;
-}
+        .panel-color {
+            background-color: var(--panel-color) !important;
+            color: var(--panel-color-text) !important;
+        }
 
-/* =================================================================== */
-/* BUTTONS & GENERAL CONTROLS
-/* =================================================================== */
-button {
-    font-family: var(--font-family-primary);
-    border: none;
-    cursor: pointer;
-    transition: filter 0.3s ease;
-}
+        .secondary-color {
+            background-color: var(--secondary-color) !important;
+            color: var(--secondary-color-text) !important;
+        }
 
-#button-color-picker {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    border: 2px solid var(--primary-color);
-    background-color: transparent;
-    cursor: pointer;
-}
+        .highlight-color {
+            background-color: var(--highlight-color) !important;
+            color: var(--highlight-color-text) !important;
+        }
 
+        .background-color {
+            background-color: var(--background-color) !important;
+            color: var(--background-color-text) !important;
+        }
 
-.title-and-color {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.title-and-color input[type="text"] {
-    flex-grow: 1; /* Allows the text input to fill available space */
-}
-
-button:hover {
-    filter: brightness(90%);
-}
-
-.danger {
-    background-color: #d9534f!important; /* A consistent red for danger actions */
-    color: white!important;
-    padding: 1rem;
-}
-
-.slider-group {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.slider-group label {
-    width: 60px;
-    font-size: 0.875rem;
-    color: var(--panel-color-text);
-}
-
-input[type="range"] {
-    width: 100%;
-    -webkit-appearance: none;
-    height: 4px;
-    background: var(--secondary-color);
-    outline: none;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 14px;
-    height: 14px;
-    background: var(--accent-color);
-    cursor: pointer;
-}
-
-input[type="range"]::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
-    background: var(--accent-color);
-    cursor: pointer;
-}
-
-/* =================================================================== */
-/* GRIDS & CARDS
-/* =================================================================== */
-.soundboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
-}
-
-.sound-card {
-    background-color: var(--panel-color);
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    align-self: start; /* Prevents cards from stretching vertically */
-    align-items: center; /* Keeps card elements centered */
-}
-
-.hover-glow {
-    box-shadow: 0px 0px 8px var(--highlight-color) !important;
-}
-
-/* --- Drag & Drop Styles --- */
-.soundboard-grid.rearrange-mode {
-    cursor: grab;
-}
-
-.soundboard-grid.rearrange-mode .sound-card {
-    transform: rotate(1deg);
-    border: 2px solid var(--highlight-color);
-    cursor: grab;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.soundboard-grid.rearrange-mode .sound-card:hover {
-    transform: scale(1.02);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
-}
-
-.sound-card.dragging {
-    opacity: 0.5;
-}
-
-.soundboard-grid.rearrange-mode .sound-card.drag-over {
-    border: 2px dashed var(--highlight-color);
-    transform: scale(1.05);
-}
-
-/* =================================================================== */
-/* SOUND BUTTON CARDS
-/* =================================================================== */
-.sound-button {
-    position: relative;
-    width: 100%;
-    height: 100px;
-    background-color: var(--accent-color);
-    color: var(--accent-color-text);
-    font-size: 1.25rem;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.5rem;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.progress-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.2);
-    transition: width 0.1s linear;
-}
-
-.button-text {
-    position: relative;
-    z-index: 1;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.settings-triangle-btn {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 0;
-    height: 0;
-    border-bottom: 40px solid var(--highlight-color);
-    border-left: 40px solid transparent;
-    z-index: 2;
-}
-
-.settings-triangle-btn svg {
-    position: absolute;
-    top: -30px;
-    left: 10px;
-    z-index: 3;
-    width: 20px;
-    height: 20px;
-    color: var(--highlight-color-text);
-}
-
-.sound-controls .speed-display {
-    color: var(--panel-color-text);
-}
-
-/* =================================================================== */
-/* CONTROL CARD
-/* =================================================================== */
-#control-card-actions {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-}
-
-.span-two-columns {
-    grid-column: span 2;
-}
-
-/* General button style within the control card */
-#control-card-actions button {
-    padding: 0.75rem;
-    font-size: 1.2rem;
-    font-weight: 500;
-    text-align: center;
-    background-color: var(--accent-color);
-    color: var(--accent-color-text);
-}
-
-/* Specific overrides for uniquely colored buttons */
-#rearrange-mode-btn {
-    background-color: var(--highlight-color)!important;
-    color: var(--highlight-color-text)!important;
-}
-
-#switch-board-btn {
-    background-color: var(--primary-color)!important;
-    color: var(--primary-color-text)!important;
-}
-
-/* =================================================================== */
-/* TIMER CARDS
+        /* =================================================================== */
+        /* SCROLLBAR STYLING
 /* =================================================================== */
 
+        /* --- Standard Firefox Styling --- */
+        * {
+            scrollbar-width: thin;
+            /* "auto" or "thin" */
+            scrollbar-color: var(--accent-color) var(--secondary-color);
+            /* thumb and track */
+        }
 
-.timer-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-align: center;
-    color: var(--panel-color-text);
-    border: 2px solid transparent;
-    width:90%;
-    padding: 0.5rem;
-    transition: border-color 0.2s ease;
-}
+        /* --- WebKit (Chrome, Safari, Edge) Styling --- */
+        ::-webkit-scrollbar {
+            width: 10px;
+            /* Width of the entire scrollbar */
+        }
 
-.timer-title[contenteditable="true"] {
-    background-color: var(--background-color);
-    color: var(--background-color-text);
-    border-color: var(--highlight-color);
-    outline: none;
-    cursor: text;
-}
+        ::-webkit-scrollbar-track {
+            background: var(--secondary-color);
+            /* The track (the part the thumb slides along) */
+        }
 
-.timer-display {
-    font-size: 2.5rem;
-    font-weight: bold;
-    text-align: center;
-    position: relative;
-    padding: 0.5rem;
-    background-color: var(--panel-color);
-    color: var(--panel-color-text);
-    border: 2px solid var(--secondary-color);
-        /* Creates a darkening overlay on top of the panel color */
-    background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2));
-    width: 90%;
-}
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--accent-color);
+            /* The draggable scrolling handle */
+            border-radius: 6px;
+            /* Rounded corners on the thumb */
+            border: 2px solid var(--secondary-color);
+            /* Creates padding around the thumb */
+        }
 
-timer-display span {
-    position: relative;
-    z-index: 1;
-}
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: var(--highlight-color);
+            /* Color of the thumb on hover */
+        }
 
-.timer-progress-overlay {
-    position:absolute;
-    top: 0;
-    left:0;
-    width: 0%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.3);
-}
+        body {
+            font-family: var(--font-family-primary);
+            background-color: var(--background-color);
+            color: var(--background-color-text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
 
-.timer-display.running {
-    color: var(--accent-color);
-}
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
-.timer-seconds-value,
-.timer-minutes-value {
-    width: 1rem; /* Set a fixed width */
-    text-align: center;
-    border: 1px solid var(--secondary-color);
-    background-color: var(--background-color);
-    color: var(--background-color-text);
-    padding: 0.25rem 0.5rem;
-    -moz-appearance: textfield; /* Hide the Firefox spin buttons */
-}
+        #soundboard-title {
+            text-align: center;
+            cursor: text;
+            padding: 1rem;
+            transition: background-color 0.3s ease;
+        }
 
-/* Hide spin buttons for WebKit browsers (Chrome, Safari) */
-.timer-seconds-value::-webkit-inner-spin-button,
-.timer-seconds-value::-webkit-outer-spin-button,
-.timer-minutes-value::-webkit-inner-spin-button,
-.timer-minutes-value::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
+        #soundboard-title:hover,
+        #soundboard-title:focus {
+            background-color: var(--panel-color);
+            outline: none;
+        }
 
-.timer-options-toggle label,
-.timer-mode-selector label,
-.timer-sound-select label {
-    color: var(--panel-color-text);
-    user-select: none;
-}
-
-.timer-mode-selector{
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin: 0.75rem;
-}
-
-.timer-options-toggle{
-    margin-bottom: 1rem;
-}
-.timer-sound-select {
-    margin-bottom: 1rem;
-}
-
-.timer-controls {
-    width: 100%;
-}
-
-.timer-controls .slider-group span {
-    min-width: 25px;
-    text-align: center;
-    color: var(--panel-color-text);
-}
-
-.timer-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-}
-
-.timer-buttons button {
-    flex-grow: 1;
-    font-weight: bold;
-    padding: 0.75rem 1.5rem;
-    background-color: var(--accent-color);
-    color: var(--accent-color-text);
-}
-
-.timer-buttons .reset-timer-btn {
-    background-color: var(--highlight-color);
-    color: var(--highlight-color-text);
-}
-
-.remove-timer-btn {
-    width: 100%;
-    margin-top: 1rem;
-    padding: 0.75rem;
-    background-color: var(--highlight-color);
-    color: var(--highlight-color-text);
-}
-
-.timer-options-container.hidden-options {
-    display: none;
-}
-
+        /* =================================================================== */
+        /* BUTTONS & GENERAL CONTROLS
 /* =================================================================== */
-/* NOTEPAD CARDS
+        button {
+            font-family: var(--font-family-primary);
+            border: none;
+            cursor: pointer;
+            transition: filter 0.3s ease;
+            background-color: var(--accent-color);
+            color: var(--accent-color-text);
+            padding: 1rem;
+        }
+
+        #button-color-picker {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border: 2px solid var(--primary-color);
+            background-color: transparent;
+            cursor: pointer;
+        }
+
+
+        .title-and-color {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .title-and-color input[type="text"] {
+            flex-grow: 1;
+            /* Allows the text input to fill available space */
+        }
+
+        button:hover {
+            filter: brightness(90%);
+        }
+
+        .danger {
+            background-color: #d9534f !important;
+            /* A consistent red for danger actions */
+            color: white !important;
+            padding: 1rem;
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .slider-group label {
+            width: 60px;
+            font-size: 0.875rem;
+            color: var(--panel-color-text);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 4px;
+            background: var(--secondary-color);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--accent-color);
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            background: var(--accent-color);
+            cursor: pointer;
+        }
+
+        /* =================================================================== */
+        /* GRIDS & CARDS
 /* =================================================================== */
-.notepad-card {
-    align-self: stretch; /* Allows notepad to fill vertical space, overriding .sound-card */
-}
+        .soundboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
 
-.notepad-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-    width:100%;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--secondary-color);
-}
+        .sound-card {
+            background-color: var(--panel-color);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            align-self: start;
+            align-items: center;
+            box-sizing: border-box;
+        }
 
-.notepad-tab, .add-page-btn {
-    border: 1px solid var(--secondary-color);
-    background-color: var(--background-color);
-    padding: 0.4rem;
-    cursor: pointer;
-    font-size: 0.8rem;
-}
+        .hover-glow {
+            box-shadow: 0px 0px 8px var(--highlight-color) !important;
+        }
 
-.add-page-btn {
-    margin-left: auto;
-}
+        /* --- Drag & Drop Styles --- */
+        .soundboard-grid.rearrange-mode {
+            cursor: grab;
+        }
 
-.notepad-tab-title {
-    cursor: pointer;
-    outline: none;
-    font-size: 1rem;
-    white-space: nowrap;
-    user-select: none;
-}
+        .soundboard-grid.rearrange-mode .sound-card {
+            transform: rotate(1deg);
+            border: 2px solid var(--highlight-color);
+            cursor: grab;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
 
-.notepad-tab.active {
-    background-color: var(--accent-color);
-    color: var(--accent-color-text);
-    font-weight: bold;
-    border-color: var(--accent-color);
-}
+        .soundboard-grid.rearrange-mode .sound-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
 
-.notepad-tab.active .notepad-tab-title{
-    cursor:text;
-}
+        .sound-card.dragging {
+            opacity: 0.5;
+        }
 
-.delete-page-btn {
-    color: darkred;
-    font-weight: bold;
-    cursor: pointer;
-    padding: 0.2rem;
-    margin-right:0.5rem;
-}
+        .soundboard-grid.rearrange-mode .sound-card.drag-over {
+            border: 2px dashed var(--highlight-color);
+            transform: scale(1.05);
+        }
 
-.delete-page-btn:hover{
+        /* =================================================================== */
+        /* SOUND BUTTON CARDS
+/* =================================================================== */
+        .sound-button {
+            position: relative;
+            width: 100%;
+            height: 100px;
+            background-color: var(--accent-color);
+            color: var(--accent-color-text);
+            font-size: 1.25rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
             background-color: rgba(0, 0, 0, 0.2);
-}
+            transition: width 0.1s linear;
+        }
 
-.notepad-content {
-    flex-grow: 1;
-    width: 100%;
-    border: none;
-    background-color: var(--background-color);
-    padding: 0.5rem;
-    font-family: sans-serif;
-    font-size: 1rem;
-    color: var(--background-color-text);
-    resize: vertical;
-    box-sizing: border-box;
-    min-height: 150px;
-}
+        .button-text {
+            position: relative;
+            z-index: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-.notepad-content:focus {
-    outline: 1px solid var(--highlight-color);
-}
+        .settings-triangle-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-bottom: 40px solid var(--highlight-color);
+            border-left: 40px solid transparent;
+            z-index: 2;
+        }
 
+        .settings-triangle-btn svg {
+            position: absolute;
+            top: -30px;
+            left: 10px;
+            z-index: 3;
+            width: 20px;
+            height: 20px;
+            color: var(--highlight-color-text);
+        }
+
+        .sound-controls .speed-display {
+            color: var(--panel-color-text);
+        }
+
+        /* =================================================================== */
+        /* CONTROL CARD
 /* =================================================================== */
-/* MODALS
+        #control-card-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .span-two-columns {
+            grid-column: span 2;
+        }
+
+        .span-three-columns {
+            grid-column: span 3;
+        }
+
+        /* General button style within the control card */
+        #control-card-actions button {
+            padding: 0.75rem;
+            font-size: 1.2rem;
+            font-weight: 500;
+            text-align: center;
+            background-color: var(--accent-color);
+            color: var(--accent-color-text);
+        }
+
+        /* Specific overrides for uniquely colored buttons */
+        #rearrange-mode-btn {
+            background-color: var(--highlight-color) !important;
+            color: var(--highlight-color-text) !important;
+        }
+
+        #switch-board-btn {
+            background-color: var(--primary-color) !important;
+            color: var(--primary-color-text) !important;
+        }
+
+        /* =================================================================== */
+        /* TIMER CARDS
 /* =================================================================== */
-.modal, .confirm-modal {
-    display: none;
-    position: fixed;
-    z-index: 100;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(3px);
-    align-items: center;
-    justify-content: center;
-}
 
-.modal-content, .confirm-modal-content {
-    background-color: var(--panel-color);
-    color: var(--panel-color-text);
-    padding: 2rem;
-    width: 90%;
-    max-width: 600px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    max-height: 80vh;
-    overflow-y: auto;
-}
 
-.modal-section {
-    margin-bottom: 1.5rem;
-}
+        .timer-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            color: var(--panel-color-text);
+            border: 2px solid transparent;
+            width: 90%;
+            padding: 0.5rem;
+            transition: border-color 0.2s ease;
+        }
 
-.modal-section h3, .modal-section h4 {
-    margin-bottom: 0.75rem;
-    border-bottom: 1px solid var(--secondary-color);
-    padding-bottom: 0.25rem;
-}
+        .timer-title[contenteditable="true"] {
+            background-color: var(--background-color);
+            color: var(--background-color-text);
+            border-color: var(--highlight-color);
+            outline: none;
+            cursor: text;
+        }
 
-.modal-section label {
-    display: block;
-    margin-bottom: 0.5rem;
-}
+        .timer-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            position: relative;
+            padding: 0.5rem;
+            background-color: var(--panel-color);
+            color: var(--panel-color-text);
+            border: 2px solid var(--secondary-color);
+            /* Creates a darkening overlay on top of the panel color */
+            background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2));
+            width: 90%;
+        }
 
-.modal-section input[type="text"] {
-    width: 100%;
-    padding: 0.5rem;
-    background-color: var(--background-color);
-    border: 1px solid var(--primary-color);
-    color: var(--background-color-text);
-}
+        timer-display span {
+            position: relative;
+            z-index: 1;
+        }
 
-.modal-actions-row {
-    display: flex;
-    justify-content: space-between;
-}
+        .timer-progress-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+        }
 
-/* --- Specific Modal Buttons --- */
-.file-input-container label, .modal-actions-row button, #create-new-board-btn {
-    background-color: var(--accent-color);
-    color: var(--accent-color-text);
-    padding: 0.75rem 1.5rem;
-    text-align: center;
-}
+        .timer-display.running {
+            color: var(--accent-color);
+        }
 
-#clear-files-btn {
-    background-color: var(--highlight-color);
-    color: var(--highlight-color-text);
-}
+        .timer-display.finished {
+            color: var(--highlight-color);
+        }
 
-/* --- File List --- */
-.file-list {
-    list-style: none;
-    padding: 0;
-}
+        .timer-seconds-value,
+        .timer-minutes-value {
+            width: 2rem;
+            /* Set a fixed width */
+            text-align: center;
+            border: 0px;
+            background-color: var(--panel-color);
+            color: var(--panel-color-text);
+            font-family: var(--font-family-primary);
+            font-size: 1rem;
+            margin: 0;
+            -moz-appearance: textfield;
+            /* Hide the Firefox spin buttons */
+        }
 
-.file-list li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: var(--background-color);
-    color: var(--background-color-text);
-    padding: 0.5rem;
-    margin-bottom: 0.5rem;
-    border: 1px solid var(--panel-color);
-}
+        /* Hide spin buttons for WebKit browsers (Chrome, Safari) */
+        .timer-seconds-value::-webkit-inner-spin-button,
+        .timer-seconds-value::-webkit-outer-spin-button,
+        .timer-minutes-value::-webkit-inner-spin-button,
+        .timer-minutes-value::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
 
-.file-list button {
-    background-color: var(--highlight-color);
-    color: var(--highlight-color-text);
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-}
+        .timer-options-toggle label,
+        .timer-mode-selector label,
+        .timer-sound-select label {
+            color: var(--panel-color-text);
+            user-select: none;
+        }
 
-/* --- Checkboxes --- */
-.modal-checkbox-group label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-}
+        .timer-mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 0.75rem;
+        }
 
-.modal-checkbox-group input[type="checkbox"] {
-    appearance: none;
-    width: 1.25rem;
-    height: 1.25rem;
-    border: 2px solid var(--primary-color);
-    cursor: pointer;
-    position: relative;
-     display: flex;
+        .timer-options-toggle {
+            margin-bottom: 1rem;
+        }
 
-}
+        .timer-sound-select {
+            margin-bottom: 1rem;
+            display: flex;
+            width: 100%;
+        }
+
+        .timer-end-sound,
+        .timer-start-sound {
+            font-size: 1rem;
+            width: 60%;
+            margin-left: auto;
+            border: 0px;
+            font-family: var(--font-family-primary);
+            color: var(--secondary-color-text);
+            background-color: var(--secondary-color);
+        }
+
+        .timer-controls {
+            width: 100%;
+        }
+
+        .timer-controls .slider-group span {
+            min-width: 25px;
+            text-align: center;
+            color: var(--panel-color-text);
+        }
+
+        .timer-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .timer-buttons button {
+            flex-grow: 1;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--accent-color);
+            color: var(--accent-color-text);
+        }
+
+        .timer-buttons .reset-timer-btn {
+            background-color: var(--highlight-color);
+            color: var(--highlight-color-text);
+        }
+
+        .remove-timer-btn {
+            width: 100%;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: var(--highlight-color);
+            color: var(--highlight-color-text);
+        }
+
+        .timer-options-container.hidden-options {
+            display: none;
+        }
+
+        /* =================================================================== */
+        /* NOTEPAD CARDS
+/* =================================================================== */
+        .notepad-card {
+            align-self: stretch;
+            /* Allows notepad to fill vertical space, overriding .sound-card */
+        }
+
+        .notepad-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            width: 100%;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--secondary-color);
+        }
+
+        .notepad-tab,
+        .add-page-btn {
+            border: 1px solid var(--secondary-color);
+            background-color: var(--background-color);
+            padding: 0.4rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .add-page-btn {
+            margin-left: auto;
+            background-color: var(--highlight-color);
+            color: var(--highlight-color-text);
+            font: var(--font-family-primary);
+            font-weight: 800;
+        }
+
+        .notepad-tab-title {
+            cursor: pointer;
+            outline: none;
+            font-size: 1rem;
+            white-space: nowrap;
+            user-select: none;
+            padding-right: 0.5rem;
+        }
+
+        .notepad-tab.active {
+            background-color: var(--accent-color);
+            color: var(--accent-color-text);
+            font-weight: bold;
+            border-color: var(--accent-color);
+        }
+
+        .notepad-tab.active .notepad-tab-title {
+            cursor: text;
+        }
+
+        .delete-page-btn {
+            color: darkred;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0.2rem;
+            margin-right: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .delete-page-btn:hover {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .notepad-content {
+            flex-grow: 1;
+            width: 100%;
+            border: none;
+            background-color: var(--secondary-color);
+            padding: 0.5rem;
+            font-family: sans-serif;
+            font-size: 1rem;
+            color: var(--secondary-color-text);
+            resize: vertical;
+            box-sizing: border-box;
+            min-height: 150px;
+            font: var(--font-family-primary);
+        }
+
+        .notepad-content:focus {
+            outline: 1px solid var(--highlight-color);
+        }
+
+        /* =================================================================== */
+        /* MODALS
+        /* =================================================================== */
+        .modal,
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content,
+        .confirm-modal-content {
+            background-color: var(--panel-color);
+            color: var(--panel-color-text);
+            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-section h3,
+        .modal-section h4 {
+            margin-bottom: 0.75rem;
+            border-bottom: 1px solid var(--secondary-color);
+            padding-bottom: 0.25rem;
+        }
+
+        .modal-section label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-section input[type="text"] {
+            width: 100%;
+            padding: 0.5rem;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 1.25rem;
+            background-color: var(--background-color);
+            border: 1px solid var(--primary-color);
+            color: var(--background-color-text);
+        }
+
+        .modal-actions-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* --- Specific Modal Buttons --- */
+        .file-input-container label,
+        .modal-actions-row button,
+        #create-new-board-btn {
+            background-color: var(--accent-color);
+            color: var(--accent-color-text);
+            padding: 0.75rem 1.5rem;
+            text-align: center;
+        }
+
+        #clear-files-btn {
+            background-color: var(--highlight-color);
+            color: var(--highlight-color-text);
+        }
+
+        /* --- File List --- */
+        .file-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .file-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--background-color);
+            color: var(--background-color-text);
+            font-size: 1rem;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--panel-color);
+        }
+
+        .file-list li a {
+            color: var(--background-color-text);
+        }
+
+        .file-list button {
+            background-color: var(--highlight-color);
+            color: var(--highlight-color-text);
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        /* --- Checkboxes --- */
+        .modal-checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .modal-checkbox-group input[type="checkbox"] {
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid var(--primary-color);
+            cursor: pointer;
+            position: relative;
+            display: flex;
+
+        }
 
 
         .modal-actions-row {
@@ -637,159 +768,252 @@ timer-display span {
             flex-wrap: wrap;
         }
 
-.modal-checkbox-group input[type="checkbox"]:checked {
-    background-color: var(--accent-color);
-    border-color: var(--accent-color);
-}
+        .modal-checkbox-group input[type="checkbox"]:checked {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
 
-.modal-checkbox-group input[type="checkbox"]:checked::after {
-    content: '✔';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: var(--accent-color-text);
-    font-size: 1rem;
-}
+        .modal-checkbox-group input[type="checkbox"]:checked::after {
+            content: '✔';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--accent-color-text);
+            font-size: 1rem;
+        }
 
-/* --- Color Pickers --- */
-.color-palette-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 1rem;
-}
+        /* --- Color Pickers --- */
+        .color-palette-grid {
+            display: grid;
+            /* Use 'repeat' with 'auto-fill' to create a flexible grid */
+            grid-template-columns: repeat(3, minmax(100px, 1fr));
+            gap: 1rem;
+        }
 
-.color-box {
-    position: relative;
-    width: 100%;
-    padding-top: 100%; /* Creates a square aspect ratio */
-}
+        .color-palette-buttons {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 5%;
+        }
 
-.color-box input[type="color"] {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    border: none;
-    cursor: pointer;
-}
+        .color-box {
+            position: relative;
+            /* This padding technique creates a square box that scales */
+            padding-top: 50%;
+            /* Let the grid control the width */
+            width: 100%;
+            height: 0;
+            border: 0px solid var(--primary-color);
+            overflow: hidden;
+        }
 
-.color-box label {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    padding: 0.25rem;
-    font-size: 0.75rem;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
-    pointer-events: none; /* Allows clicks to go through to the color input */
-}
+        /* Style the color input to fill the entire box */
+        .color-box input[type="color"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            border: 0;
+            cursor: pointer;
+            border-radius: 0;
+            z-index: 1;
+            /* Ensure the input is above the background color */
+        }
 
-/* --- Confirmation Modal --- */
-.confirm-modal-content {
-    text-align: center;
-    max-width: 400px;
-}
+        /* Style the label as an overlay */
+        .color-box label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            /* Make the label sit on top of the color input */
+            font-size: 100%;
+            text-align: center;
+            white-space: nowrap;
+            pointer-events: none;
+        }
 
-.confirm-modal-actions {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 1rem;
-}
+        /* --- Confirmation Modal --- */
+        .confirm-modal-content {
+            text-align: center;
+            max-width: 400px;
+        }
 
-.confirm-modal-actions button {
-    padding: 0.75rem 1.5rem;
-    font-weight: bold;
-}
+        .confirm-modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
 
-.confirm-yes-btn {
-    background-color: var(--accent-color);
-    color: var(--accent-color-text);
-}
+        .confirm-modal-actions button {
+            padding: 0.75rem 1.5rem;
+            font-weight: bold;
+        }
 
-.confirm-no-btn {
-    background-color: var(--highlight-color);
-    color: var(--highlight-color-text);
-}
+        .confirm-yes-btn {
+            background-color: var(--accent-color);
+            color: var(--accent-color-text);
+        }
 
+        .confirm-no-btn {
+            background-color: var(--highlight-color);
+            color: var(--highlight-color-text);
+        }
+
+        /* =================================================================== */
+        /* HELPER BUG & ACCORDION
 /* =================================================================== */
-/* HELPER BUG & ACCORDION
-/* =================================================================== */
-#help-bug-btn {
-    position: fixed;
-    bottom: 1rem;
-    left: 1rem;
-    z-index: 50;
-    width: 50px;
-    height: 50px;
-    background: transparent;
-}
+        #help-bug-btn {
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+            z-index: 50;
+            min-width: 30px;
+            min-height: 30px;
+            max-width: 80px;
+            max-height: 80px;
+            background: transparent;
+        }
 
-.bug-moving {
-    animation: skitter 8s ease-in-out infinite;
-}
+        .bug-moving {
+            animation: skitter 8s ease-in-out infinite;
+        }
 
-.accordion-header {
-    width: 100%;
-    background-color: transparent;
-    text-align: left;
-    padding: 1rem;
-    font-size: 1.1rem;
-    font-weight: bold;
-    position: relative;
-    color: var(--panel-color-text);
-}
+        .accordion-header {
+            width: 100%;
+            background-color: transparent;
+            text-align: left;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            position: relative;
+            color: var(--panel-color-text);
+        }
 
-.accordion-header::after {
-    content: '+';
-    position: absolute;
-    right: 1rem;
-    font-size: 1.5rem;
-    transition: transform 0.2s ease;
-}
+        .accordion-header::after {
+            content: '+';
+            position: absolute;
+            right: 1rem;
+            font-size: 1.5rem;
+            transition: transform 0.2s ease;
+        }
 
-.accordion-header.active::after {
-    transform: rotate(45deg);
-}
+        .accordion-header.active::after {
+            transform: rotate(45deg);
+        }
 
-.accordion-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
-    background-color: var(--background-color);
-    padding: 0 1rem;
-    white-space: pre-line;
-}
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            background-color: var(--background-color);
+            padding: 0 1rem;
+            white-space: pre-line;
+        }
 
-.accordion-content.active {
-    max-height: 200px; /* Adjust as needed */
-    overflow-y: auto;
-    padding: 1rem;
-}
+        .accordion-content.active {
+            max-height: 200px;
+            /* Adjust as needed */
+            overflow-y: auto;
+            padding: 1rem;
+        }
 
-@keyframes skitter {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    4% { transform: translate(15px, 5px) rotate(25deg); }
-    8% { transform: translate(15px, 5px) rotate(25deg); }
-    15% { transform: translate(-10px, -10px) rotate(-15deg); }
-    18% { transform: translate(-8px, -12px) rotate(-20deg); }
-    20% { transform: translate(-10px, -10px) rotate(-15deg); }
-    28% { transform: translate(20px, -5px) rotate(40deg); }
-    35% { transform: translate(20px, -5px) rotate(40deg); }
-    50% { transform: translate(-15px, 20px) rotate(-30deg); }
-    60% { transform: translate(-15px, 20px) rotate(-30deg); }
-    63% { transform: translate(-12px, 22px) rotate(-35deg); }
-    65% { transform: translate(-15px, 20px) rotate(-30deg); }
-    75% { transform: translate(10px, 10px) rotate(15deg); }
-    85% { transform: translate(10px, 10px) rotate(15deg); }
-    95% { transform: translate(2px, 2px) rotate(5deg); }
-}
-</style>
+        @keyframes skitter {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            4% {
+                transform: translate(15px, 5px) rotate(25deg);
+            }
+
+            8% {
+                transform: translate(15px, 5px) rotate(25deg);
+            }
+
+            15% {
+                transform: translate(-10px, -10px) rotate(-15deg);
+            }
+
+            18% {
+                transform: translate(-8px, -12px) rotate(-20deg);
+            }
+
+            20% {
+                transform: translate(-10px, -10px) rotate(-15deg);
+            }
+
+            28% {
+                transform: translate(20px, -5px) rotate(40deg);
+            }
+
+            35% {
+                transform: translate(20px, -5px) rotate(40deg);
+            }
+
+            50% {
+                transform: translate(-15px, 20px) rotate(-30deg);
+            }
+
+            60% {
+                transform: translate(-15px, 20px) rotate(-30deg);
+            }
+
+            63% {
+                transform: translate(-12px, 22px) rotate(-35deg);
+            }
+
+            65% {
+                transform: translate(-15px, 20px) rotate(-30deg);
+            }
+
+            75% {
+                transform: translate(10px, 10px) rotate(15deg);
+            }
+
+            85% {
+                transform: translate(10px, 10px) rotate(15deg);
+            }
+
+            95% {
+                transform: translate(2px, 2px) rotate(5deg);
+            }
+        }
+    </style>
+    <style name="ThemeManager">
+        #theme-library-list {
+            max-height: 200px;
+            /* Adjust this value as needed */
+            overflow-y: auto;
+            border: 1px solid var(--secondary-color);
+            padding: 0.5rem;
+        }
+
+        .theme-list-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            padding: 0.25rem;
+            font-size: 0.75rem;
+        }
+
+        .theme-list-buttons button {
+            margin: 0.1rem;
+        }
+
+        .theme-list-item-template span {
+            font-size: 2rem;
+            margin: 0;
+        }
+    </style>
 </head>
 
 <body>
@@ -811,67 +1035,70 @@ timer-display span {
     </template>
 
     <template id="timer-card-template">
-    <div class="sound-card special-function-card timer-card">
-        <div class="timer-title" contenteditable="false">New Timer</div>
-        <div class="timer-display">
-            <span>00:00</span>
-            <div class="timer-progress-overlay"></div></div>
-        <div class="timer-controls">
-            <div class="timer-options-toggle">
-                <label>
-                    <input type="checkbox" class="hide-timer-options-toggle" value="false">
-                    Lock Timer Settings
-                </label>
+        <div class="sound-card special-function-card timer-card">
+            <div class="timer-title" contenteditable="false">New Timer</div>
+            <div class="timer-display">
+                <span>00:00</span>
+                <div class="timer-progress-overlay"></div>
             </div>
-            <div class="timer-options-container">
-            
-            
-                <div class="slider-group">
-                    <label>Minutes:</label>
-                    <input type="range" class="timer-minutes-range" min="0" max="90" value="0">
-                    <input type="number" class="timer-minutes-value" data-type="minutes" min="0" max="90" value="0">
-                </div>
-                <div class="slider-group">
-                    <label>Seconds:</label>
-                    <input type="range" class="timer-seconds-range" min="0" max="59" value="30">
-                    <input type="number" class="timer-seconds-value" data-type="seconds" min="0" max="59" value="30">
-                </div>
-
-                <div class="timer-mode-selector">
+            <div class="timer-controls">
+                <div class="timer-options-toggle">
                     <label>
-                        <input type="radio" name="timer-mode" class="timer-mode-radio" value="timer" checked> Timer
-                    </label>
-                    <label>
-                        <input type="radio" name="timer-mode" class="timer-mode-radio" value="stopwatch"> Stopwatch
+                        <input type="checkbox" class="hide-timer-options-toggle" value="false">
+                        Lock Timer Settings
                     </label>
                 </div>
+                <div class="timer-options-container">
 
-                <div class="timer-sound-select start-sound-container">
-                    <label class="start-sound-label">Start with:</label>
-                    <select class="timer-start-sound"></select>
-                </div>
-                <div class="timer-sound-select end-sound-container">
-                    <label>End with:</label>
-                    <select class="timer-end-sound"></select>
-                </div>
-                <div class="timer-sound-select">
-                    <label>
-                        <input type="checkbox" class="timer-loop-checkbox" style="margin-right: 0.5rem;">Auto Restart
-                    </label>
-                </div>
-            </div>
-            <div class="timer-buttons">
-                <button class="start-pause-timer-btn">Start</button>
-                <button class="reset-timer-btn">Reset</button>
-            </div>
 
-            <div class="timer-options-container">
-                
-                <button class="remove-timer-btn danger">Remove Timer</button>
+                    <div class="slider-group">
+                        <label>Minutes:</label>
+                        <input type="range" class="timer-minutes-range" min="0" max="90" value="0">
+                        <input type="number" class="timer-minutes-value" data-type="minutes" min="0" max="90" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Seconds:</label>
+                        <input type="range" class="timer-seconds-range" min="0" max="59" value="30">
+                        <input type="number" class="timer-seconds-value" data-type="seconds" min="0" max="59"
+                            value="30">
+                    </div>
+
+                    <div class="timer-mode-selector">
+                        <label>
+                            <input type="radio" name="timer-mode" class="timer-mode-radio" value="timer" checked> Timer
+                        </label>
+                        <label>
+                            <input type="radio" name="timer-mode" class="timer-mode-radio" value="stopwatch"> Stopwatch
+                        </label>
+                    </div>
+
+                    <div class="timer-sound-select start-sound-container">
+                        <label class="start-sound-label">Start with:</label>
+                        <select class="timer-start-sound"></select>
+                    </div>
+                    <div class="timer-sound-select end-sound-container">
+                        <label>End with:</label>
+                        <select class="timer-end-sound"></select>
+                    </div>
+                    <div class="timer-sound-select">
+                        <label>
+                            <input type="checkbox" class="timer-loop-checkbox" style="margin-right: 0.5rem;">Auto
+                            Restart
+                        </label>
+                    </div>
+                </div>
+                <div class="timer-buttons">
+                    <button class="start-pause-timer-btn">Start</button>
+                    <button class="reset-timer-btn">Reset</button>
+                </div>
+
+                <div class="timer-options-container">
+
+                    <button class="remove-timer-btn danger">Remove Timer</button>
+                </div>
             </div>
         </div>
-    </div>
-</template>
+    </template>
 
     <div id="control-card" class="sound-card special-function-card" data-card-type="control" data-card-id="control-card"
         style="display: none;">
@@ -879,15 +1106,14 @@ timer-display span {
             <button id="add-btn-plus" title="Add a new button" class="span-two-columns">Add Sound</button>
             <button id="add-timer-btn">Add Timer</button>
             <button id="add-notepad-btn">Add Note</button>
-            <button id="rearrange-mode-btn"
-                class="span-two-columns">Rearrange</button>
+            <button id="rearrange-mode-btn" class="span-two-columns">Rearrange</button>
             <button id="upload-config-btn">Upload</button>
             <button id="download-config-btn">Download</button>
             <button id="switch-board-btn" class="span-two-columns">Switch
                 Board</button>
             <button id="cosmetics-btn">Cosmetics</button>
             <button id="db-manager-btn">Storage</button>
-            
+
 
         </div>
     </div>
@@ -949,18 +1175,13 @@ timer-display span {
                 <ul id="file-list" class="file-list"></ul>
                 <div class="modal-actions-row">
                     <button id="remove-button-modal" class="danger">Delete Button</button>
-                    <button id="clear-files-btn"
-                        style="margin-left:auto; background-color:var(--highlight-color); color:var(--primary-color)">Clear
+                    <button id="clear-files-btn" class="highlight-color">Clear
                         All</button>
                 </div>
             </div>
 
-
-
         </div>
     </div>
-
-
 
     <div id="db-manager-modal" class="modal">
         <div class="modal-content">
@@ -995,7 +1216,7 @@ timer-display span {
             </div>
 
             <div class="modal-section">
-        </div>
+            </div>
 
             <div class="modal-section">
                 <button id="clear-database-btn" class="danger">Delete Everything & Try Again</button>
@@ -1017,36 +1238,84 @@ timer-display span {
                 <h4>Color Palette</h4>
                 <div class="color-palette-grid">
 
-                    <div class="color-picker-group color-box">
+                    <div class="color-box">
                         <input type="color" id="primary-color-picker" data-css-var="--primary-color">
-                        <label for="primary-color-picker">Dark Text</label>
+                        <label for="primary-color-picker" style="color:var(--primary-color-text)">Dark Text</label>
                     </div>
-                    <div class="color-picker-group color-box">
+                    <div class="color-box">
                         <input type="color" id="secondary-color-picker" data-css-var="--secondary-color">
-                        <label for="secondary-color-picker">Light Text</label>
+                        <label for="secondary-color-picker" style="color:var(--secondary-color-text)">Light Text</label>
                     </div>
-                    <div class="color-picker-group color-box">
+                    <div class="color-box">
                         <input type="color" id="panel-color-picker" data-css-var="--panel-color">
-                        <label for="panel-color-picker">Panel</label>
+                        <label for="panel-color-picker" style="color:var(--panel-color-text)">Panel</label>
                     </div>
-                    <div class="color-picker-group color-box">
+                    <div class="color-box">
                         <input type="color" id="background-color-picker" data-css-var="--background-color">
-                        <label for="background-color-picker">Background</label>
+                        <label for="background-color-picker"
+                            style="color:var(--background-color-text)">Background</label>
                     </div>
-                    <div class="color-picker-group color-box">
+                    <div class="color-box">
                         <input type="color" id="accent-color-picker" data-css-var="--accent-color">
-                        <label for="accent-color-picker">Accent</label>
+                        <label for="accent-color-picker" style="color:var(--accent-color-text)">Accent</label>
                     </div>
-                    <div class="color-picker-group color-box">
+                    <div class="color-box">
                         <input type="color" id="highlight-color-picker" data-css-var="--highlight-color">
-                        <label for="highlight-color-picker">Highlight</label>
+                        <label for="highlight-color-picker" style="color:var(--highlight-color-text)">Highlight</label>
                     </div>
-                    <button id="delete-cosmetics-key-btn" class="danger">Reset Appearance</button>
+
+                    <button id="delete-cosmetics-key-btn" class="danger span-three-columns">Reset Current
+                        Appearance</button>
+                </div>
+
+            </div>
+
+            <div class="modal-section">
+                <h4>Save Current Theme</h4>
+                <div class="title-and-color">
+                    <input type="text" id="save-theme-name-input" placeholder="Enter theme name...">
+                    <button id="save-theme-btn" class="accent-color" style="padding: 0.5rem 1rem;">Save</button>
                 </div>
             </div>
-        </div>
 
+            <div class="modal-section">
+                <h4>My Themes</h4>
+                <ul id="theme-library-list" class="file-list">
+                    <li><small>No saved themes yet.</small></li>
+                </ul>
+            </div>
+
+            <div class="modal-section">
+                <h4>Manage Themes</h4>
+                <div class="color-palette-buttons">
+                    <button id="download-theme-btn" class="accent-color">Download Current</button>
+                    <button id="upload-theme-btn" class="highlight-color">Upload Single</button>
+                    <div>
+                        <h4>|</h4>
+                    </div>
+                    <button id="download-library-btn" class="accent-color">Download Library</button>
+                    <button id="upload-library-btn" class="highlight-color">Upload Library</button>
+
+                </div>
+                <input type="file" id="upload-theme-input" accept="application/json" style="display: none;">
+                <input type="file" id="upload-themelibrary-input" accept="application/json" style="display: none;">
+            </div>
+
+        </div>
     </div>
+
+    <template id="theme-list-item-template">
+        <li>
+            <span class="theme-name"></span>
+            <div class="theme-list-buttons">
+                <button class="apply-theme-btn primary-color"><span>Apply</span></button>
+                <button class="download-theme-btn accent-color"><span>Download</span></button>
+                <button class="rename-theme-btn highlight-color"><span>Rename</span></button>
+                <button class="delete-theme-btn danger"><span>Delete</span></button>
+            </div>
+        </li>
+    </template>
+
     <div id="board-switcher-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1067,7 +1336,693 @@ timer-display span {
 
         </div>
     </div>
-    <script>
+    <script name="ThemeManager-Class">
+        /**
+         * Manages all aspects of the soundboard's appearance, including the current
+         * board's theme and the global library of saved themes.
+         */
+        /**
+         * Manages all aspects of the cosmetics modal, including its UI,
+         * event listeners, and all data interactions for themes.
+         */
+        class ThemeManager {
+            // Constants for database keys
+            static COSMETICS_KEY = 'cosmetics-config';
+            static THEME_LIBRARY_KEY = 'theme-library';
+
+            constructor(db, defaultDb, soundboardManager) {
+                // Core dependencies
+                this.db = db;
+                this.defaultDb = defaultDb;
+                this.soundboardManager = soundboardManager; // For confirm modals
+
+                // Data state
+                this.cosmeticsData = null;
+                this.debouncedSave = debounce(() => this.saveCurrentCosmetics(), 300);
+
+                // UI Element References
+                this.modal = document.getElementById('cosmetics-modal');
+                this.fontInput = document.getElementById('font-input');
+                this.colorPickers = this.modal.querySelectorAll('input[type="color"]');
+                this.saveThemeNameInput = document.getElementById('save-theme-name-input');
+                this.themeList = document.getElementById('theme-library-list');
+                this.uploadThemeInput = document.getElementById('upload-theme-input');
+                this.uploadThemeLibraryInput = document.getElementById('upload-themelibrary-input');
+
+                // This single call sets up all modal interactivity.
+                this._attachListeners();
+            }
+
+            /**
+             * Initializes the manager by loading the current board's cosmetics.
+             */
+            async init() {
+                await Promise.all([
+                    this.db.openDB(),
+                    this.defaultDb.openDB()
+                ]);
+                await this.loadCurrentCosmetics();
+            }
+
+            /**
+             * Attaches all necessary event listeners for the cosmetics modal.
+             * This keeps the setup logic contained within the class.
+             */
+            _attachListeners() {
+                this.modal.addEventListener('click', (e) => {
+                    if (e.target.id === 'cosmetics-modal') this.close();
+                });
+
+                this.colorPickers.forEach(input => {
+                    input.addEventListener('input', (e) => this.updateColor(e.target.dataset.cssVar, e.target.value));
+                });
+                this.fontInput.addEventListener('change', (e) => this.updateFont(e.target.value));
+
+                // THEME MANAGEMENT
+                document.getElementById('download-theme-btn').addEventListener('click', () => this.downloadCurrentTheme());
+                document.getElementById('upload-theme-btn').addEventListener('click', () => this.uploadThemeInput.click());
+                this.uploadThemeInput.addEventListener('change', (e) => this._handleThemeUpload(e));
+
+                document.getElementById('download-library-btn').addEventListener('click', () => this.downloadThemeLibrary());
+                document.getElementById('upload-library-btn').addEventListener('click', () => this.uploadThemeLibraryInput.click());
+                this.uploadThemeLibraryInput.addEventListener('change', (e) => this._handleLibraryUpload(e));
+
+                document.getElementById('delete-cosmetics-key-btn').addEventListener('click', () => this._handleResetCosmetics());
+
+                document.getElementById('save-theme-btn').addEventListener('click', () => this._handleSaveTheme());
+                this.themeList.addEventListener('click', (e) => {
+                    const button = e.target.closest('button');
+                    if (!button) return;
+                    
+                    const themeId = button.dataset.themeId;
+                    if (!themeId) return;
+                    if (button.classList.contains('apply-theme-btn')) this._handleApplyTheme(themeId);
+                    if (button.classList.contains('rename-theme-btn')) this._handleRenameTheme(themeId)
+                    if (button.classList.contains('download-theme-btn')) this.downloadSpecificTheme(themeId);
+                    if (button.classList.contains('delete-theme-btn')) this._handleDeleteTheme(themeId);
+                });
+            }
+
+            // ================================================================
+            // PUBLIC UI Methods (Called from SoundboardManager)
+            // ================================================================
+
+            open() {
+                this._updateModalInputs();
+                this._renderThemeList();
+                this.modal.style.display = 'flex';
+            }
+
+            close() {
+                this.modal.style.display = 'none';
+            }
+
+            // ================================================================
+            // INTERNAL UI Handlers and Renderers
+            // ================================================================
+
+            _updateModalInputs() {
+                const { colors, fontFamily } = this.cosmeticsData;
+                this.colorPickers.forEach(input => {
+                    const cssVar = input.dataset.cssVar;
+                    if (colors[cssVar]) input.value = colors[cssVar];
+                });
+                this.fontInput.value = fontFamily;
+            }
+
+            async _renderThemeList() {
+                const template = document.getElementById('theme-list-item-template');
+                const themes = await this.getThemeLibrary();
+
+                this.themeList.innerHTML = ''; // Clear the list first
+                const themeIds = Object.keys(themes);
+
+                if (themeIds.length === 0) {
+                    this.themeList.innerHTML = '<li><small>No saved themes yet.</small></li>';
+                    return;
+                }
+
+                themeIds.forEach(themeId => {
+                    const theme = themes[themeId];
+                    // Create a new copy of the template for each theme
+                    const clone = template.content.cloneNode(true);
+
+                    // Find the elements inside the cloned template
+                    const nameSpan = clone.querySelector('.theme-name');
+                    const applyBtn = clone.querySelector('.apply-theme-btn');
+                    const renameBtn = clone.querySelector('.rename-theme-btn');
+                    const downloadBtn = clone.querySelector('.download-theme-btn');
+                    const deleteBtn = clone.querySelector('.delete-theme-btn');
+
+                    // Populate the elements with the correct data
+                    nameSpan.textContent = theme.name;
+                    applyBtn.dataset.themeId = themeId;
+                    renameBtn.dataset.themeId = themeId;
+                    downloadBtn.dataset.themeId = themeId;
+                    deleteBtn.dataset.themeId = themeId;
+
+                    // Add the finished item to the list
+                    this.themeList.appendChild(clone);
+                });
+            }
+
+            async _handleResetCosmetics() {
+                const confirmed = await this.soundboardManager.showConfirmModal('Are you sure you want to reset appearance settings? This cannot be undone.');
+                if (confirmed) this.resetCurrentCosmetics();
+            }
+
+            async _handleLibraryUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                // The confirmation message is now much clearer
+                const confirmed = await this.soundboardManager.showConfirmModal("This will overwrite your entire theme library with the contents of this file. Are you sure?");
+
+                if (confirmed) {
+                    const success = await this.uploadThemeLibrary(file);
+                    if (success) {
+                        // Refresh the list to show the newly uploaded themes
+                        await this._renderThemeList();
+                    } else {
+                        alert("Failed to read file. Please ensure it is a valid theme library JSON file.");
+                    }
+                }
+                event.target.value = ''; // Reset file input
+            }
+
+            async _handleThemeUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                // The confirmation message is now much clearer
+                const applyNow = await this.soundboardManager.showConfirmModal(`Uploaded Theme: ${file.name}. Apply Now?`);
+                const success = await this.uploadTheme(file, applyNow);
+                if (success) {
+                    // Refresh the list to show the newly uploaded themes
+                    await this._renderThemeList();
+                } else {
+                    alert("Failed to read file. Please ensure it is a valid theme library JSON file.");
+                }
+
+
+            }
+
+            async _handleSaveTheme() {
+                const themeName = this.saveThemeNameInput.value.trim();
+                if (!themeName) {
+                    alert('Please enter a name for your theme.');
+                    return;
+                }
+                await this.saveThemeToLibrary(themeName);
+                this.saveThemeNameInput.value = '';
+                this._renderThemeList();
+            }
+
+            async _handleApplyTheme(themeId) {
+                const appliedThemeName = await this.applyThemeFromLibrary(themeId);
+                if (appliedThemeName) {
+                    this._updateModalInputs();
+                }
+            }
+
+            async _handleDeleteTheme(themeId) {
+                const themes = await this.getThemeLibrary();
+                const themeName = themes[themeId]?.name || 'this theme';
+                const confirmed = await this.soundboardManager.showConfirmModal(`Delete "${themeName}" from your library?`);
+                if (confirmed) {
+                    await this.deleteThemeFromLibrary(themeId);
+                    this._renderThemeList();
+                }
+            }
+
+            async _handleRenameTheme(themeId) {
+                const themes = await this.getThemeLibrary();
+                const currentName = themes[themeId]?.name;
+                if (!currentName) return;
+
+                const newName = prompt("Enter a new name for the theme:", currentName);
+
+                if (newName && newName.trim() !== currentName) {
+                    const success = await this.renameTheme(themeId, newName.trim());
+                    if (success) {
+                        // If the rename was successful, re-render the list to show the change
+                        await this._renderThemeList();
+                    }
+                }
+            }
+
+
+            // ================================================================
+            // DATA MANAGEMENT Methods (The "Model" part of the class)
+            // ================================================================
+
+
+            /**
+             * Loads the cosmetic configuration from the current board's database.
+             * If none exists, it creates and saves a default configuration.
+             */
+            async loadCurrentCosmetics() {
+                let data = await this.db.get(ThemeManager.COSMETICS_KEY);
+                if (!data) {
+                    data = {
+                        id: ThemeManager.COSMETICS_KEY,
+                        fontFamily: 'Wellfleet',
+                        colors: {
+                            '--background-color': '#f7fafc',
+                            '--panel-color': '#e3f0ff',
+                            '--accent-color': '#33a367',
+                            '--highlight-color': '#ff914d',
+                            '--primary-color': '#234e70',
+                            '--secondary-color': '#e7e7e7',
+                        },
+                        themeName: null
+                    };
+                    await this.db.save(data.id, data);
+                }
+                this.cosmeticsData = data;
+                this.applyCosmetics();
+
+            }
+
+            /**
+             * Applies the current in-memory cosmeticsData to the document's styles.
+             */
+            applyCosmetics() {
+                if (!this.cosmeticsData) return;
+
+                const root = document.documentElement;
+                const { colors, fontFamily } = this.cosmeticsData;
+
+                // Apply base colors
+                for (const [key, value] of Object.entries(colors)) {
+                    root.style.setProperty(key, value);
+                }
+
+                // Dynamically set contrasting text colors
+                const darkText = colors['--primary-color'];
+                const lightText = colors['--secondary-color'];
+                const setContrast = (bgVar, textVar) => {
+                    const bgColor = colors[bgVar];
+                    const luminance = (0.299 * parseInt(bgColor.substr(1, 2), 16) + 0.587 * parseInt(bgColor.substr(3, 2), 16) + 0.114 * parseInt(bgColor.substr(5, 2), 16)) / 255;
+                    root.style.setProperty(textVar, luminance > 0.5 ? darkText : lightText);
+                };
+
+                setContrast('--panel-color', '--panel-color-text');
+                setContrast('--accent-color', '--accent-color-text');
+                setContrast('--highlight-color', '--highlight-color-text');
+                setContrast('--primary-color', '--primary-color-text');
+                setContrast('--background-color', '--background-color-text');
+                setContrast('--secondary-color', '--secondary-color-text');
+
+                // Apply font
+                loadGoogleFonts([fontFamily]);
+                root.style.setProperty('--font-family-primary', `'${fontFamily}', sans-serif`);
+            }
+
+            /**
+             * Saves the current cosmeticsData to the current board's database.
+             */
+            async saveCurrentCosmetics() {
+                await this.db.save(this.cosmeticsData.id, this.cosmeticsData);
+            }
+
+            /**
+             * Updates a specific color value, applies it, and saves.
+             * @param {string} cssVar - The CSS variable for the color (e.g., '--panel-color').
+             * @param {string} value - The new hex color value.
+             */
+            updateColor(cssVar, value) {
+                this.cosmeticsData.colors[cssVar] = value;
+                this.cosmeticsData.themeName = null;
+                this.applyCosmetics();
+                this.debouncedSave();
+            }
+
+            /**
+             * Updates the font family, applies it, and saves.
+             * @param {string} fontFamily - The name of the new font.
+             */
+            updateFont(fontFamily) {
+                this.cosmeticsData.fontFamily = fontFamily.trim();
+                this.cosmeticsData.themeName = null;
+                this.applyCosmetics();
+
+                this.saveCurrentCosmetics(); // Save immediately for fonts
+            }
+
+            /**
+             * Resets the current board's appearance to default by deleting its config.
+             */
+            async resetCurrentCosmetics() {
+                await this.db.delete(ThemeManager.COSMETICS_KEY);
+                // Reload the page to apply the default settings cleanly.
+                window.location.reload();
+            }
+
+
+            // ================================================================
+            // Methods for the GLOBAL Theme Library
+            // ================================================================
+
+            /*
+            * Retrieves the theme library. If no library exists, it creates
+            * and saves a default library for the user.
+            * @returns {Promise<object>} An object containing all saved themes.
+            */
+            async getThemeLibrary() {
+                let libraryData = await this.defaultDb.get(ThemeManager.THEME_LIBRARY_KEY);
+
+                // If no library exists in the database...
+                if (!libraryData) {
+                    console.log("No theme library found. Creating default library.");
+                    // This is the default theme object you provided.
+                    const defaultLibrary = {
+                        id: "theme-library",
+                        themes: {
+                            "default-moss": {
+                                name: "Default Moss",
+                                fontFamily: "Wellfleet",
+                                colors: {
+                                    "--background-color": "#f7fafc",
+                                    "--panel-color": "#e3f0ff",
+                                    "--accent-color": "#33a367",
+                                    "--highlight-color": "#ff914d",
+                                    "--primary-color": "#234e70",
+                                    "--secondary-color": "#e7e7e7"
+                                }
+                            },
+                            "solarized-bug": {
+                                name: "Solarized Bug",
+                                fontFamily: "Wellfleet",
+                                colors: {
+                                    "--background-color": "#385b71",
+                                    "--panel-color": "#9fc6c6",
+                                    "--accent-color": "#4a8c6a",
+                                    "--highlight-color": "#ff914d",
+                                    "--primary-color": "#1f2e42",
+                                    "--secondary-color": "#d0d0a9"
+                                }
+                            }
+                        }
+                    };
+
+                    // Save the new default library to the database.
+                    await this.defaultDb.save(ThemeManager.THEME_LIBRARY_KEY, defaultLibrary);
+
+                    // Set libraryData to our new default so the rest of the app can use it immediately.
+                    libraryData = defaultLibrary;
+                }
+
+                return libraryData.themes;
+            }
+
+            /**
+             * Saves the current board's theme to the global library.
+             * @param {string} themeName - The user-provided name for the theme.
+             */
+            async saveThemeToLibrary(themeName) {
+                const themeId = slugify(themeName);
+                const allThemes = await this.getThemeLibrary();
+
+                allThemes[themeId] = {
+                    name: themeName,
+                    fontFamily: this.cosmeticsData.fontFamily,
+                    colors: this.cosmeticsData.colors
+                };
+
+                await this.defaultDb.save(ThemeManager.THEME_LIBRARY_KEY, {
+                    id: ThemeManager.THEME_LIBRARY_KEY,
+                    themes: allThemes
+                });
+            }
+
+            /**
+             * Deletes a theme from the global library.
+             * @param {string} themeId - The slugified ID of the theme to delete.
+             */
+            async deleteThemeFromLibrary(themeId) {
+                const allThemes = await this.getThemeLibrary();
+                if (allThemes[themeId]) {
+                    delete allThemes[themeId];
+                    await this.defaultDb.save(ThemeManager.THEME_LIBRARY_KEY, {
+                        id: ThemeManager.THEME_LIBRARY_KEY,
+                        themes: allThemes
+                    });
+                }
+            }
+
+            /**
+             * Applies a theme from the library to the current board.
+             * @param {string} themeId - The slugified ID of the theme to apply.
+             */
+            async applyThemeFromLibrary(themeId) {
+                const themes = await this.getThemeLibrary();
+                const themeToApply = themes[themeId];
+
+                if (!themeToApply) {
+                    console.error("Theme not found:", themeId);
+                    return;
+                }
+
+                // Overwrite the current in-memory theme
+                this.cosmeticsData.colors = themeToApply.colors;
+                this.cosmeticsData.fontFamily = themeToApply.fontFamily;
+
+                this.applyCosmetics();
+                await this.saveCurrentCosmetics(); // Save the newly applied theme to this board
+
+                this.cosmeticsData.themeName = themeToApply.name;
+                return themeToApply.name;
+            }
+
+            /**
+            * Downloads the entire theme library as a single JSON file.
+            */
+            async downloadThemeLibrary() {
+                const themes = await this.getThemeLibrary();
+                if (Object.keys(themes).length === 0) {
+                    alert("There are no saved themes in your library to download.");
+                    return;
+                }
+
+                // The data we want to save is the entire 'themes' object.
+                const dataToSave = {
+                    id: ThemeManager.THEME_LIBRARY_KEY, // Keep the key for validation
+                    themes: themes
+                };
+
+                const json = JSON.stringify(dataToSave, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ReallySimpleSoundboard Theme Library_${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                alert("Theme library downloaded successfully.");
+
+            }
+
+            /**
+             * Reads a JSON file and overwrites the entire theme library with its content.
+             * @param {File} file - The file object from the input element.
+             * @returns {Promise<boolean>} True if the upload was successful, false otherwise.
+             */
+            uploadThemeLibrary(file) {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        try {
+                            const uploadedData = JSON.parse(e.target.result);
+
+                            // Perform validation to ensure it's a valid library file.
+                            if (!uploadedData.id || uploadedData.id !== ThemeManager.THEME_LIBRARY_KEY || typeof uploadedData.themes !== 'object') {
+                                throw new Error("Invalid or corrupted theme library file.");
+                            }
+
+                            // Overwrite the existing library with the uploaded data.
+                            await this.defaultDb.save(ThemeManager.THEME_LIBRARY_KEY, uploadedData);
+
+                            resolve(true); // Indicate success
+                        } catch (err) {
+                            console.error("Theme library upload error:", err);
+                            resolve(false); // Indicate failure
+                        }
+                    };
+                    reader.onerror = () => resolve(false);
+                    reader.readAsText(file);
+                });
+            }
+
+            async downloadCurrentTheme() {
+                let themeName = this.cosmeticsData.themeName;
+
+                // If the theme is "dirty" (unnamed), we need to prompt the user.
+                if (!themeName) {
+                    const timestamp = new Date().toISOString().slice(0, 10); // e.g., "2025-08-23"
+                    const suggestedName = `${this.soundboardManager.boardName}_Theme ${timestamp}`;
+
+                    // Use the browser's built-in prompt to ask the user for a name.
+                    themeName = prompt("This is an unsaved theme. Please provide a name to save and download it.", suggestedName);
+
+                    // If the user clicks "Cancel" in the prompt, stop the entire process.
+                    if (!themeName) {
+                        return;
+                    }
+
+                    // Since we have a new name, save this theme to the library.
+                    await this.saveThemeToLibrary(themeName);
+
+                    // Update our state to remember the name of this newly saved theme.
+                    this.cosmeticsData.themeName = themeName;
+
+                    // Refresh the list in the UI so the user can see their new theme.
+                    await this._renderThemeList();
+                }
+
+                // Now, proceed with the download using the determined theme name.
+                const json = JSON.stringify(this.cosmeticsData, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+
+                // Use the "slugify" helper for a clean, web-safe filename.
+                a.download = `RSS_Theme_${slugify(themeName)}.json`;
+
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            // In ThemeManager, DELETE downloadCurrentTheme and ADD this method:
+            /**
+             * Downloads a specific theme from the library as a JSON file.
+             * @param {string} themeId - The slugified ID of the theme to download.
+             */
+            async downloadSpecificTheme(themeId) {
+                const allThemes = await this.getThemeLibrary();
+                const themeToDownload = allThemes[themeId];
+
+                if (!themeToDownload) {
+                    alert("Could not find the selected theme to download.");
+                    return;
+                }
+
+                // Create a data structure similar to a standard cosmetics object for consistency
+                const dataToSave = {
+                    id: ThemeManager.COSMETICS_KEY,
+                    fontFamily: themeToDownload.fontFamily,
+                    colors: themeToDownload.colors,
+                    themeName: themeToDownload.name // Include the name
+                };
+
+                const json = JSON.stringify(dataToSave, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `RSS_Theme_${slugify(themeToDownload.name)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            uploadTheme(file, applyNow = true) {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        try {
+                            const uploadedData = JSON.parse(e.target.result);
+                            if (!uploadedData.id || !uploadedData.colors || !uploadedData.fontFamily) {
+                                throw new Error("Invalid theme file structure.");
+                            }
+
+                            const themeName = uploadedData.themeName || `Imported Theme - ${file.name}`;
+                            const themeId = slugify(themeName);
+                            const allThemes = await this.getThemeLibrary();
+
+                            
+                            // Check if a theme with this ID already exists.
+                            if (allThemes[themeId]) {
+                                const confirmed = await this.soundboardManager.showConfirmModal(`A theme named "${themeName}" already exists. Do you want to overwrite it?`);
+                                if (!confirmed) {
+                                    resolve(false); // User canceled, resolve as failure.
+                                    return;
+                                }
+                            }
+
+                            const themeToSave = {
+                                name: themeName,
+                                fontFamily: uploadedData.fontFamily,
+                                colors: uploadedData.colors
+                            };
+
+                            // Save the theme to the library.
+                            allThemes[themeId] = themeToSave;
+                            await this.defaultDb.save(ThemeManager.THEME_LIBRARY_KEY, {
+                                id: ThemeManager.THEME_LIBRARY_KEY,
+                                themes: allThemes
+                            });
+
+                            // Apply if requested.
+                            if (applyNow) {
+                                this.cosmeticsData = uploadedData;
+                                this.cosmeticsData.themeName = themeName;
+                                this.applyCosmetics();
+                                await this.saveCurrentCosmetics();
+                            }
+
+                            resolve(true); // Success
+                        } catch (err) {
+                            console.error("Theme upload error:", err);
+                            resolve(false); // Failure
+                        }
+                    };
+                    reader.onerror = () => resolve(false);
+                    reader.readAsText(file);
+                });
+            }
+
+            /**
+             * Renames a theme in the global library.
+             * @param {string} oldThemeId - The original, slugified ID of the theme.
+             * @param {string} newThemeName - The new, user-provided name for the theme.
+             * @returns {Promise<boolean>} True if rename was successful, false otherwise.
+             */
+            async renameTheme(oldThemeId, newThemeName) {
+                const newThemeId = slugify(newThemeName);
+                if (!newThemeName || oldThemeId === newThemeId) {
+                    return false; // Do nothing if the name is empty or unchanged
+                }
+
+                const allThemes = await this.getThemeLibrary();
+                if (allThemes[newThemeId]) {
+                    alert(`A theme with the name "${newThemeName}" already exists.`);
+                    return false;
+                }
+
+                if (allThemes[oldThemeId]) {
+                    // Copy the data to a new key and then delete the old one
+                    allThemes[newThemeId] = { ...allThemes[oldThemeId], name: newThemeName };
+                    delete allThemes[oldThemeId];
+
+                    await this.defaultDb.save(ThemeManager.THE_LIBRARY_KEY, {
+                        id: ThemeManager.THEME_LIBRARY_KEY,
+                        themes: allThemes
+                    });
+                    return true;
+                }
+                return false;
+            }
+        }
+    </script>
+    <script name="helper-functions">
 
         function formatIdAsTitle(id) {
             if (!id) return '';
@@ -1079,14 +2034,14 @@ timer-display span {
         }
 
         function debounce(func, delay) {
-                let timeoutId;
-                return function (...args) {
-                    clearTimeout(timeoutId);
-                    timeoutId = setTimeout(() => {
-                        func.apply(this, args);
-                    }, delay);
-                };
-            }
+            let timeoutId;
+            return function (...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    func.apply(this, args);
+                }, delay);
+            };
+        }
 
         function slugify(text) {
             return text.toString().toLowerCase().trim()
@@ -1096,28 +2051,125 @@ timer-display span {
         }
 
         function loadGoogleFonts(fontNames) {
-                if (!fontNames || fontNames.length === 0) {
-                    console.warn("No font names provided to loadGoogleFonts.");
-                    return;
+            if (!fontNames || fontNames.length === 0) {
+                console.warn("No font names provided to loadGoogleFonts.");
+                return;
+            }
+
+            const FONT_STYLESHEET_ID = 'google-fonts-stylesheet';
+
+            // Check for and remove the old font link, if it exists
+            const oldLink = document.getElementById(FONT_STYLESHEET_ID);
+            if (oldLink) {
+                oldLink.remove();
+            }
+
+            // Create and add the new font link
+            const formattedNames = fontNames.map(name => name.replace(/\s+/g, '+'));
+            const fontUrl = `https://fonts.googleapis.com/css?family=${formattedNames.join('|')}&display=swap`;
+            const link = document.createElement('link');
+            link.id = FONT_STYLESHEET_ID; // Give the new link a consistent ID
+            link.href = fontUrl;
+            link.rel = 'stylesheet';
+            document.head.appendChild(link);
+        };
+
+
+        function getAdvancedContrastColor(bgHex) {
+            // Helper function to convert Hex to RGB
+            const hexToRgb = (hex) => {
+                let r = 0, g = 0, b = 0;
+                // 3 digits
+                if (hex.length == 4) {
+                    r = "0x" + hex[1] + hex[1];
+                    g = "0x" + hex[2] + hex[2];
+                    b = "0x" + hex[3] + hex[3];
+                    // 6 digits
+                } else if (hex.length == 7) {
+                    r = "0x" + hex[1] + hex[2];
+                    g = "0x" + hex[3] + hex[4];
+                    b = "0x" + hex[5] + hex[6];
                 }
-
-                const FONT_STYLESHEET_ID = 'google-fonts-stylesheet';
-
-                // Check for and remove the old font link, if it exists
-                const oldLink = document.getElementById(FONT_STYLESHEET_ID);
-                if (oldLink) {
-                    oldLink.remove();
-                }
-
-                // Create and add the new font link
-                const formattedNames = fontNames.map(name => name.replace(/\s+/g, '+'));
-                const fontUrl = `https://fonts.googleapis.com/css?family=${formattedNames.join('|')}&display=swap`;
-                const link = document.createElement('link');
-                link.id = FONT_STYLESHEET_ID; // Give the new link a consistent ID
-                link.href = fontUrl;
-                link.rel = 'stylesheet';
-                document.head.appendChild(link);
+                return [parseInt(r), parseInt(g), parseInt(b)];
             };
+
+            // Helper function to convert RGB to HSL
+            const rgbToHsl = (r, g, b) => {
+                r /= 255; g /= 255; b /= 255;
+                let max = Math.max(r, g, b), min = Math.min(r, g, b);
+                let h, s, l = (max + min) / 2;
+
+                if (max == min) {
+                    h = s = 0; // achromatic
+                } else {
+                    let d = max - min;
+                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                    switch (max) {
+                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                        case g: h = (b - r) / d + 2; break;
+                        case b: h = (r - g) / d + 4; break;
+                    }
+                    h /= 6;
+                }
+                return [h, s, l];
+            };
+
+            // Helper function to convert HSL to RGB
+            const hslToRgb = (h, s, l) => {
+                let r, g, b;
+                if (s == 0) {
+                    r = g = b = l; // achromatic
+                } else {
+                    const hue2rgb = (p, q, t) => {
+                        if (t < 0) t += 1;
+                        if (t > 1) t -= 1;
+                        if (t < 1 / 6) return p + (q - p) * 6 * t;
+                        if (t < 1 / 2) return q;
+                        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                        return p;
+                    };
+                    let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                    let p = 2 * l - q;
+                    r = hue2rgb(p, q, h + 1 / 3);
+                    g = hue2rgb(p, q, h);
+                    b = hue2rgb(p, q, h - 1 / 3);
+                }
+                return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+            };
+
+            // Helper function to convert an RGB component to a 2-digit hex string
+            const componentToHex = (c) => {
+                const hex = c.toString(16);
+                return hex.length == 1 ? "0" + hex : hex;
+            };
+
+            // 1. Get RGB values from the hex color
+            const [r, g, b] = hexToRgb(bgHex);
+
+            // 2. Calculate luminance to determine if the color is light or dark
+            // This is the same reliable formula from your original function.
+            const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+            // 3. Convert the background color to HSL for easier manipulation
+            let [h, s, l] = rgbToHsl(r, g, b);
+
+            // 4. The "Magic": Adjust the color
+            if (luminance > 0.5) { // If the background is light...
+                // ...we want a dark text color.
+                l = Math.max(0, l - 0.4); // Drastically reduce lightness
+                s = Math.max(0, s - 0.5); // Desaturate to avoid weird dark colors
+            } else { // If the background is dark...
+                // ...we want a light text color.
+                l = Math.min(1, l + 0.6); // Drastically increase lightness
+                s = Math.max(0, s - 0.4); // Desaturate slightly to avoid overly vibrant light text
+            }
+
+            // 5. Convert the new HSL color back to RGB
+            const [finalR, finalG, finalB] = hslToRgb(h, s, l);
+
+            // 6. Convert the final RGB back to a hex string and return it
+            return `#${componentToHex(finalR)}${componentToHex(finalG)}${componentToHex(finalB)}`;
+        }
 
         function getContrastColor(hexColor) {
             // 1. Remove '#' and convert hex to R, G, B numbers
@@ -1131,6 +2183,8 @@ timer-display span {
             // 3. Return dark or light color based on a threshold
             return luminance > 0.45 ? 'var(--primary-color)' : 'var(--secondary-color)'; // Returns dark for light backgrounds, and vice-versa
         }
+    </script>
+    <script name="ReallySimpleSoundboard">
 
         document.addEventListener('DOMContentLoaded', () => {
 
@@ -1449,7 +2503,7 @@ timer-display span {
 
                     this.addPageButton.addEventListener('click', () => this.addPage());
 
-                    
+
 
                     this.tabsContainer.addEventListener('click', (e) => {
                         // First, handle the delete button action
@@ -1510,7 +2564,7 @@ timer-display span {
                     this.saveState();
                 }
 
-                
+
 
                 async deletePage(index) {
                     // If there is more than one page, just delete the page
@@ -1566,7 +2620,7 @@ timer-display span {
                         deleteBtn.className = 'delete-page-btn';
                         deleteBtn.textContent = 'X';
 
-                        
+
                         tab.appendChild(deleteBtn);
                         tab.appendChild(tabTitle);
 
@@ -1589,7 +2643,7 @@ timer-display span {
                     // TITLE AND DISPLAY
                     this.timerTitle = this.cardElement.querySelector('.timer-title');
                     this.timerDisplayContainer = this.cardElement.querySelector('.timer-display');
-                    this.timerDisplay = this.timerDisplayContainer.querySelector('span'); 
+                    this.timerDisplay = this.timerDisplayContainer.querySelector('span');
                     this.timerProgressOverlay = this.cardElement.querySelector('.timer-progress-overlay');
 
                     // BUTTONS
@@ -1615,7 +2669,7 @@ timer-display span {
                     this.timerStartSoundSelect = this.cardElement.querySelector('.timer-start-sound');
                     this.endSoundContainer = this.cardElement.querySelector('.end-sound-container');
                     this.timerEndSoundSelect = this.cardElement.querySelector('.timer-end-sound');
-                    
+
                     this.removeTimerBtn = this.cardElement.querySelector('.remove-timer-btn');
 
                     // --- State Properties ---
@@ -1669,12 +2723,12 @@ timer-display span {
                     this.timerMinutesValue.addEventListener('blur', (e) => this.handleManualTimeInput(e));
                     this.timerSecondsValue.addEventListener('blur', (e) => this.handleManualTimeInput(e));
 
-                    
 
-                    
+
+
                 }
 
-                
+
 
                 destroy() {
                     if (this.animationFrameId) {
@@ -1719,12 +2773,12 @@ timer-display span {
                 // Event Handlers
                 // ================================================================
 
-                startTimer(){
-                    if (!this.state.isLooping){
+                startTimer() {
+                    if (!this.state.isLooping) {
                         this.prepareEndSound();
                     }
                     this.state.startTime = Date.now();
-                    if (this.state.elapsedMs === 0){ // ONLY play sound on fresh start not every click.
+                    if (this.state.elapsedMs === 0) { // ONLY play sound on fresh start not every click.
                         this.playStartSound();
                     }
                     this.tick();
@@ -1739,7 +2793,7 @@ timer-display span {
                     }
 
                     this.state.isRunning = !this.state.isRunning; // TOGGLE THE RUNNING STATE
-                    
+
                     if (this.state.isRunning) { // REMEMBER WE JUST TOGGLED THE RUNNING STATE
                         this.startTimer();
                     } else {
@@ -1856,7 +2910,7 @@ timer-display span {
                         const remainingMs = this.state.targetDurationMs - currentElapsed;
 
                         // Check for end sound trigger
-                        if (!this.state.isLooping &&  this.state.endSoundId && !this.state.hasPlayedEndSound && remainingMs <= this.state.endSoundDuration) {
+                        if (!this.state.isLooping && this.state.endSoundId && !this.state.hasPlayedEndSound && remainingMs <= this.state.endSoundDuration) {
                             this.playEndSound();
                         }
 
@@ -1895,11 +2949,11 @@ timer-display span {
                     this.timerTitle.textContent = this.state.title;
                     this.timerMinutesRange.value = Math.floor(this.state.targetDurationMs / 60000);
                     this.timerSecondsRange.value = Math.floor((this.state.targetDurationMs % 60000) / 1000);
-                    
-                        this.timerMinutesValue.value = this.timerMinutesRange.value;
-                    
-                        this.timerSecondsValue.value = this.timerSecondsRange.value;
-                    
+
+                    this.timerMinutesValue.value = this.timerMinutesRange.value;
+
+                    this.timerSecondsValue.value = this.timerSecondsRange.value;
+
                     this.hideOptionsToggle.checked = this.state.optionsHidden;
                     this.loopCheckbox.checked = this.state.isLooping;
                     this.cardElement.querySelector(`.timer-mode-radio[value="${this.state.mode}"]`).checked = true;
@@ -1908,14 +2962,14 @@ timer-display span {
 
                     // Update dynamic UI elements
                     this.startPauseBtn.textContent = this.state.isRunning ? 'Pause' : 'Start';
-                    this.startPauseBtn.style.backgroundColor = this.state.isRunning? 'var(--primary-color)' : 'var(--accent-color)'
-                    this.startPauseBtn.style.color = this.state.isRunning? 'var(--primary-color-text)' : 'var(--accent-color-text)'
+                    this.startPauseBtn.style.backgroundColor = this.state.isRunning ? 'var(--primary-color)' : 'var(--accent-color)'
+                    this.startPauseBtn.style.color = this.state.isRunning ? 'var(--primary-color-text)' : 'var(--accent-color-text)'
                     this.optionsContainers.forEach(c => c.classList.toggle('hidden-options', this.state.optionsHidden));
                     this.timerTitle.contentEditable = !this.state.optionsHidden;
                     this.endSoundContainer.style.display = this.state.isLooping ? 'none' : '';
                     this.startSoundLabel.textContent = this.state.isLooping ? 'Play Sound:' : 'Start with:';
 
-                    
+
                 }
 
                 renderDisplay(currentElapsed = this.state.elapsedMs) {
@@ -1932,8 +2986,8 @@ timer-display span {
                     const seconds = totalSeconds % 60;
                     this.timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-                    if (this.state.mode === 'timer' && msToDisplay > 0 && msToDisplay < 3000){
-                        const progress = 100 - (msToDisplay/3000)*100;
+                    if (this.state.mode === 'timer' && msToDisplay > 0 && msToDisplay < 3000) {
+                        const progress = 100 - (msToDisplay / 3000) * 100;
                         this.timerProgressOverlay.style.width = `${progress}%`;
                     } else {
                         this.timerProgressOverlay.style.width = '0%';
@@ -1945,7 +2999,7 @@ timer-display span {
                     const shouldGlow = isStopwatchFinished || (isTimerFinished && !this.state.isLooping);
 
                     this.cardElement.classList.toggle('hover-glow', shouldGlow);
-                    this.timerDisplay.style.color = shouldGlow ? this.soundboardManager.cosmeticsData.colors['--highlight-color'] : '';
+                    this.timerDisplay.classList.toggle('finished', shouldGlow);
 
 
                 }
@@ -2073,7 +3127,7 @@ timer-display span {
                     });
                 }
             }
-            
+
             // ====================================================================
             // SECTION: Application Manager Class
             // Manages the state and business logic of the soundboard.
@@ -2095,7 +3149,8 @@ timer-display span {
                     this.activeModalIndex = null;
                     this.isRearranging = false;
                     this.draggedItem = null;
-                    this.cosmeticsData = {};
+
+                    this.themeManager = new ThemeManager(this.db, new SoundboardDB('default'), this);
 
                 }
 
@@ -2105,7 +3160,7 @@ timer-display span {
 
                 async _loadBoardData() {
                     await this.loadTitle();
-                    await this.loadCosmetics();
+                    await this.themeManager.init();
                     await this.loadStateFromDB(); // Loads sound buttons
                     await this.loadTimers();
                     await this.loadNotepads();
@@ -2121,6 +3176,7 @@ timer-display span {
                     const urlParams = new URLSearchParams(window.location.search);
                     const boardId = urlParams.get('board') || 'default';
                     await BoardManager.addBoardId(boardId);
+
                     await this._loadBoardData();
                     this.attachGlobalEventListeners();
                     this.renderGrid();
@@ -2160,7 +3216,7 @@ timer-display span {
                         // NEW: If no title is saved, get the board ID from the URL
                         // and use that as the default title.
                         const urlParams = new URLSearchParams(window.location.search);
-                        const boardId = formatIdAsTitle(urlParams.get('board')) || 'The Bug & Moss Simple Soundboard';
+                        const boardId = formatIdAsTitle(urlParams.get('board')) || 'The Bug & Moss "Really Simple" Soundboard';
                         document.getElementById('soundboard-title').textContent = boardId;
                         document.title = boardId + " | B&M RSS";
                     }
@@ -2316,7 +3372,7 @@ timer-display span {
                     }
                 }
 
-                
+
                 async loadStateFromDB() {
                     const soundData = await this.db._dbRequest(this.db.SOUNDS_STORE, 'readonly', 'getAll');
                     let configData = await this.db.get(this.db.CONFIG_KEY);
@@ -2522,38 +3578,8 @@ timer-display span {
                     document.getElementById('loop-checkbox').addEventListener('change', (e) => this.updateModalButtonData('loop', e.target.checked));
 
 
-                    document.getElementById('cosmetics-btn').addEventListener('click', () => this.openCosmeticsModal());
-                    document.getElementById('delete-cosmetics-key-btn').addEventListener('click', () => this.deleteCosmeticsKey());
-                    document.getElementById('file-list').addEventListener('click', (e) => {
-                        // If the clicked element has the 'remove-file-button' class, then act.
-                        if (e.target.classList.contains('remove-file-button')) {
-                            this.removeFileFromModalButton(e);
-                        }
-                    });
-
-                    document.getElementById('cosmetics-modal').addEventListener('click', (event) => {
-                        if (event.target.id === 'cosmetics-modal') {
-                            document.getElementById('cosmetics-modal').style.display = 'none';
-                        }
-                    });
-
-                    document.querySelectorAll('#cosmetics-modal input[type="color"]').forEach(input => {
-                        input.addEventListener('input', (e) => {
-                            const cssVar = e.target.dataset.cssVar;
-                            this.cosmeticsData.colors[cssVar] = e.target.value;
-                            this.applyCosmetics();
-                            this._saveCosmetics();
-                        });
-                    });
-
-                    document.getElementById('font-input').addEventListener('change', (e) => {
-                        const newFont = e.target.value.trim();
-                        if (newFont) {
-                            this.cosmeticsData.fontFamily = newFont;
-                            this.applyCosmetics();
-                            this._saveCosmetics();
-                        }
-                    });
+                    // COSMETICS MODAL LISTENERS
+                    document.getElementById('cosmetics-btn').addEventListener('click', () => this.themeManager.open());
 
                     // HELPFUL BUG
 
@@ -2836,7 +3862,7 @@ timer-display span {
                     if (buttonData.loop) {
                         this.playFile(index, player.playback.currentFileIndex, buttonData.priority);
                     } else if (buttonData.autoplay) {
-                        
+
                         player.playback.currentFileIndex++
                         if (player.playback.currentFileIndex >= buttonData.files.length) {
                             player.playback.currentFileIndex = 0;
@@ -2912,94 +3938,6 @@ timer-display span {
                     return array;
                 }
 
-                // ================================================================
-                // COSMETICS MODAL METHODS
-                // ================================================================
-
-                async loadCosmetics() {
-                    let cosmeticsData = await this.db.get(this.db.COSMETICS_KEY);
-                    if (!cosmeticsData) {
-                        // Default values if no settings are saved
-                        cosmeticsData = {
-                            id: this.db.COSMETICS_KEY,
-                            fontFamily: 'Wellfleet',
-                            colors: {
-                                // SET COLOR THEME HERE - COLOR THEME CONFIG - COLOR VARIABLES
-                                '--background-color': '#f7fafc',
-                                '--panel-color': '#e3f0ff',
-                                '--accent-color': '#33a367',
-                                '--highlight-color': '#ff914d',
-                                '--primary-color': '#234e70', // Dark Text
-                                '--secondary-color': '#e7e7e7', // Light Text
-                            }
-                        };
-                        await this.db.save(cosmeticsData.id, cosmeticsData);
-                    }
-                    this.cosmeticsData = cosmeticsData;
-                    this.applyCosmetics();
-                }
-
-                applyCosmetics() {
-                    const root = document.documentElement;
-                    const colors = this.cosmeticsData.colors;
-
-                    // Set the base colors first
-                    for (const [key, value] of Object.entries(colors)) {
-                        root.style.setProperty(key, value);
-                    }
-
-                    // NEW: Dynamically set contrasting text colors
-                    const darkText = colors['--primary-color'];
-                    const lightText = colors['--secondary-color'];
-
-                    // Helper function to avoid repetition
-                    const setContrast = (bgVar, textVar) => {
-                        const bgColor = colors[bgVar];
-                        const luminance = (0.299 * parseInt(bgColor.substr(1, 2), 16) + 0.587 * parseInt(bgColor.substr(3, 2), 16) + 0.114 * parseInt(bgColor.substr(5, 2), 16)) / 255;
-                        root.style.setProperty(textVar, luminance > 0.5 ? darkText : lightText);
-                    };
-
-                    setContrast('--panel-color', '--panel-color-text');
-                    setContrast('--accent-color', '--accent-color-text');
-                    setContrast('--highlight-color', '--highlight-color-text');
-                    setContrast('--primary-color', '--primary-color-text');
-                    setContrast('--background-color', '--background-color-text');
-                    setContrast('--secondary-color', '--secondary-color-text');
-                    
-                    // Apply font
-                    loadGoogleFonts([this.cosmeticsData.fontFamily]);
-                    root.style.setProperty('--font-family-primary', `'${this.cosmeticsData.fontFamily}', sans-serif`);
-                    
-                    // Update color pickers in the modal
-                    document.querySelectorAll('#cosmetics-modal input[type="color"]').forEach(input => {
-                        const cssVar = input.dataset.cssVar;
-                        if (colors[cssVar]) {
-                            console.log(colors[cssVar])
-                            input.value = colors[cssVar];
-                        }
-                    });
-                    document.getElementById('font-input').value = this.cosmeticsData.fontFamily;
-                }
-
-                async deleteCosmeticsKey() {
-                    const confirmed = await this.showConfirmModal('Are you sure you want to delete all cosmetic settings? This cannot be undone.');
-                    if (confirmed) {
-                        await this.db.delete(this.db.COSMETICS_KEY);
-                        // Reload the page to reset to default settings
-                        window.location.reload();
-                    }
-                }
-
-                async _saveCosmetics() {
-                    await this.db.save(this.cosmeticsData.id, this.cosmeticsData);
-                }
-
-                
-
-                openCosmeticsModal() {
-                    this.applyCosmetics();
-                    document.getElementById('cosmetics-modal').style.display = 'flex';
-                }
 
                 // ================================================================
                 // Settings Modal Methods
@@ -3493,7 +4431,7 @@ timer-display span {
 
                 <div class="accordion-item">
                     <button class="accordion-header active">Really Simple Overview</button>
-                    <div class="accordion-content active"><p>Welcome to the Really Simple Soundboard!
+                    <div class="accordion-content active"><p>Welcome to the "Really Simple" Soundboard!
 
                             I made this for the daily "morning radio" style <a href="https://bugandmoss.com/" target="_blank" rel="noopener noreferrer">podcast</a> that my wife Bug and I make, but then I got carried away...
 
