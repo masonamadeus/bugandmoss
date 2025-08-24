@@ -787,14 +787,14 @@
         .color-palette-grid {
             display: grid;
             /* Use 'repeat' with 'auto-fill' to create a flexible grid */
-            grid-template-columns: repeat(3, minmax(100px, 1fr));
+            grid-template-columns: repeat(auto-fill,  1fr);
             gap: 1rem;
         }
 
         .color-palette-buttons {
             margin-top: 1rem;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             gap: 5%;
         }
@@ -1000,7 +1000,7 @@
 
         .theme-list-buttons {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fill, 1fr);
             padding: 0.25rem;
             font-size: 0.75rem;
         }
