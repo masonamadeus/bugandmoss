@@ -3523,6 +3523,16 @@
                     document.getElementById('settings-modal').addEventListener('click', (event) => {
                         if (event.target.id === 'settings-modal') this.closeSettingsModal();
                     });
+
+                    document.getElementById('file-list').addEventListener('click', (event) => {
+                        // Check if the clicked element is a "remove file" button
+                        if (event.target.classList.contains('remove-file-button')) {
+                            // If so, call the handler method to remove the file
+                            this.removeFileFromModalButton(event);
+                        }
+                    });
+                    
+
                     document.getElementById('db-manager-modal').addEventListener('click', (event) => {
                         if (event.target.id === 'db-manager-modal') this.closeDbManagerModal();
                     });
