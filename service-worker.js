@@ -1,12 +1,12 @@
 // A version number for our cache. Change this string to force an update.
-const CACHE_NAME = 'Bug-And-Moss-Soundboard-v033'; 
+const CACHE_NAME = 'Bug-And-Moss-Soundboard-v034'; 
 
 // The list of files that make up the "app shell".
 const urlsToCache = [
   './soundboard.html',
   // Add icon files to make sure they are available offline too
-  './android-chrome-192x192.png',
-  './android-chrome-512x512.png'
+  './icons/android-chrome-192x192.png',
+  './icons/android-chrome-512x512.png'
 ];
 
 // The 'install' event is fired when the service worker is first registered.
