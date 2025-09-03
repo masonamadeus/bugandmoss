@@ -3827,7 +3827,7 @@
                                 const duckedPlayerButtonData = this.buttonsData[duckedPlayerIndex];
 
                                 // Only restore volume on sounds that were actually ducked (i.e., non-priority and still playing).
-                                if (duckedPlayer.isPlaying && !duckedPlayerButtonData.priority) {
+                                if (!duckedPlayerButtonData.priority) {
                                     const targetVolume = duckedPlayerButtonData.volume;
                                     const slider = this._getVolumeSlider(duckedPlayerIndex);
                                     this._lerpVolume(duckedPlayer.audio, slider, duckedPlayer.audio.volume, targetVolume, duckedPlayer.fadeSpeed);
