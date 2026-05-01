@@ -1,0 +1,21 @@
+[
+    {
+        "title": "The Morning Telephone",
+        "entries": [
+            { "name": "The Podcast", "number": "1994", "url": "/podcast" },
+            { "name": "Patreon", "number": "0426", "url": "https://patreon.com/bugandmoss" },
+            { "name": "Discord", "number": "8486677", "url": "https://discord.gg/MGJJJ5ZdpM" },
+            { "name": "Twitch", "number": "1111", "url": "https://twitch.tv/bugandmoss" },
+            { "name": "YouTube", "number": "2222", "url": "https://youtube.com/@bugandmosstv" },
+            { "name": "Instagram", "number": "3333", "url": "https://instagram.com/848mossbug" },
+            { "name": "Soundboard", "number": "80085", "url": "/soundboard.html" }
+        ]
+    },
+    {
+        "title": "Cool Friends",
+        "entries": [
+            { "name": "Colin M Parker", "number": "7777", "url": "https://twitch.tv/colinmparker" },
+            { "name": "Side Character Quest", "number": "2020", "url": "https://sidecharacterquest.com/" }
+        ]
+    }
+]

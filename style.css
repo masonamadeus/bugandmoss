@@ -1,0 +1,653 @@
+:root {
+    --bg-desk: #4b6d59;
+    
+    /* Updated medium-opacity grey shadows */
+    --hard-shadow: 8px 8px 0px rgba(0, 0, 0, 0.4);
+    --hard-shadow-hover: 12px 12px 0px rgba(0, 0, 0, 0.3);
+    
+    /* Cartoon Colors */
+    --color-tv: #95c7ff;
+    --color-patreon: #ff914d;
+    --color-twitch: #c195ff;
+    --color-youtube: #ff6b6b;
+    --color-insta: #ff9ee2;
+    --color-tiktok: #4dedd3;
+    --color-podcast: #3bb273;
+    
+    --font-cartoon: 'Wellfleet', sans-serif;
+    --font-digital: 'Space Mono', monospace;
+}
+
+body {
+    background-color: var(--bg-desk);
+    background-image: radial-gradient(#c2b28c 2px, transparent 2px);
+    background-size: 30px 30px;
+    font-family: var(--font-cartoon);
+    color: #111;
+    margin: 0;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    touch-action: manipulation;
+}
+
+/* --- THE GRID LAYOUT --- */
+.desk-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    width: 100%;
+    align-items: center;
+    justify-items: center;
+}
+
+/* --- UNIVERSAL CUTOUT STYLING --- */
+.cutout {
+    border: none;
+    box-shadow: var(--hard-shadow);
+    border-radius: 12px;
+    transition: all 0.2s ease-in-out;
+    text-decoration: none;
+    color: #111;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.cutout:hover {
+    transform: translate(-4px, -4px) rotate(0deg) !important;
+    box-shadow: var(--hard-shadow-hover);
+    z-index: 10;
+}
+
+/* --- THE TV MONITOR (Livestream) --- */
+.tv-monitor {
+    background-color: var(--color-tv);
+    padding: 1.5rem;
+    border-radius: 24px;
+    grid-column: 1 / -1; 
+    width: 100%;
+    max-width: 800px;
+    transform: rotate(-1deg);
+    position: relative;
+}
+
+.tv-antennae {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 40px;
+    z-index:-1;
+}
+
+.antenna {
+    width: 6px;
+    height: 80px;
+    background-color: #888;
+    border-radius: 3px;
+}
+
+.antenna.left { transform: rotate(-30deg); }
+.antenna.right { transform: rotate(30deg); }
+
+.tv-body {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+}
+
+.tv-screen {
+    flex-grow: 1;
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    background-color: #000;
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    position: relative;
+}
+
+.tv-offline {
+    position: absolute;
+    inset: 0;
+    background-color: #111;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    color: #ccc;
+    font-family: var(--font-cartoon);
+    border-radius: 16px;
+}
+
+.offline-bug {
+    font-size: 2.5rem;
+    filter: grayscale(1) opacity(0.5);
+    margin-bottom: 0.2rem;
+}
+
+.offline-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+.offline-sub {
+    font-size: 1rem;
+    color: #888;
+    margin: 0;
+}
+
+.offline-btn {
+    margin-top: 0.6rem;
+    background-color: var(--color-youtube);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1.2rem;
+    font-family: var(--font-cartoon);
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+    transition: all 0.15s;
+}
+
+.offline-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.3);
+}
+
+.screen-glare { pointer-events: none;
+
+
+    position: absolute;
+    top: -20%;
+    left: -20%;
+    width: 150%;
+    height: 150%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 40%);
+    pointer-events: none; /* Lets you click the twitch embed through it */
+}
+
+.tv-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+.tv-knob {
+    width: 40px;
+    height: 40px;
+    background-color: #555;
+    border-radius: 50%;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+    position: relative;
+}
+
+.tv-knob::after { /* The line on the dial */
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    width: 4px;
+    height: 15px;
+    background-color: #ccc;
+    transform: translateX(-50%);
+}
+
+.tv-speaker {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: auto;
+}
+
+.speaker-hole {
+    width: 30px;
+    height: 6px;
+    background-color: #555;
+    border-radius: 3px;
+    box-shadow: inset 1px 1px 0px rgba(0,0,0,0.5);
+}
+
+.tv-screen iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.tv-label {
+    margin-top: 1rem;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-align: center;
+    background: #fff;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+/* --- TAPED NOTE --- */
+.taped-note {
+    grid-area: note;
+    position: relative;
+    bottom: auto; 
+    right: auto;
+    top: auto;
+    left: auto;
+    
+    background-color: #fffde6;
+    padding: 1.2rem 1.5rem;
+    transform: rotate(-4deg);
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.3);
+    font-family: var(--font-cartoon);
+    text-align: center;
+    z-index: 10;
+    width: 100%;
+    max-width: 240px;
+    margin: auto;
+}
+
+.taped-note h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--color-youtube);
+    font-size: 1.4rem;
+    line-height: 1.1;
+}
+
+.taped-note p {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #444;
+}
+
+.tape {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.5);
+    width: 50px;
+    height: 18px;
+    backdrop-filter: blur(2px);
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.tape-top {
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-4deg);
+}
+
+.tape-bottom {
+    bottom: -8px;
+    left: 20%;
+    transform: rotate(3deg);
+}
+
+/* --- MOBILE ADJUSTMENTS --- */
+@media (max-width: 800px) {
+    .desk-container { gap: 1.5rem; }
+    .note { width: 100%; max-width: 250px; height: 100px; }
+    .tv-label { font-size: 1.2rem; }
+    
+    /* Fix TV Aspect Ratio */
+    .tv-body {
+        flex-direction: column;
+    }
+    
+    .tv-controls {
+        flex-direction: row;
+        justify-content: center;
+        padding: 0.5rem 0 0 0;
+        gap: 2rem;
+    }
+    
+    .tv-speaker {
+        flex-direction: row;
+        margin-top: 0;
+        align-items: center;
+    }
+    
+    .speaker-hole {
+        width: 6px;
+        height: 25px;
+    }
+
+    
+    .taped-note {
+        transform: rotate(-2deg);
+    }
+}
+
+/* --- STICKY NOTES & POLAROIDS (Socials) --- */
+.note {
+    padding: 1.5rem;
+    width: 200px;
+    height: 150px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.patreon-note {
+    background-color: var(--color-patreon);
+    transform: rotate(3deg);
+    height: auto;
+    padding: 2rem 1.5rem;
+    animation: gentle-pulse 2s infinite alternate;
+}
+
+@keyframes gentle-pulse {
+    0% { transform: scale(1) rotate(3deg); }
+    100% { transform: scale(1.05) rotate(3deg); }
+}
+
+.patreon-note h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    line-height: 1.1;
+}
+
+.social-twitch { background-color: var(--color-twitch); transform: rotate(-4deg); }
+.social-youtube { background-color: var(--color-youtube); transform: rotate(2deg); }
+.social-insta { background-color: var(--color-insta); transform: rotate(-2deg); }
+.social-tiktok { background-color: var(--color-tiktok); transform: rotate(4deg); }
+
+.nav-podcast { background-color: var(--color-podcast); transform: rotate(-3deg); }
+.nav-soundboard { background-color: #fff; transform: rotate(2deg); }
+
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+    .desk-container { gap: 1.5rem; }
+    .note { width: 100%; max-width: 250px; height: 100px; }
+    .tv-label { font-size: 1.2rem; }
+}
+
+/* --- INTERACTIVE AREA (Grid Layout) --- */
+/* --- INTERACTIVE AREA (Flex Layout) --- */
+.interactive-area {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap; /* Allows columns to drop down on mobile */
+    gap: 3rem;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 900px;
+    margin: 1rem auto;
+}
+
+.interactive-left {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    flex: 1 1 300px; /* Tells it to take up equal space, but shrink no smaller than 300px */
+    align-items: center;
+}
+
+.interactive-right {
+    display: flex;
+    flex: 1 1 300px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- PHONE BOOK --- */
+.phone-book {
+    grid-area: book;
+    margin: auto; /* Centers it in its grid cell */
+    background-color: #fff9e6; 
+    background-image: repeating-linear-gradient(transparent, transparent 31px, #add8e6 31px, #add8e6 32px);
+    background-attachment: local;
+    padding: 1.5rem 1.5rem 1.5rem 2.5rem;
+    width: 90%;
+    max-width: 300px;
+    min-height: 280px;
+    transform: rotate(-2deg);
+    position: relative;
+}
+
+.spiral-binding {
+    position: absolute;
+    left: -10px;
+    top: 20px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.ring {
+    width: 25px;
+    height: 10px;
+    background-color: #ccc;
+    border-radius: 5px;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+}
+
+.book-controls {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: auto; /* Pushes to bottom */
+    padding-top: 1rem;
+}
+
+.page-btn {
+    background: none;
+    border: none;
+    font-family: var(--font-cartoon);
+    font-size: 1rem;
+    cursor: pointer;
+    color: var(--color-youtube);
+}
+
+.phone-book h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    border-bottom: 2px dashed #ccc;
+    width: 100%;
+    padding-bottom: 0.5rem;
+    color: var(--color-youtube); /* A nice red/orange accent */
+}
+
+.phone-book ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.phone-book li {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.phone-book li span { color: #555; }
+.phone-book li strong { color: #111; font-family: var(--font-digital); }
+
+/* --- THE TELEPHONE (Handset) --- */
+.telephone-outer {
+    grid-area: phone;
+    margin: auto; /* Centers it in its grid cell */
+    position: relative;
+    transform: rotate(1deg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.telephone-outer::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 220px;
+    bottom: 185px; /* stops before the cord */
+    background-color: #b8a88a;
+    border-radius: 36px;
+    z-index: 0;
+}
+
+.phone-cord-svg {
+    width: 60px;
+    height: 180px;
+    margin-top: -4px;
+    z-index: -2;
+}
+
+.telephone {
+    background-color: #e8d9c0;
+    padding: 0;
+    border-radius: 36px;
+    width: 220px;
+    max-width: 220px;
+    transform: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.handset-end {
+    background-color: #e8d9c0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.8rem 1rem 0.5rem;
+}
+
+.handset-mouth-end {
+    padding: 0.5rem 1rem 0.8rem;
+}
+
+.speaker-pad {
+    background-color: #cfc0a4;
+    border-radius: 18px;
+    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.22), inset -1px -1px 3px rgba(255,255,255,0.15), 2px 2px 0px rgba(0,0,0,0.15);
+    width: 86%;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dot-cluster {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    justify-items: center;
+}
+
+.sp-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #8a7560;
+    border-radius: 50%;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.phone-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0.5rem 1rem 0.5rem;
+}
+
+.handset-ear, .mouth-dot, .ear-dot,
+.phone-left, .phone-right, .handset, .phone-cord, .earpiece, .mouthpiece, .handle { display: none; }
+
+.phone-screen {
+    background-color: #8ca58c; /* Classic LCD Green */
+    width: 100%;
+    height: 60px;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    box-shadow: inset 4px 4px 0px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 1rem;
+    font-family: var(--font-digital);
+    font-size: 2rem;
+    color: #111;
+    box-sizing: border-box;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+/* The tactile buttons */
+.key {
+    background-color: #f4ede1;
+    border: none;
+    border-radius: 8px;
+    height: 50px;
+    font-family: var(--font-cartoon);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: all 0.1s;
+}
+
+.key:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0px rgba(0,0,0,0.2); /* flattens out when pushed */
+}
+
+.phone-actions {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+}
+
+.action-btn {
+    flex: 1;
+    border: none;
+    border-radius: 8px;
+    height: 50px;
+    font-family: var(--font-cartoon);
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+    transition: all 0.1s;
+    color: #fff;
+}
+
+.action-btn:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0px rgba(0,0,0,0.2);
+}
+
+.clear-btn { background-color: var(--color-youtube); }
+.call-btn { background-color: var(--color-podcast); }
