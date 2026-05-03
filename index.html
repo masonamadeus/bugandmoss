@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Wellfleet&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Wellfleet&family=Space+Mono:wght@700&family=Ranchers&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
 </head>
@@ -21,18 +21,44 @@
                 
                 <div class="cutout tv-monitor">
                     <div class="tv-antennae">
-                        <div class="antenna left"></div><div class="antenna right"></div>
+                        <div class="antenna left"><div class="antenna-tip"></div></div>
+                        <div class="antenna-base"></div>
+                        <div class="antenna right"><div class="antenna-tip"></div></div>
                     </div>
+
                     <div class="tv-body">
-                        <div class="tv-screen" id="tv-screen"><div class="screen-glare"></div></div>
+                        <div class="tv-bezel">
+                            <div class="tv-screen" id="tv-screen">
+                                </div>
+                            <div class="tv-brand">MOSS-TRONIC</div>
+                        </div>
+
                         <div class="tv-controls">
-                            <div class="tv-knob"></div><div class="tv-knob"></div>
-                            <div class="tv-speaker">
-                                <div class="speaker-hole"></div><div class="speaker-hole"></div><div class="speaker-hole"></div><div class="speaker-hole"></div>
+                            <div class="knob-group">
+                                <div class="knob-stub"></div>
+                                <div class="tv-knob vhf-knob"><div class="knob-ridge"></div><div class="knob-cap"></div></div>
+                                <span class="knob-label">VHF</span>
                             </div>
+                            <div class="knob-group">
+                                <div class="knob-stub"></div>
+                                <div class="tv-knob uhf-knob"><div class="knob-ridge"></div><div class="knob-cap"></div></div>
+                                <span class="knob-label">UHF</span>
+                            </div>
+                            <div class="knob-group">
+                                <div class="knob-stub"></div>
+                                <div class="tv-knob whf-knob"><div class="knob-ridge"></div><div class="knob-cap"></div></div>
+                                <span class="knob-label">WHF</span>
+                            </div>
+                            
+                            <div class="power-led-container">
+                                <div class="power-led"></div>
+                                <span class="knob-label">POWER</span>
+                            </div>
+
+                            <div class="tv-speaker-grille"></div>
                         </div>
                     </div>
-                    <div class="tv-label">Last Broadcast</div>
+                    <div class="tv-label-tape">LAST BROADCAST</div>
                 </div>
                 
                 <div class="top-right-column">
@@ -53,7 +79,37 @@
             </div>
 
             <div class="desk-row middle-row">
-                
+                <div class="cutout phone-book-folded">
+                    <div id="index-tab" class="pb-index-tab">INDEX</div>
+                    
+                    <div class="pb-folded-spine"></div>
+                    <div class="pb-header">
+                        <h2>Yellow Pages</h2>
+                        <p>Directory of Bug & Moss & Friends</p>
+                    </div>
+
+                    <div id="directory-list" class="pb-directory-single"></div>
+                    <div id="dir-controls" class="pb-controls">
+                        <button id="pb-prev" class="pb-btn" title="Previous Page"></button>
+                        <div class="pb-indicator-container">
+                            <span id="pb-page-indicator">Pg 1</span>
+                        </div>
+                        <button id="pb-next" class="pb-btn" title="Next Page"></button>
+                    </div>
+
+                    <div id="index-view" style="display: none; width: 100%;">
+                        <div class="pb-category-header" style="margin-top:0;">Directory Index</div>
+                        <div id="index-list-container" style="display: flex; flex-direction: column; gap: 0.6rem; min-height: 380px;"></div>
+                        
+                        <div class="pb-controls">
+                            <button id="idx-prev" class="pb-btn" title="Previous Index Page"></button>
+                            <div class="pb-indicator-container">
+                                <span id="idx-page-indicator">Idx Pg 1</span>
+                            </div>
+                            <button id="idx-next" class="pb-btn" title="Next Index Page"></button>
+                        </div>
+                    </div>
+                </div>
                 <div class="telephone-outer">
                     <div class="telephone">
                 
@@ -168,40 +224,6 @@ PodCube: 2048
 click or tap to edit..."></textarea>
                 </div>
 
-            </div>
-
-            <div class="desk-row">
-                <div class="cutout phone-book-folded">
-                    <div id="index-tab" class="pb-index-tab">INDEX</div>
-                    
-                    <div class="pb-folded-spine"></div>
-                    <div class="pb-header">
-                        <h2>Yellow Pages</h2>
-                        <p>Directory of Bug & Moss & Friends</p>
-                    </div>
-
-                    <div id="directory-list" class="pb-directory-single"></div>
-                    <div id="dir-controls" class="pb-controls">
-                        <button id="pb-prev" class="pb-btn" title="Previous Page"></button>
-                        <div class="pb-indicator-container">
-                            <span id="pb-page-indicator">Pg 1</span>
-                        </div>
-                        <button id="pb-next" class="pb-btn" title="Next Page"></button>
-                    </div>
-
-                    <div id="index-view" style="display: none; width: 100%;">
-                        <div class="pb-category-header" style="margin-top:0;">Directory Index</div>
-                        <div id="index-list-container" style="display: flex; flex-direction: column; gap: 0.6rem; min-height: 380px;"></div>
-                        
-                        <div class="pb-controls">
-                            <button id="idx-prev" class="pb-btn" title="Previous Index Page"></button>
-                            <div class="pb-indicator-container">
-                                <span id="idx-page-indicator">Idx Pg 1</span>
-                            </div>
-                            <button id="idx-next" class="pb-btn" title="Next Index Page"></button>
-                        </div>
-                    </div>
-                </div>
             </div>
 
         </div>

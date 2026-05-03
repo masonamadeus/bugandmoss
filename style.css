@@ -18,6 +18,10 @@
     --font-digital: 'Space Mono', monospace;
 }
 
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 body {
     background-color: var(--bg-desk);
     background-image: radial-gradient(#c2b28c 2px, transparent 2px);
@@ -39,7 +43,7 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 2rem;
-    max-width: 1200px;
+    max-width: 1400px; /* Bumped up from 1200px */
     width: 100%;
     align-items: center;
     justify-items: center;
@@ -65,169 +69,109 @@ body {
     z-index: 50!important;
 }
 
-/* --- THE TV MONITOR (Livestream) --- */
+/* --- THE TV MONITOR (Skeuomorphic CRT) --- */
 .tv-monitor {
     background-color: var(--color-tv);
+    background-image: linear-gradient(145deg, rgba(255,255,255,0.4) 0%, rgba(0,0,0,0.1) 100%);
     padding: 1.5rem;
-    border-radius: 24px;
+    border-radius: 24px 24px 30px 30px;
     grid-column: auto;
     width: 90%;
     max-width: none;
-    margin: 0 auto;
-    transform: rotate(-1deg);
+    /* NEW: Added 60px top margin to protect the antennae, and scaled down to 90% */
+    margin: 60px auto 0 auto;
+    transform: scale(0.9) rotate(-1deg);
     position: relative;
+    box-shadow: 
+        inset -6px -8px 15px rgba(0,0,0,0.2), 
+        inset 6px 8px 15px rgba(255,255,255,0.6), 
+        var(--hard-shadow);
 }
 
 .tv-monitor:hover {
-    transform: rotate(-1deg);
+    transform: scale(0.9) translate(-4px, -4px) rotate(-1deg) !important;
     z-index: 10;
 }
 
+/* --- THE ANTENNAS --- */
 .tv-antennae {
     position: absolute;
-    top: -40px;
+    /* Locks the antennae flush to the top edge of the plastic shell */
+    top: -65px; 
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 40px;
-    z-index:-11;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 10px;
+    z-index: -1;
+}
+
+.antenna-base {
+    width: 40px;
+    height: 15px;
+    background: #444;
+    border-radius: 10px 10px 0 0;
+    box-shadow: inset 0px 4px 5px rgba(255,255,255,0.3), inset 0px -2px 3px rgba(0,0,0,0.5);
+    margin: 0 -15px; /* Pulls the rods into the base */
+    z-index: 2;
 }
 
 .antenna {
     width: 6px;
-    height: 80px;
-    background-color: #888;
-    border-radius: 3px;
+    height: 90px;
+    /* Chrome metal tube effect */
+    background: linear-gradient(90deg, #999 0%, #eee 40%, #fff 50%, #888 80%, #555 100%);
+    position: relative;
+    z-index: 1;
 }
 
-.antenna.left { transform: rotate(-30deg); }
-.antenna.right { transform: rotate(30deg); }
+.antenna.left { transform: rotate(-35deg); transform-origin: bottom right; }
+.antenna.right { transform: rotate(35deg); transform-origin: bottom left; }
 
+.antenna-tip {
+    width: 12px;
+    height: 12px;
+    background: #e0e0e0;
+    border-radius: 50%;
+    position: absolute;
+    top: -6px;
+    left: -3px;
+    box-shadow: inset -2px -2px 4px rgba(0,0,0,0.4), inset 2px 2px 4px rgba(255,255,255,0.8);
+}
+
+/* --- THE CRT BEZEL & SCREEN --- */
 .tv-body {
     display: flex;
-    gap: 1rem;
+    gap: 1.5rem;
     width: 100%;
+}
+
+.tv-bezel {
+    flex-grow: 1;
+    background: #1a1a1a;
+    border-radius: 20px 20px 30px 30px;
+    padding: 15px 15px 25px 15px;
+    /* Creates the sloped plastic frame pushing deep into the screen */
+    box-shadow: 
+        inset 4px 4px 10px rgba(0,0,0,0.9), 
+        inset -2px -2px 5px rgba(255,255,255,0.1), 
+        1px 1px 2px rgba(255,255,255,0.4);
+    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .tv-screen {
-    flex-grow: 1;
-    border: none;
-    border-radius: 16px;
-    overflow: hidden;
-    background-color: #000;
-    aspect-ratio: 16 / 9;
     width: 100%;
+    aspect-ratio: 16 / 9;
+    background-color: #050505;
+    /* Simulates the rounded glass bulb of a CRT */
+    border-radius: 12px / 20px; 
+    overflow: hidden;
     position: relative;
-}
-
-.tv-offline {
-    position: absolute;
-    inset: 0;
-    background-color: #111;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    color: #ccc;
-    font-family: var(--font-cartoon);
-    border-radius: 16px;
-}
-
-.offline-bug {
-    font-size: 2.5rem;
-    filter: grayscale(1) opacity(0.5);
-    margin-bottom: 0.2rem;
-}
-
-.offline-title {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: #fff;
-    margin: 0;
-    letter-spacing: 1px;
-}
-
-.offline-sub {
-    font-size: 1rem;
-    color: #888;
-    margin: 0;
-}
-
-.offline-btn {
-    margin-top: 0.6rem;
-    background-color: var(--color-youtube);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 0.5rem 1.2rem;
-    font-family: var(--font-cartoon);
-    font-size: 1.1rem;
-    font-weight: 700;
-    cursor: pointer;
-    text-decoration: none;
-    box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
-    transition: all 0.15s;
-}
-
-.offline-btn:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px rgba(0,0,0,0.3);
-}
-
-.screen-glare { pointer-events: none;
-
-
-    position: absolute;
-    top: -20%;
-    left: -20%;
-    width: 150%;
-    height: 150%;
-    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 40%);
-    pointer-events: none; /* Lets you click the twitch embed through it */
-}
-
-.tv-controls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-    padding: 1rem 0;
-}
-
-.tv-knob {
-    width: 40px;
-    height: 40px;
-    background-color: #555;
-    border-radius: 50%;
-    box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
-    position: relative;
-}
-
-.tv-knob::after { /* The line on the dial */
-    content: '';
-    position: absolute;
-    top: 5px;
-    left: 50%;
-    width: 4px;
-    height: 15px;
-    background-color: #ccc;
-    transform: translateX(-50%);
-}
-
-.tv-speaker {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: auto;
-}
-
-.speaker-hole {
-    width: 30px;
-    height: 6px;
-    background-color: #555;
-    border-radius: 3px;
-    box-shadow: inset 1px 1px 0px rgba(0,0,0,0.5);
+    /* The black rim of the unlit glass edge */
+    box-shadow: inset 0px 0px 15px 5px rgba(0,0,0,1);
 }
 
 .tv-screen iframe {
@@ -236,19 +180,226 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
+    /* Pushes the video slightly under the glass shadow */
+    z-index: 0; 
 }
 
-.tv-label {
-    margin-top: 1rem;
-    font-size: 1.5rem;
-    text-transform: uppercase;
+.screen-glare {
+    position: absolute;
+    inset: 0;
+    /* Convex glass reflection using radial + linear gradients */
+    background: 
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 50%),
+        linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 40%);
+    pointer-events: none;
+    z-index: 5;
+    border-radius: inherit;
+}
+
+.tv-brand {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #666;
+    font-family: Arial, sans-serif;
+    font-size: 0.65rem;
+    font-weight: bold;
     letter-spacing: 2px;
-    text-align: center;
-    background: #fff;
-    padding: 0.5rem 1rem;
+}
+
+/* Offline Screen Tweaks for the New CRT */
+.tv-offline {
+    position: absolute;
+    inset: 0;
+    background-color: #0a0a0c; /* Deep tube off-color */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    color: #ccc;
+    font-family: var(--font-cartoon);
+    z-index: 1;
+}
+.offline-bug { font-size: 2.5rem; filter: grayscale(1) opacity(0.3); margin-bottom: 0.2rem; }
+.offline-title { font-size: 1.6rem; font-weight: 700; color: #fff; margin: 0; letter-spacing: 1px; }
+.offline-sub { font-size: 1rem; color: #666; margin: 0; }
+.offline-btn {
+    margin-top: 0.6rem;
+    background-color: var(--color-youtube);
+    color: #fff;
     border: none;
-    border-radius: 8px;
-    display: inline-block;
+    border-radius: 4px;
+    padding: 0.5rem 1.2rem;
+    font-family: var(--font-cartoon);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: inset 1px 1px 2px rgba(255,255,255,0.4), 2px 2px 0px rgba(0,0,0,0.5);
+    transition: transform 0.1s;
+}
+.offline-btn:active { transform: translateY(2px); box-shadow: inset 1px 1px 4px rgba(0,0,0,0.5), 0px 0px 0px rgba(0,0,0,0); }
+
+
+/* --- THE HARDWARE CONTROLS --- */
+.tv-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 60px;
+    background: rgba(0,0,0,0.05);
+    border-radius: 12px;
+    padding: 10px 5px;
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1), inset -1px -1px 2px rgba(255,255,255,0.5);
+}
+
+/* --- THE BROKEN KNOB EASTER EGG --- */
+.knob-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 8px;
+    position: relative; /* Gives the absolute stub a container to anchor to */
+}
+
+/* The exposed metal potentiometer shaft */
+.knob-stub {
+    position: absolute;
+    top: 8px; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    /* Metallic gradient catching light on the top-left */
+    background: radial-gradient(circle at 30% 30%, #f0f0f0 0%, #777 100%);
+    border-radius: 50%;
+    /* * 1st shadow: Bright top-left rim highlight (convex)
+     * 2nd shadow: Dark bottom-right inner core
+     * 3rd shadow: The actual drop shadow cast onto the TV body 
+     */
+    box-shadow: 
+        inset 1px 1px 2px rgba(255,255,255,0.9), 
+        inset -1px -1px 2px rgba(0,0,0,0.5),
+        2px 3px 4px rgba(0,0,0,0.6); 
+    z-index: 0;
+}
+
+.tv-knob {
+    width: 28px; 
+    height: 28px;
+    background-color: #222;
+    border-radius: 50%;
+    position: relative;
+    z-index: 1; /* Keeps the plastic knob hiding the metal stub */
+    box-shadow: 
+        2px 4px 5px rgba(0,0,0,0.4), 
+        inset -2px -2px 5px rgba(0,0,0,0.8), 
+        inset 2px 2px 5px rgba(255,255,255,0.3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Adds a gravity transition for when it falls off */
+    transition: transform 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53), opacity 0.4s ease-in;
+}
+
+/* The class JS will add to make it pop off */
+.tv-knob.fallen {
+    transform: translateY(80px) rotate(200deg) scale(0.6) !important;
+    opacity: 0;
+    pointer-events: none; /* Stops it from being clickable while invisible */
+}
+.knob-label {
+    font-family: Arial, sans-serif;
+    font-size: 0.5rem; /* Shrunk slightly */
+    font-weight: bold;
+    color: #333;
+    margin-top: 3px;
+}
+
+
+.tv-knob.vhf-knob { transform: rotate(45deg); }
+.tv-knob.uhf-knob { transform: rotate(-20deg); }
+.tv-knob.whf-knob { transform: rotate(110deg); } /* Cranked past 11! */
+
+.knob-ridge {
+    position: absolute;
+    width: 3px;
+    height: 10px;
+    top: 2px;
+    background: #e0e0e0;
+    border-radius: 2px;
+    box-shadow: 0px 1px 2px rgba(0,0,0,0.5);
+}
+
+.knob-cap {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #eee 0%, #999 100%);
+    box-shadow: inset 1px 1px 2px rgba(255,255,255,0.8), 0px 1px 3px rgba(0,0,0,0.6);
+}
+
+.power-led-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 12px; /* Reduced */
+}
+
+.power-led {
+    width: 8px;
+    height: 8px;
+    background-color: #3bb273; /* Glowing Green */
+    border-radius: 50%;
+    box-shadow: 
+        inset 1px 1px 2px rgba(255,255,255,0.6), 
+        inset -1px -1px 2px rgba(0,0,0,0.4), 
+        0px 0px 6px #3bb273;
+}
+
+/* True dotted speaker grille using a repeating background pattern */
+.tv-speaker-grille {
+    width: 40px;
+    height: 60px;
+    background-image: radial-gradient(#111 40%, transparent 45%);
+    background-size: 6px 6px;
+    border-radius: 4px;
+    margin-top: auto;
+    opacity: 0.8;
+}
+
+/* --- THE Dymo Label --- */
+.tv-label-tape {
+    position: absolute;
+    bottom: 10px;
+    left: 20px;
+    background: #cc2929; /* Red label maker tape */
+    color: #fff;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    letter-spacing: 1px;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    transform: rotate(-2deg);
+    border-radius: 1px;
+}
+
+/* --- MOBILE ADJUSTMENTS --- */
+@media (max-width: 800px) {
+    .tv-body { flex-direction: column; }
+    .tv-controls { 
+        flex-direction: row; 
+        width: 100%; 
+        height: auto; 
+        justify-content: space-around;
+        padding: 10px;
+    }
+    .knob-group, .power-led-container { margin-bottom: 0; }
+    .tv-speaker-grille { width: 80px; height: 30px; margin-top: 0; }
+    .tv-label-tape { bottom: -10px; left: 50%; transform: translateX(-50%) rotate(1deg); }
 }
 
 /* --- TAPED NOTE --- */
@@ -753,9 +904,9 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
     grid-column: 1 / -1;
     display: flex;
     flex-direction: column;
-    gap: 5rem; /* Spacing between rows */
+    gap: 5rem; 
     width: 100%;
-    max-width: 1100px;
+    max-width: 1300px; /* Bumped up from 1100px */
     margin: 0 auto;
 }
 
@@ -814,8 +965,8 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
 /* --- THE FOLDED 1980s YELLOW PAGES --- */
 .phone-book-folded {
     z-index:60;
-    width: 100%;
-    max-width: 650px; /* Slimmer, single-page look */
+    width: calc(100% - 35px);
+    max-width: 450px; /* Slimmer, single-page look */
     margin: 0 auto;
     border-radius: 4px 16px 16px 4px;
     padding: 2.5rem 3rem 5.5rem 5rem;
@@ -887,15 +1038,16 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
     border-bottom: 4px double #111;
     margin-bottom: 1.5rem;
     padding-bottom: 0.5rem;
+    font-family: "Ranchers";
 }
 
 .pb-header h2 {
     margin: 0;
-    font-family: var(--font-cartoon);
-    font-size: 2.2rem;
+    font-family: "Ranchers", sans-serif;
+    font-size: 3rem;
     text-transform: uppercase;
+    letter-spacing: 4px;
     font-weight: 900;
-    letter-spacing: 2px;
 }
 
 .pb-header p {
@@ -915,7 +1067,7 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
 
 .pb-category-header {
     font-family: var(--font-cartoon);
-    font-size: 1.3rem;
+    font-size: 1rem;
     font-weight: 900;
     text-transform: uppercase;
     border-bottom: 3px double #111;
@@ -959,7 +1111,6 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
     border: 2px solid #222; /* Clean, bold black outline */
     border-radius: 4px;
     padding: 0.6rem 0.8rem;
-    margin: 1rem 0;
     background-color: rgba(255, 255, 255, 0.4); /* Extremely subtle highlight */
     box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
 }
@@ -1008,7 +1159,7 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
     bottom: 1.5rem;
     left: 50%;
     transform: translateX(-50%);
-    width: 70%;
+    width: 60%;
     text-align: center;
     border-top: 1px dashed rgba(0,0,0,0.15);
     padding-top: 0.5rem;
@@ -1135,4 +1286,58 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
     font-family: var(--font-digital);
     font-size: 0.9rem;
     color: #777;
+}
+
+/* --- YELLOW PAGES MOBILE FIXES --- */
+@media (max-width: 600px) {
+    /* 1. Fix the Header and Subheading sizes */
+    .pb-header h2 {
+        font-size: 1.7rem !important; /* Shrunk from 2.2rem */
+        letter-spacing: 1px;
+    }
+
+    .pb-header p {
+        font-size: 0.8rem;
+    }
+
+    /* 2. Fix the Height and Padding */
+    .phone-book-folded {
+        /* Reduce padding so content has more horizontal room (prevents excessive wrapping) */
+        padding: 1.5rem 1.5rem 5rem 3.5rem !important; 
+        
+        /* Enforce a stable height */
+        height: 580px; 
+        min-height: 580px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* 3. Ensure the list fills the space but doesn't blow out the container */
+    .pb-directory-single {
+        min-height: unset !important; /* Remove the old min-height */
+        flex-grow: 1;
+        overflow: hidden; /* Keeps the "fixed" look */
+    }
+
+    /* 4. Shrink entry text slightly to help it fit on one line */
+    .pb-normal-entry {
+        font-size: 0.85rem;
+    }
+    
+    .pb-ad-title {
+        font-size: 0.95rem;
+    }
+}
+
+/* 1. Default Mobile Order (Vertical) */
+.telephone-outer { order: 1; }
+.scratch-pad { order: 2; }
+.phone-book-folded { order: 3; }
+
+/* 2. Desktop Order (Horizontal) */
+/* Adjust 1100px if your items start wrapping at a slightly different width! */
+@media (min-width: 1100px) {
+    .phone-book-folded { order: 1; }  /* Yellow Pages moves to the far left */
+    .telephone-outer { order: 2; }    /* Phone stays in the middle */
+    .scratch-pad { order: 3; }        /* Scratch pad moves to the far right */
 }

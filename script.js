@@ -127,7 +127,10 @@ document.addEventListener('DOMContentLoaded', () => {
             indexData = []; // Clear index map
             let currentPageData = [];
             let currentWeight = 0;
-            const MAX_WEIGHT = 12; 
+
+            const isMobile = window.innerWidth < 600;
+            const MAX_WEIGHT = isMobile ? 10 : 12; // Fewer items per page on mobile
+           
             
             directoryPages.forEach(category => {
                 if (!category.entries || category.entries.length === 0) return;
@@ -149,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 category.entries.forEach(item => {
                     if (item.isHidden) return;
-                    const itemWeight = item.isAd ? 4 : 1; 
+                    const itemWeight = item.isAd ? 3 : 1; 
                     
                     if (currentWeight + itemWeight > MAX_WEIGHT && currentPageData.length > 0) {
                         bookPages.push(currentPageData);
@@ -515,5 +518,22 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('bugandmoss-scratchpad', scratchPad.value);
         });
     }
+
+    // ==========================================
+    // 5. TV KNOB EASTER EGG
+    // ==========================================
+    const tvKnobs = document.querySelectorAll('.tv-knob');
+    
+    tvKnobs.forEach(knob => {
+        knob.addEventListener('click', () => {
+            // Adds the CSS animation class to drop it off the screen
+            knob.classList.add('fallen');
+            
+            // Optional: Play a tiny plastic click sound if you want!
+            if (typeof playClickPop === "function") {
+                playClickPop(800); 
+            }
+        });
+    });
 
 });
