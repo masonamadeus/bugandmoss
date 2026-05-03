@@ -824,7 +824,7 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
     display: flex;
     flex-direction: column;
     transition: transform 0.2s ease-in-out;
-    background-color: #fae99e; 
+    background-color: transparent; 
     
     /* Left edge shadow suggests a cover wrapped around the back */
     box-shadow: 
@@ -834,6 +834,32 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
         12px 12px 0px rgba(0,0,0,0.3), /* Desk drop shadow */
         4px 4px 0px #e6c32e, /* Page edges layer 1 */
         8px 8px 0px #cca300; /* Page edges layer 2 */
+}
+
+.phone-book-folded::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #fae99e;
+    border-radius: inherit;
+    z-index: 0; /* Sits right at the base */
+    pointer-events: none; /* Prevents it from accidentally blocking mouse clicks */
+}
+
+.pb-header, 
+.pb-directory-single, 
+#index-view {
+    position: relative;
+    z-index: 1;
+}
+
+.pb-folded-spine,
+.pb-controls {
+    z-index: 1; 
+}
+
+.pb-index-tab {
+    z-index: -1; 
 }
 
 .phone-book-folded:hover {
@@ -1008,7 +1034,7 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
 }
 
 /* The Bottom-Right "Next Page" Fold */
-#pb-next {
+#pb-next, #idx-next {
     right: 0;
     /* Creates the diagonal fold color */
     background: linear-gradient(135deg, transparent 50%, #cca300 50%);
@@ -1034,7 +1060,7 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
 }
 
 /* The Bottom-Left "Prev Page" Fold */
-#pb-prev {
+#pb-prev, #idx-prev {
     left: 0;
     /* Reverse diagonal for the left side */
     background: linear-gradient(225deg, transparent 50%, #cca300 50%);
@@ -1056,4 +1082,57 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
     width: 85px;
     height: 85px;
     background: linear-gradient(225deg, transparent 50%, #d9ac00 50%);
+}
+
+/* --- THE POST-IT INDEX TAB --- */
+.pb-index-tab {
+    position: absolute;
+    top: 60px; 
+    right: -35px; /* Tucks it slightly inside the book */
+    width: 45px;
+    height: 70px;
+    background-color: #ff9ee2; /* Classic neon pink post-it */
+    border-radius: 0 4px 4px 0;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.15);
+    font-family: var(--font-cartoon);
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    cursor: pointer;
+    z-index: -1; /* Slides beautifully behind the yellow cover */
+    transition: right 0.2s, background-color 0.2s;
+}
+
+.pb-index-tab:hover {
+    right: -45px; /* Pulls out when hovered */
+    background-color: #ffb5eb;
+}
+
+/* --- THE INDEX LIST VIEW --- */
+.index-item {
+    font-family: var(--font-cartoon);
+    font-size: 1.1rem;
+    color: #333;
+    cursor: pointer;
+    border-bottom: 2px dotted rgba(0,0,0,0.2);
+    padding-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    transition: color 0.1s, border-bottom-color 0.1s;
+}
+
+.index-item:hover {
+    color: var(--color-youtube); /* Highlights red on hover */
+    border-bottom-color: var(--color-youtube);
+}
+
+.index-item-page {
+    font-family: var(--font-digital);
+    font-size: 0.9rem;
+    color: #777;
 }

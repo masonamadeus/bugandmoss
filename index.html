@@ -172,6 +172,8 @@ click or tap to edit..."></textarea>
 
             <div class="desk-row">
                 <div class="cutout phone-book-folded">
+                    <div id="index-tab" class="pb-index-tab">INDEX</div>
+                    
                     <div class="pb-folded-spine"></div>
                     <div class="pb-header">
                         <h2>Yellow Pages</h2>
@@ -179,12 +181,25 @@ click or tap to edit..."></textarea>
                     </div>
 
                     <div id="directory-list" class="pb-directory-single"></div>
-                    <div class="pb-controls">
+                    <div id="dir-controls" class="pb-controls">
                         <button id="pb-prev" class="pb-btn" title="Previous Page"></button>
                         <div class="pb-indicator-container">
                             <span id="pb-page-indicator">Pg 1</span>
                         </div>
                         <button id="pb-next" class="pb-btn" title="Next Page"></button>
+                    </div>
+
+                    <div id="index-view" style="display: none; width: 100%;">
+                        <div class="pb-category-header" style="margin-top:0;">Directory Index</div>
+                        <div id="index-list-container" style="display: flex; flex-direction: column; gap: 0.6rem; min-height: 380px;"></div>
+                        
+                        <div class="pb-controls">
+                            <button id="idx-prev" class="pb-btn" title="Previous Index Page"></button>
+                            <div class="pb-indicator-container">
+                                <span id="idx-page-indicator">Idx Pg 1</span>
+                            </div>
+                            <button id="idx-next" class="pb-btn" title="Next Index Page"></button>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -78,11 +78,17 @@ document.addEventListener('DOMContentLoaded', () => {
     setupTV();
 
     // ==========================================
-    // 1. THE PHONE DIRECTORY (SMART PAGINATION)
+    // 1. THE PHONE DIRECTORY (SMART PAGINATION & INDEX)
     // ==========================================
-    let directoryPages = []; // Kept globally for the dialer to search
+    let directoryPages = []; 
     let bookPages = [];
     let currentBookPage = 0;
+    
+    // NEW Index Variables
+    let indexData = []; 
+    let indexPages = [];
+    let currentIndexPage = 0;
+    let isIndexMode = false;
 
     async function loadDirectory() {
         try {
@@ -91,67 +97,52 @@ document.addEventListener('DOMContentLoaded', () => {
             
             directoryPages = await response.json();
             
-            // --- NEW: Front-End Random Ad Generator ---
+            // Front-End Random Ad Generator (Kept identical to your version)
             directoryPages.forEach(category => {
                 if (!category.entries || category.entries.length === 0) return;
-                
                 const totalItems = category.entries.length;
                 let hardcodedAds = category.entries.filter(e => e.isAd).length;
-                
-                // Determine maximum ads allowed based on criteria
                 let maxAdsAllowed = 0;
-                if (totalItems > 10) {
-                    maxAdsAllowed = 2;
-                } else if (totalItems > 3) {
-                    maxAdsAllowed = 1;
-                }
+                if (totalItems > 10) maxAdsAllowed = 2;
+                else if (totalItems > 3) maxAdsAllowed = 1;
                 
                 let adsToAdd = maxAdsAllowed - hardcodedAds;
-                
-                // If we have room for more ads, pick random normal entries to upgrade!
                 if (adsToAdd > 0) {
                     let normalIndices = [];
-                    category.entries.forEach((entry, idx) => {
-                        if (!entry.isAd) normalIndices.push(idx);
-                    });
-                    
-                    // Shuffle the array of normal indices
+                    category.entries.forEach((entry, idx) => { if (!entry.isAd) normalIndices.push(idx); });
                     for (let i = normalIndices.length - 1; i > 0; i--) {
                         const j = Math.floor(Math.random() * (i + 1));
                         [normalIndices[i], normalIndices[j]] = [normalIndices[j], normalIndices[i]];
                     }
-                    
-                    // Upgrade the selected entries to ads
                     const selectedIndices = normalIndices.slice(0, adsToAdd);
                     selectedIndices.forEach(idx => {
                         category.entries[idx].isAd = true;
-                        // Give it a generic subtitle so the ad box doesn't look empty!
-                        if (!category.entries[idx].subtitle) {
-                            category.entries[idx].subtitle = "Featured Listing"; 
-                        }
+                        if (!category.entries[idx].subtitle) category.entries[idx].subtitle = "Featured Listing"; 
                     });
                 }
             });
 
-            // --- The Smart Pagination Engine ---
+            // The Smart Pagination Engine
             bookPages = [];
+            indexData = []; // Clear index map
             let currentPageData = [];
             let currentWeight = 0;
-            const MAX_WEIGHT = 12; // Adjust this number to allow more/fewer items per page
+            const MAX_WEIGHT = 12; 
             
             directoryPages.forEach(category => {
                 if (!category.entries || category.entries.length === 0) return;
                 
-                // ORPHAN PREVENTION: Calculate space needed for Header (2) + First Item
                 const firstItemWeight = category.entries[0].isAd ? 4 : 1;
                 const requiredInitialSpace = 2 + firstItemWeight;
                 
-                // If the header AND its first entry can't fit together, turn the page early!
                 if (currentWeight + requiredInitialSpace > MAX_WEIGHT && currentPageData.length > 0) {
                     bookPages.push(currentPageData);
                     currentPageData = [];
                     currentWeight = 0;
                 }
+                
+                // --- NEW: Map this category to the exact page it starts on! ---
+                indexData.push({ title: category.title, targetPage: bookPages.length });
                 
                 currentPageData.push({ type: 'header', text: category.title });
                 currentWeight += 2;
@@ -160,13 +151,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (item.isHidden) return;
                     const itemWeight = item.isAd ? 4 : 1; 
                     
-                    // If adding this specific item exceeds the page weight, turn the page
                     if (currentWeight + itemWeight > MAX_WEIGHT && currentPageData.length > 0) {
                         bookPages.push(currentPageData);
                         currentPageData = [];
                         currentWeight = 0;
-                        
-                        // Re-add the category header so we know what we're looking at on the new page!
                         currentPageData.push({ type: 'header', text: category.title + ' (cont.)' });
                         currentWeight += 2;
                     }
@@ -176,9 +164,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
             
-            // Catch the last page if it wasn't completely filled
-            if (currentPageData.length > 0) {
-                bookPages.push(currentPageData);
+            if (currentPageData.length > 0) bookPages.push(currentPageData);
+
+            // --- NEW: Chunk the Index into its own pages (10 categories per page) ---
+            indexPages = [];
+            const ITEMS_PER_INDEX_PAGE = 10;
+            for (let i = 0; i < indexData.length; i += ITEMS_PER_INDEX_PAGE) {
+                indexPages.push(indexData.slice(i, i + ITEMS_PER_INDEX_PAGE));
             }
             
             renderPhoneBookPage();
@@ -189,7 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // A helper function to safely print data without breaking the HTML
     function escapeHtml(unsafe) {
         if (!unsafe) return "";
         return unsafe.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -198,7 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderPhoneBookPage() {
         const listElement = document.getElementById('directory-list');
         listElement.innerHTML = '';
-        
         if (bookPages.length === 0) return;
         
         const pageData = bookPages[currentBookPage];
@@ -236,27 +226,79 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Update UI Controls
         document.getElementById('pb-page-indicator').innerText = `Pg ${currentBookPage + 1} / ${bookPages.length}`;
-        
-        // Hide the corners if there isn't a previous or next page
         document.getElementById('pb-prev').style.visibility = currentBookPage === 0 ? 'hidden' : 'visible';
         document.getElementById('pb-next').style.visibility = currentBookPage === bookPages.length - 1 ? 'hidden' : 'visible';
     }
 
-    // Button Listeners for the folded corners
-    document.getElementById('pb-prev').addEventListener('click', () => {
-        if (currentBookPage > 0) {
-            currentBookPage--;
+    // --- NEW: Index View Rendering & Toggle Logic ---
+    function toggleIndexMode() {
+        isIndexMode = !isIndexMode;
+        const dirView = document.getElementById('directory-list');
+        const dirControls = document.getElementById('dir-controls');
+        const idxView = document.getElementById('index-view');
+        const indexTab = document.getElementById('index-tab');
+        
+        if (isIndexMode) {
+            dirView.style.display = 'none';
+            dirControls.style.display = 'none';
+            idxView.style.display = 'block';
+            indexTab.innerText = "CLOSE";
+            indexTab.style.backgroundColor = '#ccc'; // Gray out the tab when open
+            currentIndexPage = 0;
+            renderIndexPage();
+        } else {
+            dirView.style.display = 'flex';
+            dirControls.style.display = 'block';
+            idxView.style.display = 'none';
+            indexTab.innerText = "INDEX";
+            indexTab.style.backgroundColor = '#ff9ee2'; // Restore pink tab
             renderPhoneBookPage();
         }
+    }
+
+    function renderIndexPage() {
+        const listEl = document.getElementById('index-list-container');
+        listEl.innerHTML = '';
+        if (indexPages.length === 0) return;
+        
+        const pageData = indexPages[currentIndexPage];
+        
+        pageData.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'index-item';
+            div.innerHTML = `<span>${escapeHtml(item.title)}</span><span class="index-item-page">Pg ${item.targetPage + 1}</span>`;
+            
+            // Clicking an index item jumps to that page and closes the index
+            div.addEventListener('click', () => {
+                currentBookPage = item.targetPage;
+                toggleIndexMode(); 
+            });
+            listEl.appendChild(div);
+        });
+
+        document.getElementById('idx-page-indicator').innerText = `Index Pg ${currentIndexPage + 1} / ${indexPages.length}`;
+        document.getElementById('idx-prev').style.visibility = currentIndexPage === 0 ? 'hidden' : 'visible';
+        document.getElementById('idx-next').style.visibility = currentIndexPage === indexPages.length - 1 ? 'hidden' : 'visible';
+    }
+
+    // --- Button Listeners ---
+    document.getElementById('index-tab').addEventListener('click', toggleIndexMode);
+
+    document.getElementById('pb-prev').addEventListener('click', () => {
+        if (currentBookPage > 0) { currentBookPage--; renderPhoneBookPage(); }
     });
 
     document.getElementById('pb-next').addEventListener('click', () => {
-        if (currentBookPage < bookPages.length - 1) {
-            currentBookPage++;
-            renderPhoneBookPage();
-        }
+        if (currentBookPage < bookPages.length - 1) { currentBookPage++; renderPhoneBookPage(); }
+    });
+
+    document.getElementById('idx-prev').addEventListener('click', () => {
+        if (currentIndexPage > 0) { currentIndexPage--; renderIndexPage(); }
+    });
+
+    document.getElementById('idx-next').addEventListener('click', () => {
+        if (currentIndexPage < indexPages.length - 1) { currentIndexPage++; renderIndexPage(); }
     });
 
     // Boot it up
