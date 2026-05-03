@@ -346,26 +346,53 @@
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(directoryData));
             }
 
-            // 3.5 Check for Number Clashes
+            // 3.4 Helper: Map Alphanumeric to Keypad Digits
+            function mapAlphaToDigits(str) {
+                const map = {
+                    'A': '2', 'B': '2', 'C': '2',
+                    'D': '3', 'E': '3', 'F': '3',
+                    'G': '4', 'H': '4', 'I': '4',
+                    'J': '5', 'K': '5', 'L': '5',
+                    'M': '6', 'N': '6', 'O': '6',
+                    'P': '7', 'Q': '7', 'R': '7', 'S': '7',
+                    'T': '8', 'U': '8', 'V': '8',
+                    'W': '9', 'X': '9', 'Y': '9', 'Z': '9'
+                };
+                return str.toUpperCase()
+                        .replace(/[A-Z]/g, L => map[L])
+                        .replace(/[^0-9*#]/g, '');
+            }
+
+            // 3.5 Check for Number Clashes (Now with Alphanumeric Support)
             function checkNumberClashes() {
                 const numInputs = document.querySelectorAll('.input-num');
                 const seenNumbers = new Set();
                 const clashNumbers = new Set();
 
+                // First pass: map inputs to keypad digits and track duplicates
                 numInputs.forEach(input => {
-                    const num = input.value.trim();
-                    if (num !== "") {
-                        if (seenNumbers.has(num)) { clashNumbers.add(num); } 
-                        else { seenNumbers.add(num); }
+                    const rawVal = input.value.trim();
+                    if (rawVal !== "") {
+                        const dialCode = mapAlphaToDigits(rawVal);
+                        if (dialCode !== "") {
+                            if (seenNumbers.has(dialCode)) { clashNumbers.add(dialCode); } 
+                            else { seenNumbers.add(dialCode); }
+                        }
                     }
                 });
 
+                // Second pass: apply warnings to any input whose dialed equivalent clashes
                 let hasClash = false;
                 numInputs.forEach(input => {
-                    const num = input.value.trim();
-                    if (num !== "" && clashNumbers.has(num)) {
-                        input.classList.add('clash-warning');
-                        hasClash = true;
+                    const rawVal = input.value.trim();
+                    if (rawVal !== "") {
+                        const dialCode = mapAlphaToDigits(rawVal);
+                        if (dialCode !== "" && clashNumbers.has(dialCode)) {
+                            input.classList.add('clash-warning');
+                            hasClash = true;
+                        } else {
+                            input.classList.remove('clash-warning');
+                        }
                     } else {
                         input.classList.remove('clash-warning');
                     }
