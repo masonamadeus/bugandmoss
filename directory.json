@@ -1,21 +1,111 @@
 [
     {
-        "title": "The Morning Telephone",
+        "title": "The Morning Telephone Show",
         "entries": [
-            { "name": "The Podcast", "number": "1994", "url": "/podcast" },
-            { "name": "Patreon", "number": "0426", "url": "https://patreon.com/bugandmoss" },
-            { "name": "Discord", "number": "8486677", "url": "https://discord.gg/MGJJJ5ZdpM" },
-            { "name": "Twitch", "number": "1111", "url": "https://twitch.tv/bugandmoss" },
-            { "name": "YouTube", "number": "2222", "url": "https://youtube.com/@bugandmosstv" },
-            { "name": "Instagram", "number": "3333", "url": "https://instagram.com/848mossbug" },
-            { "name": "Soundboard", "number": "80085", "url": "/soundboard.html" }
+            {
+                "name": "Patreon",
+                "number": "0426",
+                "url": "https://patreon.com/bugandmoss"
+            },
+            {
+                "name": "Discord",
+                "number": "6677",
+                "url": "/discord",
+                "isAd": true,
+                "subtitle": "Join the Freak Forest!",
+                "description": "Call for a great time ;)"
+            },
+            {
+                "name": "Podcast",
+                "number": "1994",
+                "url": "/podcast"
+            },
+            {
+                "name": "Instagram",
+                "number": "8480",
+                "url": "https://www.instagram.com/848mossbug/",
+                "isAd": false
+            },
+            {
+                "name": "Tiktok",
+                "number": "1010",
+                "url": "https://tiktok.com/@bugandmoss"
+            }
         ]
     },
     {
-        "title": "Cool Friends",
+        "title": "Fiction Podcasts",
         "entries": [
-            { "name": "Colin M Parker", "number": "7777", "url": "https://twitch.tv/colinmparker" },
-            { "name": "Side Character Quest", "number": "2020", "url": "https://sidecharacterquest.com/" }
+            {
+                "name": "Jack Billings Presents",
+                "number": "0917",
+                "url": "https://podcasts.apple.com/us/podcast/jack-billings-presents/id1701071750"
+            },
+            {
+                "name": "Side Character Quest",
+                "number": "2242",
+                "url": "https://sidecharacterquest.com/"
+            },
+            {
+                "name": "PodCube",
+                "number": "2048",
+                "url": "https://poweredbypodcube.com",
+                "isAd": true,
+                "subtitle": "The Future, is Yesterday",
+                "description": "Extremely high fidelity comedy from across time & space"
+            },
+            {
+                "name": "Inn Between",
+                "number": "0144",
+                "url": "https://thegoblinshead.com/",
+                "isAd": false
+            },
+            {
+                "name": "Something's Amiss at Juniper's House",
+                "number": "0911",
+                "url": "https://pod.link/1875054474",
+                "isAd": false
+            },
+            {
+                "name": "Hemophobia",
+                "number": "####",
+                "url": "https://cswhorror.com",
+                "isAd": false
+            }
+        ]
+    },
+    {
+        "title": "Livestreamers",
+        "entries": [
+            {
+                "name": "Colin M Parker",
+                "number": "0151",
+                "url": "https://twitch.tv/colinmparker"
+            },
+            {
+                "name": "ItsNovali",
+                "number": "0221",
+                "url": "https://twitchtv/itsnovali",
+                "isAd": false
+            }
+        ]
+    },
+    {
+        "title": "Tools and Webtoys",
+        "entries": [
+            {
+                "name": "Really Simple Soundboard",
+                "number": "0420",
+                "url": "/soundboard",
+                "isAd": false
+            },
+            {
+                "name": "Chode Detected",
+                "number": "*69",
+                "url": "",
+                "isAd": false,
+                "isHidden": true
+            }
         ]
     }
 ]

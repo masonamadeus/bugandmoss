@@ -78,94 +78,192 @@ document.addEventListener('DOMContentLoaded', () => {
     setupTV();
 
     // ==========================================
-    // 1. THE PHONE DIRECTORY (FETCHED FROM JSON)
+    // 1. THE PHONE DIRECTORY (SMART PAGINATION)
     // ==========================================
-    let directoryPages = []; 
-    const ITEMS_PER_PAGE = 5; // Max numbers to show on a single notebook page
+    let directoryPages = []; // Kept globally for the dialer to search
+    let bookPages = [];
+    let currentBookPage = 0;
 
     async function loadDirectory() {
         try {
-            const response = await fetch('directory.json');
+            const response = await fetch('directory.json?t=' + Date.now());
             if (!response.ok) throw new Error("Could not load directory.json");
             
-            const rawCategories = await response.json();
+            directoryPages = await response.json();
             
-            // "Chunk" the data: If a category has 9 items, split it into 3 pages!
-            rawCategories.forEach(category => {
-                
-                // Skip empty categories to prevent blank pages
+            // --- NEW: Front-End Random Ad Generator ---
+            directoryPages.forEach(category => {
                 if (!category.entries || category.entries.length === 0) return;
-
-                // Slice the entries into chunks of 4 (or whatever ITEMS_PER_PAGE is)
-                for (let i = 0; i < category.entries.length; i += ITEMS_PER_PAGE) {
-                    directoryPages.push({
-                        title: category.title, // Keeps the same title across the chunked pages
-                        entries: category.entries.slice(i, i + ITEMS_PER_PAGE)
+                
+                const totalItems = category.entries.length;
+                let hardcodedAds = category.entries.filter(e => e.isAd).length;
+                
+                // Determine maximum ads allowed based on criteria
+                let maxAdsAllowed = 0;
+                if (totalItems > 10) {
+                    maxAdsAllowed = 2;
+                } else if (totalItems > 3) {
+                    maxAdsAllowed = 1;
+                }
+                
+                let adsToAdd = maxAdsAllowed - hardcodedAds;
+                
+                // If we have room for more ads, pick random normal entries to upgrade!
+                if (adsToAdd > 0) {
+                    let normalIndices = [];
+                    category.entries.forEach((entry, idx) => {
+                        if (!entry.isAd) normalIndices.push(idx);
+                    });
+                    
+                    // Shuffle the array of normal indices
+                    for (let i = normalIndices.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [normalIndices[i], normalIndices[j]] = [normalIndices[j], normalIndices[i]];
+                    }
+                    
+                    // Upgrade the selected entries to ads
+                    const selectedIndices = normalIndices.slice(0, adsToAdd);
+                    selectedIndices.forEach(idx => {
+                        category.entries[idx].isAd = true;
+                        // Give it a generic subtitle so the ad box doesn't look empty!
+                        if (!category.entries[idx].subtitle) {
+                            category.entries[idx].subtitle = "Featured Listing"; 
+                        }
                     });
                 }
             });
 
-            renderPage();
+            // --- The Smart Pagination Engine ---
+            bookPages = [];
+            let currentPageData = [];
+            let currentWeight = 0;
+            const MAX_WEIGHT = 12; // Adjust this number to allow more/fewer items per page
+            
+            directoryPages.forEach(category => {
+                if (!category.entries || category.entries.length === 0) return;
+                
+                // ORPHAN PREVENTION: Calculate space needed for Header (2) + First Item
+                const firstItemWeight = category.entries[0].isAd ? 4 : 1;
+                const requiredInitialSpace = 2 + firstItemWeight;
+                
+                // If the header AND its first entry can't fit together, turn the page early!
+                if (currentWeight + requiredInitialSpace > MAX_WEIGHT && currentPageData.length > 0) {
+                    bookPages.push(currentPageData);
+                    currentPageData = [];
+                    currentWeight = 0;
+                }
+                
+                currentPageData.push({ type: 'header', text: category.title });
+                currentWeight += 2;
+                
+                category.entries.forEach(item => {
+                    if (item.isHidden) return;
+                    const itemWeight = item.isAd ? 4 : 1; 
+                    
+                    // If adding this specific item exceeds the page weight, turn the page
+                    if (currentWeight + itemWeight > MAX_WEIGHT && currentPageData.length > 0) {
+                        bookPages.push(currentPageData);
+                        currentPageData = [];
+                        currentWeight = 0;
+                        
+                        // Re-add the category header so we know what we're looking at on the new page!
+                        currentPageData.push({ type: 'header', text: category.title + ' (cont.)' });
+                        currentWeight += 2;
+                    }
+                    
+                    currentPageData.push({ type: 'entry', data: item });
+                    currentWeight += itemWeight;
+                });
+            });
+            
+            // Catch the last page if it wasn't completely filled
+            if (currentPageData.length > 0) {
+                bookPages.push(currentPageData);
+            }
+            
+            renderPhoneBookPage();
+
         } catch (error) {
             console.error("Directory Error:", error);
-            document.getElementById('directory-list').innerHTML = "<li><em>Directory unavailable.</em></li>";
+            document.getElementById('directory-list').innerHTML = "<div style='color:red;'>Directory unavailable.</div>";
         }
     }
 
+    // A helper function to safely print data without breaking the HTML
+    function escapeHtml(unsafe) {
+        if (!unsafe) return "";
+        return unsafe.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function renderPhoneBookPage() {
+        const listElement = document.getElementById('directory-list');
+        listElement.innerHTML = '';
+        
+        if (bookPages.length === 0) return;
+        
+        const pageData = bookPages[currentBookPage];
+        
+        pageData.forEach(item => {
+            if (item.type === 'header') {
+                const catHeader = document.createElement('div');
+                catHeader.className = 'pb-category-header';
+                catHeader.innerText = item.text;
+                listElement.appendChild(catHeader);
+            } else {
+                const entryData = item.data;
+                const entryDiv = document.createElement('div');
+                
+                if (entryData.isAd) {
+                    entryDiv.className = 'pb-ad-entry';
+                    entryDiv.innerHTML = `
+                        <div class="pb-ad-header">
+                            <span class="pb-ad-title">${escapeHtml(entryData.name)}</span>
+                            <span class="pb-dots"></span>
+                            <strong class="pb-ad-number">${escapeHtml(entryData.number)}</strong>
+                        </div>
+                        ${entryData.subtitle ? `<div class="pb-ad-subtitle">${escapeHtml(entryData.subtitle)}</div>` : ''}
+                        ${entryData.description ? `<div class="pb-ad-desc">${escapeHtml(entryData.description)}</div>` : ''}
+                    `;
+                } else {
+                    entryDiv.className = 'pb-normal-entry';
+                    entryDiv.innerHTML = `
+                        <span class="pb-name">${escapeHtml(entryData.name)}</span>
+                        <span class="pb-dots"></span>
+                        <strong class="pb-number">${escapeHtml(entryData.number)}</strong>
+                    `;
+                }
+                listElement.appendChild(entryDiv);
+            }
+        });
+
+        // Update UI Controls
+        document.getElementById('pb-page-indicator').innerText = `Pg ${currentBookPage + 1} / ${bookPages.length}`;
+        
+        // Hide the corners if there isn't a previous or next page
+        document.getElementById('pb-prev').style.visibility = currentBookPage === 0 ? 'hidden' : 'visible';
+        document.getElementById('pb-next').style.visibility = currentBookPage === bookPages.length - 1 ? 'hidden' : 'visible';
+    }
+
+    // Button Listeners for the folded corners
+    document.getElementById('pb-prev').addEventListener('click', () => {
+        if (currentBookPage > 0) {
+            currentBookPage--;
+            renderPhoneBookPage();
+        }
+    });
+
+    document.getElementById('pb-next').addEventListener('click', () => {
+        if (currentBookPage < bookPages.length - 1) {
+            currentBookPage++;
+            renderPhoneBookPage();
+        }
+    });
+
+    // Boot it up
     loadDirectory();
 
     // ==========================================
-    // 2. PHONE BOOK PAGINATION LOGIC
-    // ==========================================
-    let currentPage = 0;
-    
-    const listElement = document.getElementById('directory-list');
-    const titleElement = document.getElementById('directory-title');
-    const prevBtn = document.getElementById('page-prev');
-    const nextBtn = document.getElementById('page-next');
-    const indicator = document.getElementById('page-indicator');
-
-    function renderPage() {
-        if (directoryPages.length === 0) return; 
-
-        // Get the current page object
-        const pageData = directoryPages[currentPage];
-
-        // Update the book title
-        titleElement.innerText = pageData.title;
-
-        // Clear and populate the list
-        listElement.innerHTML = ''; 
-        pageData.entries.forEach(item => {
-            const li = document.createElement('li');
-            li.innerHTML = `<span>${item.name}:</span> <strong>${item.number}</strong>`;
-            listElement.appendChild(li);
-        });
-
-        // Update indicator and buttons based on total pages
-        const totalPages = directoryPages.length;
-        indicator.innerText = `${currentPage + 1}/${totalPages}`;
-        
-        prevBtn.style.visibility = currentPage === 0 ? 'hidden' : 'visible';
-        nextBtn.style.visibility = currentPage === totalPages - 1 ? 'hidden' : 'visible';
-    }
-
-    prevBtn.addEventListener('click', () => {
-        if (currentPage > 0) { 
-            currentPage--; 
-            renderPage(); 
-        }
-    });
-
-    nextBtn.addEventListener('click', () => {
-        if (currentPage < directoryPages.length - 1) { 
-            currentPage++; 
-            renderPage(); 
-        }
-    });
-
-    // ==========================================
-    // 3. TELEPHONE DIALING LOGIC
+    // 3. TELEPHONE DIALING LOGIC & DTMF TONES
     // ==========================================
     const screen = document.getElementById('phone-screen');
     const keys = document.querySelectorAll('.key');
@@ -173,39 +271,147 @@ document.addEventListener('DOMContentLoaded', () => {
     const callBtn = document.getElementById('btn-call');
     
     let currentNumber = '';
+    
+    // --- DTMF Tone Synthesizer ---
+    let audioCtx;
+    const dtmfFrequencies = {
+        '1': [697, 1209], '2': [697, 1336], '3': [697, 1477],
+        '4': [770, 1209], '5': [770, 1336], '6': [770, 1477],
+        '7': [852, 1209], '8': [852, 1336], '9': [852, 1477],
+        '*': [941, 1209], '0': [941, 1336], '#': [941, 1477]
+    };
 
+    function playDTMF(key) {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        const freqs = dtmfFrequencies[key];
+        if (!freqs) return;
+
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        osc1.frequency.value = freqs[0];
+        osc2.frequency.value = freqs[1];
+        
+        osc1.connect(gainNode);
+        osc2.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+
+        osc1.start(); osc2.start();
+        osc1.stop(audioCtx.currentTime + 0.1); osc2.stop(audioCtx.currentTime + 0.1);
+    }
+
+    // --- Custom Tone Generator for Ringing/Errors ---
+    function playTone(freq1, freq2, durationMs) {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        osc1.frequency.value = freq1;
+        osc2.frequency.value = freq2;
+
+        osc1.connect(gainNode);
+        osc2.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        const durationSec = durationMs / 1000;
+        
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+
+        osc1.start(); osc2.start();
+        osc1.stop(audioCtx.currentTime + durationSec); 
+        osc2.stop(audioCtx.currentTime + durationSec);
+    }
+
+    // --- Mechanical Click/Pop Generator ---
+    function playClickPop(startFreq) {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        // A massive, rapid drop in frequency creates a percussive "pop"
+        osc.frequency.setValueAtTime(startFreq, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.05);
+
+        // Very short volume envelope (50ms)
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.05);
+    }
+
+    // --- Keypad Logic ---
     keys.forEach(key => {
-        key.addEventListener('click', () => {
-            if (currentNumber.length < 10 && currentNumber !== 'ERR') {
-                currentNumber += key.innerText;
+        key.addEventListener('mousedown', () => {
+            const val = key.innerText;
+            playDTMF(val);
+            if (currentNumber.length < 15 && currentNumber !== 'ERR') {
+                currentNumber += val;
                 updateScreen();
             }
         });
     });
 
-    clearBtn.addEventListener('click', () => {
+    clearBtn.addEventListener('mousedown', () => {
+        playClickPop(600); // Lower pitched pop for "Clear"
         currentNumber = '';
         updateScreen();
     });
 
-    callBtn.addEventListener('click', () => {
+    callBtn.addEventListener('mousedown', () => {
+        playClickPop(1000); // Higher pitched pop for "Call"
         const dialed = currentNumber;
+        const allContacts = directoryPages.flatMap(page => page.entries || []);
         
-        // Combine ALL entries from ALL pages into one flat list so we can search it
-        const allContacts = directoryPages.flatMap(page => page.entries);
-        
-        // Look up the number in our combined list
-        const contact = allContacts.find(item => item.number === dialed);
+        const contact = allContacts.find(item => {
+            if (!item.number) return false;
+            const cleanNumber = item.number.replace(/[^0-9*#]/g, ''); 
+            return cleanNumber === dialed;
+        });
         
         if (contact) {
             screen.innerText = 'DIALING';
-            setTimeout(() => {
-                window.open(contact.url, '_blank').focus();
-                currentNumber = '';
-                updateScreen();
-            }, 800);
+            
+            // Standard North American Ringback Tone (440Hz & 480Hz)
+            playTone(440, 480, 800); 
+            
+            // Check if it's an audio easter egg or a web link
+            if (contact.audioUrl) {
+                // Wait 800ms for the connection tone to finish before playing the audio file
+                setTimeout(() => {
+                    const secretAudio = new Audio(contact.audioUrl);
+                    secretAudio.play();
+                    setTimeout(() => {
+                        currentNumber = '';
+                        updateScreen();
+                    }, 2000); 
+                }, 800);
+            } else if (contact.url) {
+                setTimeout(() => {
+                    window.open(contact.url, '_blank').focus();
+                    currentNumber = '';
+                    updateScreen();
+                }, 800);
+            }
         } else if (dialed !== '') {
             screen.innerText = 'ERR';
+            
+            // Standard North American "Invalid/Busy" Tone (480Hz & 620Hz)
+            playTone(480, 620, 500);
+            
             setTimeout(() => {
                 currentNumber = '';
                 updateScreen();
@@ -215,6 +421,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateScreen() {
         screen.innerText = currentNumber;
+    }
+
+    // --- Keyboard Support ---
+    document.addEventListener('keydown', (e) => {
+        // SAFETY CHECK: Don't dial if the user is typing in the Scratch Pad or an input field!
+        if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+
+        let targetButton = null;
+        const key = e.key;
+
+        // Match 0-9, *, and # to the keypad
+        if (['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '#'].includes(key)) {
+            targetButton = Array.from(keys).find(k => k.innerText === key);
+        } 
+        // Match Backspace or Delete to the CLEAR button
+        else if (key === 'Backspace' || key === 'Delete') {
+            targetButton = clearBtn;
+        } 
+        // Match Enter to the CALL button
+        else if (key === 'Enter') {
+            targetButton = callBtn;
+        }
+
+        if (targetButton) {
+            // Prevent default browser behaviors (like 'Enter' scrolling the page or 'Backspace' navigating back)
+            e.preventDefault(); 
+            
+            // 1. Trigger the actual dialing and audio logic
+            targetButton.dispatchEvent(new MouseEvent('mousedown'));
+            
+            // 2. Visually push the button down for 100 milliseconds
+            targetButton.classList.add('keyboard-active');
+            setTimeout(() => targetButton.classList.remove('keyboard-active'), 100);
+        }
+    });
+
+    // ==========================================
+    // 4. SCRATCH PAD LOGIC
+    // ==========================================
+    const scratchPad = document.getElementById('scratch-pad-text');
+    if (scratchPad) {
+        // Load existing notes from browser memory
+        const savedNotes = localStorage.getItem('bugandmoss-scratchpad');
+        if (savedNotes) {
+            scratchPad.value = savedNotes;
+        }
+
+        // Auto-save whenever the user types
+        scratchPad.addEventListener('input', () => {
+            localStorage.setItem('bugandmoss-scratchpad', scratchPad.value);
+        });
     }
 
 });

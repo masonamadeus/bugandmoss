@@ -30,6 +30,7 @@ body {
     flex-direction: column;
     align-items: center;
     overflow-x: hidden;
+    overscroll-behavior-x: contain;
     touch-action: manipulation;
 }
 
@@ -61,7 +62,7 @@ body {
 .cutout:hover {
     transform: translate(-4px, -4px) rotate(0deg) !important;
     box-shadow: var(--hard-shadow-hover);
-    z-index: 10;
+    z-index: 50!important;
 }
 
 /* --- THE TV MONITOR (Livestream) --- */
@@ -69,11 +70,17 @@ body {
     background-color: var(--color-tv);
     padding: 1.5rem;
     border-radius: 24px;
-    grid-column: 1 / -1; 
-    width: 100%;
-    max-width: 800px;
+    grid-column: auto;
+    width: 90%;
+    max-width: none;
+    margin: 0 auto;
     transform: rotate(-1deg);
     position: relative;
+}
+
+.tv-monitor:hover {
+    transform: rotate(-1deg);
+    z-index: 10;
 }
 
 .tv-antennae {
@@ -83,7 +90,7 @@ body {
     transform: translateX(-50%);
     display: flex;
     gap: 40px;
-    z-index:-1;
+    z-index:-11;
 }
 
 .antenna {
@@ -379,174 +386,137 @@ body {
     .tv-label { font-size: 1.2rem; }
 }
 
-/* --- INTERACTIVE AREA (Grid Layout) --- */
-/* --- INTERACTIVE AREA (Flex Layout) --- */
-.interactive-area {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-wrap: wrap; /* Allows columns to drop down on mobile */
-    gap: 3rem;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    max-width: 900px;
-    margin: 1rem auto;
-}
 
-.interactive-left {
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
-    flex: 1 1 300px; /* Tells it to take up equal space, but shrink no smaller than 300px */
-    align-items: center;
-}
-
-.interactive-right {
-    display: flex;
-    flex: 1 1 300px;
-    justify-content: center;
-    align-items: center;
-}
-
-/* --- PHONE BOOK --- */
-.phone-book {
-    grid-area: book;
-    margin: auto; /* Centers it in its grid cell */
-    background-color: #fff9e6; 
-    background-image: repeating-linear-gradient(transparent, transparent 31px, #add8e6 31px, #add8e6 32px);
+/* --- THE SCRATCH PAD --- */
+.scratch-pad {
+    background-color: #fff9e6;
+    background-image: repeating-linear-gradient(transparent, transparent 29px, #add8e6 29px, #add8e6 30px);
     background-attachment: local;
-    padding: 1.5rem 1.5rem 1.5rem 2.5rem;
-    width: 90%;
-    max-width: 300px;
-    min-height: 280px;
-    transform: rotate(-2deg);
+    width: 100%;
+    max-width: 280px;
+    height: 350px;
     position: relative;
+    border-radius: 4px;
+    transform: rotate(3deg);
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.3);
+    padding-top: 40px; /* Space for the top binding */
+    z-index:60;
 }
 
-.spiral-binding {
+.scratch-pad-binding {
     position: absolute;
-    left: -10px;
-    top: 20px;
-    bottom: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    top: 0; left: 0; right: 0; height: 30px;
+    background-color: #8b0000; /* Dark red legal pad binding */
+    border-bottom: 2px solid #550000;
+    border-radius: 4px 4px 0 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-.ring {
-    width: 25px;
-    height: 10px;
-    background-color: #ccc;
-    border-radius: 5px;
-    box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
-}
-
-.book-controls {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    margin-top: auto; /* Pushes to bottom */
-    padding-top: 1rem;
-}
-
-.page-btn {
-    background: none;
-    border: none;
+#scratch-pad-text {
+    width: 100%; height: 100%;
+    border: none; outline: none; resize: none;
+    background: transparent;
     font-family: var(--font-cartoon);
-    font-size: 1rem;
-    cursor: pointer;
-    color: var(--color-youtube);
+    font-size: 1.2rem;
+    line-height: 30px; /* Perfectly aligns with the blue lines! */
+    color: #000080; /* Ballpoint pen blue */
+    padding: 0 1.5rem;
+    box-sizing: border-box;
 }
 
-.phone-book h3 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    border-bottom: 2px dashed #ccc;
-    width: 100%;
-    padding-bottom: 0.5rem;
-    color: var(--color-youtube); /* A nice red/orange accent */
+/* Mobile Adjustments */
+@media (max-width: 800px) {
+    .pb-two-column-list { grid-template-columns: 1fr; } /* Stacks to 1 column on phones */
+    .phone-book-80s { padding: 2rem 1.5rem 2rem 3.5rem; }
 }
 
-.phone-book ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    width: 100%;
-}
-
-.phone-book li {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-    font-size: 1.1rem;
-}
-
-.phone-book li span { color: #555; }
-.phone-book li strong { color: #111; font-family: var(--font-digital); }
-
-/* --- THE TELEPHONE (Handset) --- */
+/* --- THE TELEPHONE (Cordless Dog-Bone) --- */
 .telephone-outer {
     grid-area: phone;
-    margin: auto; /* Centers it in its grid cell */
+    margin: 0;
     position: relative;
     transform: rotate(1deg);
     display: flex;
     flex-direction: column;
     align-items: center;
+    transition: transform 0.2s ease-in-out;
+    z-index: 10;
+    box-shadow:none;
 }
 
+.telephone-outer:hover {
+    transform: translate(-4px, -4px) rotate(1deg);
+    z-index: 50;
+}
+
+/* The Base/Cradle - Tucked in tighter so it isn't so tall! */
 .telephone-outer::before {
     content: '';
     position: absolute;
-    top: 6px;
-    left: 6px;
-    width: 220px;
-    bottom: 185px; /* stops before the cord */
+    top: 3%;
+    left: 35%;
+    width: 77%;
+    bottom: 3%;
     background-color: #b8a88a;
-    border-radius: 36px;
+    border-radius: 112px;
     z-index: 0;
+    box-shadow: var(--hard-shadow);
+    transition: box-shadow 0.2s ease-in-out;
+}
+.telephone-outer:hover::before {
+    box-shadow: var(--hard-shadow-hover);
 }
 
-.phone-cord-svg {
-    width: 60px;
-    height: 180px;
-    margin-top: -4px;
-    z-index: -2;
-}
-
+/* The Unified Handset Wrapper */
 .telephone {
-    background-color: #e8d9c0;
-    padding: 0;
-    border-radius: 36px;
-    width: 220px;
-    max-width: 220px;
-    transform: none;
+    background-color: transparent; 
+    box-shadow: none !important; 
+    filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.3));
+    display: flex;
     flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-    overflow: hidden;
+    align-items: center;
     position: relative;
     z-index: 1;
 }
 
+/* Base style for the flared ends */
 .handset-end {
     background-color: #e8d9c0;
+    width: 210px; /* Slimmed down from the giant 240px */
+    height: 85px;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0.8rem 1rem 0.5rem;
+    position: relative;
+    z-index: 2; 
 }
 
-.handset-mouth-end {
-    padding: 0.5rem 1rem 0.8rem;
+/* The Ear Piece - Ergonomic rounded top, flat bottom */
+
+.telephone > .handset-end:first-child {
+    border-radius: 70px 24px 24px 24px;
+    right: 7px;
+    bottom: -15px;
+    width:108%;
+    padding: 10px 0px;
 }
 
+/* The Mouth Piece - Flat top, ergonomic rounded bottom */
+.telephone > .handset-end:last-child {
+    border-radius: 24px 24px 24px 70px;
+    top:-15px;
+    right:7px;
+    width:108%;
+    padding: 10px 0px;
+}
+
+/* The Speaker Grilles - Slimmed down into neat pills */
 .speaker-pad {
     background-color: #cfc0a4;
     border-radius: 18px;
     box-shadow: inset 3px 3px 6px rgba(0,0,0,0.22), inset -1px -1px 3px rgba(255,255,255,0.15), 2px 2px 0px rgba(0,0,0,0.15);
-    width: 86%;
-    height: 72px;
+    width: 85px; 
+    height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -555,78 +525,91 @@ body {
 .dot-cluster {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    justify-items: center;
+    gap: 4px;
 }
 
 .sp-dot {
-    width: 8px;
-    height: 8px;
-    background-color: #8a7560;
+    width: 4px; height: 4px;
+    background: #555;
     border-radius: 50%;
     box-shadow: inset 1px 1px 2px rgba(0,0,0,0.5);
 }
 
+/* The Narrow Middle Handle - Merges seamlessly with the new flared ends */
 .phone-inner {
+    background-color: #e8d9c0;
+    width: 175px; 
+    margin: -15px 0; /* Smoother, less aggressive overlap */
+    padding: 35px 1rem; 
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    padding: 0.5rem 1rem 0.5rem;
+    gap: 0.8rem;
+    position: relative;
+    z-index: 1; 
+    border-radius: 12px;
+    box-sizing: border-box;
+}
+/* Tames the giant SVG into a realistic coiled cord */
+.phone-cord-svg {
+    position: absolute;
+    bottom: -35px;
+    left: 25%;
+    width: 35px;
+    height: 80px;
+    z-index: -1;
 }
 
-.handset-ear, .mouth-dot, .ear-dot,
-.phone-left, .phone-right, .handset, .phone-cord, .earpiece, .mouthpiece, .handle { display: none; }
-
+/* The Digital Screen */
 .phone-screen {
-    background-color: #8ca58c; /* Classic LCD Green */
+    background-color: #8ca58c; 
     width: 100%;
-    height: 60px;
+    height: 45px; /* Slightly slimmer to fit the narrow waist */
     border-radius: 8px;
-    margin-bottom: 1.5rem;
     box-shadow: inset 4px 4px 0px rgba(0,0,0,0.2);
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    padding: 0 1rem;
+    padding: 0 0.8rem;
     font-family: var(--font-digital);
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: #111;
     box-sizing: border-box;
     overflow: hidden;
     white-space: nowrap;
 }
 
+/* The Keypad Grid */
 .keypad {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: 0.5rem; /* Tighter gap to fit inside the 170px handle */
     width: 100%;
 }
 
-/* The tactile buttons */
 .key {
     background-color: #f4ede1;
     border: none;
     border-radius: 8px;
-    height: 50px;
+    height: 45px;
     font-family: var(--font-cartoon);
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 700;
     color: #333;
-    box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
     cursor: pointer;
     transition: all 0.1s;
+    user-select: none;
 }
 
-.key:active {
-    transform: translate(4px, 4px);
-    box-shadow: 0px 0px 0px rgba(0,0,0,0.2); /* flattens out when pushed */
+.key:active, .key.keyboard-active, .action-btn.keyboard-active {
+    transform: translate(3px, 3px) !important;
+    box-shadow: 0px 0px 0px rgba(0,0,0,0.2) !important;
 }
 
+/* The Call / Clear Actions */
 .phone-actions {
     display: flex;
-    gap: 1rem;
+    gap: 0.5rem;
     width: 100%;
 }
 
@@ -634,20 +617,329 @@ body {
     flex: 1;
     border: none;
     border-radius: 8px;
-    height: 50px;
+    height: 45px;
     font-family: var(--font-cartoon);
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
     transition: all 0.1s;
     color: #fff;
 }
 
 .action-btn:active {
-    transform: translate(4px, 4px);
+    transform: translate(3px, 3px);
     box-shadow: 0px 0px 0px rgba(0,0,0,0.2);
 }
 
 .clear-btn { background-color: var(--color-youtube); }
 .call-btn { background-color: var(--color-podcast); }
+
+/* --- INTERACTIVE LAYOUT (Rows) --- */
+.interactive-layout {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 5rem; /* Spacing between rows */
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.desk-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3rem;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+/* TOP ROW: TV (2/3) and Right Column (1/3) */
+.top-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* 2/3 left, 1/3 right split! */
+    gap: 2.5rem;
+    align-items: center;
+    width: 100%;
+}
+
+@media (max-width: 900px) {
+    .top-row { grid-template-columns: 1fr; } /* Stacks perfectly in a single column on mobile */
+}
+
+
+
+/* The new Right Column for stacking the notes */
+.top-right-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem; /* Nice spacing between the two notes */
+    width: 100%;
+}
+
+/* Ensure the Taped Note fits inside the column without blowing out */
+.taped-note {
+    grid-area: auto; /* Overrides any previous grid-area properties */
+    position: relative;
+    background-color: #fffde6;
+    padding: 1.2rem 1.5rem;
+    transform: rotate(-4deg);
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.3);
+    font-family: var(--font-cartoon);
+    text-align: center;
+    z-index: 10;
+    width: 100%;
+    max-width: 260px;
+    margin: 0 auto;
+}
+
+.telephone-outer { margin: 0; }
+
+/* --- THE FOLDED 1980s YELLOW PAGES --- */
+.phone-book-folded {
+    z-index:60;
+    width: 100%;
+    max-width: 650px; /* Slimmer, single-page look */
+    margin: 0 auto;
+    border-radius: 4px 16px 16px 4px;
+    padding: 2.5rem 3rem 5.5rem 5rem;
+    position: relative;
+    color: #111;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease-in-out;
+    background-color: #fae99e; 
+    
+    /* Left edge shadow suggests a cover wrapped around the back */
+    box-shadow: 
+        inset 15px 0px 15px rgba(0,0,0,0.1), /* Spine curve */
+        -8px 0px 0px #645713, /* Folded cover edge peeking out */
+        -10px 0px 10px rgba(0,0,0,0.15), /* Folded cover drop shadow */
+        12px 12px 0px rgba(0,0,0,0.3), /* Desk drop shadow */
+        4px 4px 0px #e6c32e, /* Page edges layer 1 */
+        8px 8px 0px #cca300; /* Page edges layer 2 */
+}
+
+.phone-book-folded:hover {
+    transform: translate(-4px, -4px) rotate(-1deg) !important;
+    box-shadow: 
+        inset 15px 0px 15px rgba(0,0,0,0.1),
+        -8px 0px 0px #645713,
+        -10px 0px 10px rgba(0,0,0,0.15),
+        16px 16px 0px rgba(0,0,0,0.25), 
+        4px 4px 0px #e6c32e,
+        8px 8px 0px #cca300 !important;
+    z-index: 50 !important; /* <--- Fixes Yellow Pages shadow clipping */
+}
+
+.pb-folded-spine {
+    position: absolute;
+    left: 0; top: 0; bottom: 0; width: 30px;
+    background: linear-gradient(to right, rgba(0,0,0,0.15), rgba(0,0,0,0));
+    border-radius: 4px 0 0 4px;
+    pointer-events: none;
+}
+
+.pb-header {
+    text-align: center;
+    border-bottom: 4px double #111;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.pb-header h2 {
+    margin: 0;
+    font-family: var(--font-cartoon);
+    font-size: 2.2rem;
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+.pb-header p {
+    margin: 0;
+    font-weight: bold;
+    color: #333;
+}
+
+/* --- THE SINGLE-COLUMN FLOW --- */
+.pb-directory-single {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    width: 100%;
+}
+
+.pb-category-header {
+    font-family: var(--font-cartoon);
+    font-size: 1.3rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    border-bottom: 3px double #111;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    color: #111;
+}
+
+.pb-directory-single .pb-category-header:first-child { margin-top: 0; }
+
+.pb-normal-entry {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 0.4rem;
+    font-size: 0.95rem;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.pb-normal-entry:last-child {
+    border-bottom: none;
+}
+
+.pb-normal-entry .pb-name { font-weight: bold; color: #222; }
+
+.pb-dots {
+    flex-grow: 1;
+    border-bottom: 2px dotted #555;
+    margin: 0 4px;
+    position: relative;
+    top: -4px;
+}
+
+.pb-number, .pb-ad-number {
+    font-family: var(--font-digital);
+    font-weight: bold;
+    color: #111;
+}
+
+/* --- MINIMAL INLINE ADVERTISEMENTS --- */
+.pb-ad-entry {
+    border: 2px solid #222; /* Clean, bold black outline */
+    border-radius: 4px;
+    padding: 0.6rem 0.8rem;
+    margin: 1rem 0;
+    background-color: rgba(255, 255, 255, 0.4); /* Extremely subtle highlight */
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+}
+
+.pb-ad-header {
+    display: flex;
+    align-items: baseline;
+    width: 100%;
+    margin-bottom: 0.3rem;
+}
+
+.pb-ad-title {
+    font-family: var(--font-cartoon);
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #111;
+    text-transform: uppercase;
+}
+
+.pb-ad-subtitle {
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+    text-transform: uppercase;
+}
+
+.pb-ad-desc {
+    font-size: 0.85rem;
+    margin-bottom: 0;
+    line-height: 1.3;
+    color: #333;
+}
+
+/* --- SKEUOMORPHIC FOLDED CORNER PAGINATION --- */
+.pb-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Lets you click the book through this container */
+}
+
+.pb-indicator-container {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70%;
+    text-align: center;
+    border-top: 1px dashed rgba(0,0,0,0.15);
+    padding-top: 0.5rem;
+}
+
+#pb-page-indicator {
+    font-family: var(--font-digital);
+    font-weight: bold;
+    color: #555;
+}
+
+.pb-btn {
+    position: absolute;
+    bottom: 0;
+    width: 65px;
+    height: 65px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    pointer-events: auto; /* Makes the corners clickable again */
+    color: transparent;
+    z-index: 20;
+}
+
+/* The Bottom-Right "Next Page" Fold */
+#pb-next {
+    right: 0;
+    /* Creates the diagonal fold color */
+    background: linear-gradient(135deg, transparent 50%, #cca300 50%);
+    /* Casts a shadow onto the page underneath */
+    box-shadow: -4px -4px 6px rgba(0,0,0,0.15);
+    border-radius: 0 0 16px 0; /* Matches the book's outer corner */
+}
+
+#pb-next::after {
+    content: '►';
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    color: #111;
+    font-size: 1.2rem;
+    opacity: 0.5;
+}
+
+#pb-next:hover {
+    width: 85px;
+    height: 85px;
+    background: linear-gradient(135deg, transparent 50%, #d9ac00 50%); /* Brightens on hover */
+}
+
+/* The Bottom-Left "Prev Page" Fold */
+#pb-prev {
+    left: 0;
+    /* Reverse diagonal for the left side */
+    background: linear-gradient(225deg, transparent 50%, #cca300 50%);
+    box-shadow: 4px -4px 6px rgba(0,0,0,0.15);
+    border-radius: 0 0 0 4px; 
+}
+
+#pb-prev::after {
+    content: '◄';
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    color: #111;
+    font-size: 1.2rem;
+    opacity: 0.5;
+}
+
+#pb-prev:hover {
+    width: 85px;
+    height: 85px;
+    background: linear-gradient(225deg, transparent 50%, #d9ac00 50%);
+}
