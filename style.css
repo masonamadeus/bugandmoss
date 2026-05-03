@@ -78,7 +78,7 @@ body {
     grid-column: auto;
     width: 90%;
     max-width: none;
-    /* NEW: Added 60px top margin to protect the antennae, and scaled down to 90% */
+    /* Added 60px top margin to protect the antennae, and scaled down to 90% */
     margin: 60px auto 0 auto;
     transform: scale(0.9) rotate(-1deg);
     position: relative;
@@ -208,7 +208,7 @@ body {
     letter-spacing: 2px;
 }
 
-/* Offline Screen Tweaks for the New CRT */
+/* Offline Screen Tweaks for the CRT */
 .tv-offline {
     position: absolute;
     inset: 0;
@@ -604,7 +604,7 @@ body {
     z-index: 50;
 }
 
-/* Base/Cradle shadow adjusted for the new narrower shape */
+
 .telephone-outer::before {
     content: '';
     position: absolute;
@@ -697,7 +697,7 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
     gap: 10px;
 }
 
-/* NEW: Radial Earpiece Layout */
+/* Radial Earpiece Layout */
 .ear-hole-radial {
     position: relative;
     width: 80px; 
@@ -935,7 +935,7 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
 
 
 
-/* The new Right Column for stacking the notes */
+/* Right Column for stacking the notes */
 .top-right-column {
     display: flex;
     flex-direction: column;
@@ -1291,7 +1291,7 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
 
 /* --- YELLOW PAGES MOBILE FIXES --- */
 @media (max-width: 600px) {
-    /* 1. Fix the Header and Subheading sizes */
+    /* Fix the Header and Subheading sizes */
     .pb-header h2 {
         font-size: 1.7rem !important; /* Shrunk from 2.2rem */
         letter-spacing: 1px;
@@ -1301,7 +1301,7 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
         font-size: 0.8rem;
     }
 
-    /* 2. Fix the Height and Padding */
+    /* Fix the Height and Padding */
     .phone-book-folded {
         /* Reduce padding so content has more horizontal room (prevents excessive wrapping) */
         padding: 1.5rem 1.5rem 5rem 3.5rem !important; 
@@ -1313,7 +1313,7 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
         flex-direction: column;
     }
 
-    /* 3. Ensure the list fills the space but doesn't blow out the container */
+    /* Ensure the list fills the space but doesn't blow out the container */
     .pb-directory-single {
         min-height: unset !important; /* Remove the old min-height */
         flex-grow: 1;
@@ -1333,14 +1333,14 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
 /* --- GLOBAL MOBILE REORDER & TYPOGRAPHY FIXES --- */
 @media (max-width: 900px) {
    
-    /* 2. Flatten the containers so we can reorder children globally */
+    /* Flatten the containers so we can reorder children globally */
     .top-row, 
     .middle-row, 
     .top-right-column {
         display: contents; 
     }
 
-    /* 3. Make the main layout a single vertical flex column */
+    /* Make the main layout a single vertical flex column */
     .interactive-layout {
         display: flex;
         flex-direction: column;
@@ -1348,7 +1348,7 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
         gap: 3rem; /* Spacing between all desk items */
     }
 
-    /* 4. Set the New Mobile Order */
+    /* Set the Mobile Order */
     .tv-monitor          { order: 1; }
     .taped-note          { order: 2; }
     .telephone-outer     { order: 3; }
@@ -1356,7 +1356,7 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
     .phone-book-folded   { order: 5; }
     .patreon-note        { order: 6; } /* Jumps to the bottom! */
 
-    /* 5. Mobile Styling for the Patreon Button */
+    /* Mobile Styling for the Patreon Button */
     .patreon-note {
         width: 100%;
         max-width: 280px;

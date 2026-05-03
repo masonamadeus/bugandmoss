@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let bookPages = [];
     let currentBookPage = 0;
     
-    // NEW Index Variables
+    // Index Variables
     let indexData = []; 
     let indexPages = [];
     let currentIndexPage = 0;
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentWeight = 0;
                 }
                 
-                // --- NEW: Map this category to the exact page it starts on! ---
+                // --- Map this category to the exact page it starts on! ---
                 indexData.push({ title: category.title, targetPage: bookPages.length });
                 
                 currentPageData.push({ type: 'header', text: category.title });
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (currentPageData.length > 0) bookPages.push(currentPageData);
 
-            // --- NEW: Chunk the Index into its own pages (10 categories per page) ---
+            // --- Chunk the Index into its own pages (10 categories per page) ---
             indexPages = [];
             const ITEMS_PER_INDEX_PAGE = 10;
             for (let i = 0; i < indexData.length; i += ITEMS_PER_INDEX_PAGE) {
@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('pb-next').style.visibility = currentBookPage === bookPages.length - 1 ? 'hidden' : 'visible';
     }
 
-    // --- NEW: Index View Rendering & Toggle Logic ---
+    // --- Index View Rendering & Toggle Logic ---
     function toggleIndexMode() {
         isIndexMode = !isIndexMode;
         const dirView = document.getElementById('directory-list');
@@ -423,8 +423,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const contact = allContacts.find(item => {
             if (!item.number) return false;
-            const cleanNumber = item.number.replace(/[^0-9*#]/g, ''); 
-            return cleanNumber === dialed;
+            const directoryDigits = mapAlphaToDigits(item.number); 
+        
+            return directoryDigits === dialed;
         });
         
         if (contact) {
@@ -535,5 +536,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    function mapAlphaToDigits(str) {
+        const map = {
+            'A': '2', 'B': '2', 'C': '2',
+            'D': '3', 'E': '3', 'F': '3',
+            'G': '4', 'H': '4', 'I': '4',
+            'J': '5', 'K': '5', 'L': '5',
+            'M': '6', 'N': '6', 'O': '6',
+            'P': '7', 'Q': '7', 'R': '7', 'S': '7',
+            'T': '8', 'U': '8', 'V': '8',
+            'W': '9', 'X': '9', 'Y': '9', 'Z': '9'
+        };
+        // Convert to uppercase, map letters to numbers, then strip everything else except digits, * and #
+        return str.toUpperCase()
+                .replace(/[A-Z]/g, L => map[L])
+                .replace(/[^0-9*#]/g, '');
+    }
 
 });

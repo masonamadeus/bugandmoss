@@ -179,12 +179,18 @@
         ]
     },
     {
-        "title": "Musicians",
+        "title": "Musicians (metal)",
         "entries": [
             {
                 "name": "Malacath",
                 "number": "666",
                 "url": "https://malacath.bandcamp.com",
+                "isAd": false
+            },
+            {
+                "name": "shade_cycle",
+                "number": "SHADE",
+                "url": "https://open.spotify.com/artist/2b4qeb1ngiP5PXwA52ptMK",
                 "isAd": false
             }
         ]
@@ -192,6 +198,14 @@
     {
         "title": "Cool Websites",
         "entries": [
+            {
+                "name": "Strangers By Spring",
+                "number": "777-464",
+                "url": "https://strangersbyspring.com",
+                "isAd": true,
+                "subtitle": "Beautiful, Indulgent Post",
+                "description": "One of the most beautiful blog experiences on earth."
+            },
             {
                 "name": "Really Simple Soundboard",
                 "number": "0420",
