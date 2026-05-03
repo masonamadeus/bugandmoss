@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        :root {
+            --phone-beige: #f4efd8;
+            --phone-highlight: #ffffff;
+            --phone-shadow: #d8d0b2;
+            --button-gray: #b7bcaa;
+            --panel-dark: #70756b;
+            --text-dark: #111;
+        }
+
+        body {
+            background-color: #e8e8e8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial Narrow', Arial, sans-serif;
+        }
+
+        /* The overall composite wrapper */
+        .handset-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            filter: drop-shadow(15px 25px 15px rgba(0,0,0,0.15)) drop-shadow(2px 5px 5px rgba(0,0,0,0.1));
+        }
+
+        /* --- 1. EARPIECE --- */
+        .earpiece-block {
+            width: 175px;
+            height: 165px;
+            background-color: var(--phone-beige);
+            border-radius: 65px 65px 45px 45px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 3;
+            box-shadow: 
+                inset -8px 15px 20px rgba(255,255,255,0.7), 
+                inset 8px -8px 15px var(--phone-shadow);
+        }
+
+        /* Deep circular speaker indent */
+        .speaker-indent {
+            width: 95px;
+            height: 95px;
+            border-radius: 50%;
+            background-color: #e5deb7;
+            box-shadow: 
+                inset 0px 12px 18px rgba(0,0,0,0.15), 
+                inset 0px -5px 10px rgba(255,255,255,0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ear-slit {
+            width: 32px;
+            height: 3px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 2px;
+            box-shadow: 0px 1px 1px rgba(255,255,255,0.6);
+        }
+
+        /* The little grey hook-switch nub */
+        .hook-switch {
+            position: absolute;
+            bottom: -8px;
+            width: 30px;
+            height: 16px;
+            background: #999;
+            border-radius: 4px 4px 2px 2px;
+            box-shadow: inset 0px -4px 5px rgba(0,0,0,0.3), 0px 2px 3px rgba(0,0,0,0.2);
+            z-index: 2;
+        }
+
+        /* --- 2. HANDLE & KEYPAD --- */
+        .handle-block {
+            width: 152px;
+            background-color: var(--phone-beige);
+            margin-top: -35px; /* Overlap to create seamless neck */
+            padding: 55px 15px 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            box-shadow: 
+                inset -10px 0px 15px var(--phone-shadow), 
+                inset 10px 0px 15px rgba(255,255,255,0.5);
+        }
+
+        /* The recessed dark panel */
+        .keypad-panel {
+            width: 130px;
+            background-color: var(--panel-dark);
+            border-radius: 12px;
+            padding: 12px 10px 8px;
+            box-shadow: 
+                inset 2px 4px 8px rgba(0,0,0,0.6), 
+                0px 2px 0px rgba(255,255,255,0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Grid for standard buttons */
+        .keypad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px 10px;
+        }
+
+        .btn {
+            height: 24px;
+            background-color: var(--button-gray);
+            border-radius: 4px;
+            box-shadow: 1px 3px 0px #858b7c, inset 1px 1px 2px rgba(255,255,255,0.6);
+            position: relative;
+            cursor: pointer;
+            color: var(--text-dark);
+        }
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0px 1px 0px #858b7c, inset 1px 1px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Emergency Icons Row */
+        .btn-icon { display: flex; justify-content: center; align-items: center; }
+        .btn-icon svg { width: 14px; height: 14px; }
+
+        /* Typography layout for Number Keys */
+        .num {
+            position: absolute;
+            top: 2px;
+            left: 4px;
+            font-size: 13px;
+            font-weight: 800;
+            font-style: italic; /* The 210 has distinct italic numbers */
+        }
+        .alpha {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            font-size: 6px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Typography for Special/Bottom Keys */
+        .btn-special {
+            height: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        /* Tiny Bottom Configuration Switches */
+        .config-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 4px;
+        }
+        .config-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 24px;
+        }
+        .micro-text { font-size: 5px; color: #b7bcaa; font-weight: bold; letter-spacing: 0.2px; text-transform: uppercase;}
+        .switch-groove {
+            width: 14px; height: 6px;
+            background: #4a4d46;
+            border-radius: 3px;
+            box-shadow: inset 1px 1px 2px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .switch-nub {
+            width: 6px; height: 6px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .nub-left { left: 0; }
+        .nub-center { left: 4px; }
+        .nub-right { right: 0; }
+
+        /* --- 3. MOUTHPIECE --- */
+        .mouthpiece-block {
+            width: 165px;
+            height: 130px;
+            background-color: var(--phone-beige);
+            border-radius: 30px 30px 65px 65px;
+            margin-top: -20px; /* Overlap with handle */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            box-shadow: 
+                inset -10px -15px 25px var(--phone-shadow), 
+                inset 10px 5px 15px rgba(255,255,255,0.6);
+        }
+
+        /* Authentic Branding */
+        .brand {
+            margin-top: 25px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #111;
+        }
+        .brand svg { width: 16px; height: 16px; }
+        .brand .at-t { font-weight: 900; font-size: 14px; letter-spacing: -0.5px; }
+        .brand .model { font-size: 11px; font-weight: 600; margin-left: 2px;}
+
+        /* Mouthpiece slits */
+        .mouth-slits {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 48px;
+        }
+        .m-slit {
+            height: 4px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 2px;
+            box-shadow: 0px 1px 1px rgba(255,255,255,0.6);
+        }
+        .m-slit:nth-child(2) { width: 75%; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+    <div class="handset-wrapper">
+        <div class="earpiece-block">
+            <div class="speaker-indent">
+                <div class="ear-slit"></div>
+                <div class="ear-slit"></div>
+                <div class="ear-slit"></div>
+            </div>
+            <div class="hook-switch"></div>
+        </div>
+
+        <div class="handle-block">
+            <div class="keypad-panel">
+                
+                <div class="keypad-grid">
+                    <div class="btn btn-icon">
+                        <svg viewBox="0 0 24 24" fill="#d33"><path d="M12 2c0 0-5 5-5 10a5 5 0 0 0 10 0c0-5-5-10-5-10z"/></svg>
+                    </div>
+                    <div class="btn btn-icon">
+                        <svg viewBox="0 0 24 24" fill="#36a"><path d="M12 2L4 5v6c0 5 8 11 8 11s8-6 8-11V5l-8-3z"/></svg>
+                    </div>
+                    <div class="btn btn-icon">
+                        <svg viewBox="0 0 24 24" fill="#3a4"><path d="M19 10h-5V5h-4v5H5v4h5v5h4v-5h5v-4z"/></svg>
+                    </div>
+                    
+                    <div class="btn"><span class="num">1</span></div>
+                    <div class="btn"><span class="num">2</span><span class="alpha">ABC</span></div>
+                    <div class="btn"><span class="num">3</span><span class="alpha">DEF</span></div>
+                    <div class="btn"><span class="num">4</span><span class="alpha">GHI</span></div>
+                    <div class="btn"><span class="num">5</span><span class="alpha">JKL</span></div>
+                    <div class="btn"><span class="num">6</span><span class="alpha">MNO</span></div>
+                    <div class="btn"><span class="num">7</span><span class="alpha">PQRS</span></div>
+                    <div class="btn"><span class="num">8</span><span class="alpha">TUV</span></div>
+                    <div class="btn"><span class="num">9</span><span class="alpha">WXYZ</span></div>
+                    <div class="btn"><span class="num" style="left:8px">*</span><span class="alpha" style="font-size:5px">TONE</span></div>
+                    <div class="btn"><span class="num">0</span><span class="alpha">OPER</span></div>
+                    <div class="btn"><span class="num" style="left:8px; font-style:normal;">#</span></div>
+
+                    <div class="btn btn-special">FLASH</div>
+                    <div class="btn btn-special">REDIAL</div>
+                    <div class="btn btn-special">MEM</div>
+                </div>
+
+                <div class="config-row">
+                    <div class="config-col">
+                        <span class="micro-text">RINGER</span>
+                        <div class="switch-groove"><div class="switch-nub nub-left"></div></div>
+                        <span class="micro-text" style="transform: scale(0.8);">OFF LO HI</span>
+                    </div>
+                    <div class="config-col">
+                        <span class="micro-text">PROG/MUTE</span>
+                        <div class="switch-groove"><div class="switch-nub nub-center"></div></div>
+                        <span class="micro-text"></span>
+                    </div>
+                    <div class="config-col">
+                        <span class="micro-text">DIAL</span>
+                        <div class="switch-groove"><div class="switch-nub nub-left"></div></div>
+                        <span class="micro-text" style="word-spacing: 2px;">TT DP</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="mouthpiece-block">
+            <div class="brand">
+                <svg viewBox="0 0 24 24" stroke="#111" stroke-width="1.5" fill="none">
+                    <circle cx="12" cy="12" r="10"/>
+                    <ellipse cx="12" cy="12" rx="4" ry="10"/>
+                    <line x1="2" y1="12" x2="22" y2="12"/>
+                    <line x1="4.5" y1="6" x2="19.5" y2="6"/>
+                    <line x1="4.5" y1="18" x2="19.5" y2="18"/>
+                </svg>
+                <span class="at-t">AT&T</span>
+                <span class="model">210</span>
+            </div>
+            <div class="mouth-slits">
+                <div class="m-slit"></div>
+                <div class="m-slit"></div>
+                <div class="m-slit"></div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

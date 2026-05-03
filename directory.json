@@ -28,13 +28,13 @@
             },
             {
                 "name": "Tiktok",
-                "number": "1010",
+                "number": "1011",
                 "url": "https://tiktok.com/@bugandmoss"
             }
         ]
     },
     {
-        "title": "Fiction Podcasts",
+        "title": "Podcasts (Fiction)",
         "entries": [
             {
                 "name": "Jack Billings Presents",
@@ -45,6 +45,12 @@
                 "name": "Side Character Quest",
                 "number": "2242",
                 "url": "https://sidecharacterquest.com/"
+            },
+            {
+                "name": "Hemophobia",
+                "number": "####",
+                "url": "https://cswhorror.com",
+                "isAd": false
             },
             {
                 "name": "PodCube",
@@ -67,9 +73,32 @@
                 "isAd": false
             },
             {
-                "name": "Hemophobia",
-                "number": "####",
-                "url": "https://cswhorror.com",
+                "name": "Thirteen",
+                "number": "0013",
+                "url": "https://thirteenpodcast.com",
+                "isAd": false
+            }
+        ]
+    },
+    {
+        "title": "Podcasts (non-fiction)",
+        "entries": [
+            {
+                "name": "Digital Folklore",
+                "number": "1063",
+                "url": "https://digitalfolklore.fm",
+                "isAd": false
+            },
+            {
+                "name": "The FAIK Files",
+                "number": "4614",
+                "url": "https://faik.to/podcast",
+                "isAd": false
+            },
+            {
+                "name": "This Bizarre Adventure",
+                "number": "0918",
+                "url": "https://podcasts.apple.com/us/podcast/this-bizarre-adventure/id1675264599",
                 "isAd": false
             }
         ]
@@ -79,7 +108,7 @@
         "entries": [
             {
                 "name": "Colin M Parker",
-                "number": "0151",
+                "number": "2747",
                 "url": "https://twitch.tv/colinmparker"
             },
             {
@@ -87,11 +116,81 @@
                 "number": "0221",
                 "url": "https://twitchtv/itsnovali",
                 "isAd": false
+            },
+            {
+                "name": "Man In Jumpsuit",
+                "number": "4819",
+                "url": "https://www.twitch.tv/man_in_jumpsuit",
+                "isAd": false
+            },
+            {
+                "name": "Sudsley (the Kingmaker)",
+                "number": "2222",
+                "url": "https://www.twitch.tv/sudsley",
+                "isAd": false
+            },
+            {
+                "name": "Folkwise",
+                "number": "4014",
+                "url": "https://twitch.tv/folkwise",
+                "isAd": false
             }
         ]
     },
     {
-        "title": "Tools and Webtoys",
+        "title": "YouTube Channels",
+        "entries": [
+            {
+                "name": "Brippy151",
+                "number": "0151",
+                "url": "https://youtube.com/@Brippy151",
+                "isAd": false
+            },
+            {
+                "name": "Rat House Gaming",
+                "number": "7284",
+                "url": "https://youtube.com/@realrathouse",
+                "isAd": false
+            },
+            {
+                "name": "Wicked Interesting",
+                "number": "0101",
+                "url": "https://wickedinterest.ing/",
+                "isAd": false
+            },
+            {
+                "name": "Checkpoint Gaming",
+                "number": "2077",
+                "url": "https://www.youtube.com/@CheckpointYT",
+                "isAd": false
+            },
+            {
+                "name": "Az's Calzones",
+                "number": "413",
+                "url": "https://www.youtube.com/@AzsCalzones",
+                "isAd": false
+            },
+            {
+                "name": "Mason Amadeus",
+                "number": "1234",
+                "url": "https://youtube.com/@masonamadeus",
+                "isAd": false
+            }
+        ]
+    },
+    {
+        "title": "Musicians",
+        "entries": [
+            {
+                "name": "Malacath",
+                "number": "666",
+                "url": "https://malacath.bandcamp.com",
+                "isAd": false
+            }
+        ]
+    },
+    {
+        "title": "Cool Websites",
         "entries": [
             {
                 "name": "Really Simple Soundboard",
@@ -104,7 +203,14 @@
                 "number": "*69",
                 "url": "",
                 "isAd": false,
-                "isHidden": true
+                "isHidden": true,
+                "audioUrl": "/sounds/brillopillow.mp3"
+            },
+            {
+                "name": "The Scavengers Network",
+                "number": "7228",
+                "url": "https://scavengersnetwork.com",
+                "isAd": false
             }
         ]
     }

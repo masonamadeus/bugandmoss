@@ -429,9 +429,13 @@ body {
     .pb-two-column-list { grid-template-columns: 1fr; } /* Stacks to 1 column on phones */
     .phone-book-80s { padding: 2rem 1.5rem 2rem 3.5rem; }
 }
-
-/* --- THE TELEPHONE (Cordless Dog-Bone) --- */
+/* --- THE TELEPHONE (AT&T 210) --- */
 .telephone-outer {
+    --att-beige: #f4efd8;
+    --att-shadow: #d8d0b2;
+    --att-btn-gray: #ced3c3;
+    --att-panel-dark: #70756b;
+
     grid-area: phone;
     margin: 0;
     position: relative;
@@ -441,7 +445,6 @@ body {
     align-items: center;
     transition: transform 0.2s ease-in-out;
     z-index: 10;
-    box-shadow:none;
 }
 
 .telephone-outer:hover {
@@ -449,191 +452,301 @@ body {
     z-index: 50;
 }
 
-/* The Base/Cradle - Tucked in tighter so it isn't so tall! */
+/* Base/Cradle shadow adjusted for the new narrower shape */
 .telephone-outer::before {
     content: '';
     position: absolute;
-    top: 3%;
-    left: 35%;
-    width: 77%;
-    bottom: 3%;
+    top: 5%;
+    left: 20%;
+    width: 60%;
+    bottom: 5%;
     background-color: #b8a88a;
-    border-radius: 112px;
+    border-radius: 30px;
     z-index: 0;
     box-shadow: var(--hard-shadow);
     transition: box-shadow 0.2s ease-in-out;
 }
+
 .telephone-outer:hover::before {
     box-shadow: var(--hard-shadow-hover);
 }
 
-/* The Unified Handset Wrapper */
 .telephone {
-    background-color: transparent; 
-    box-shadow: none !important; 
-    filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.3));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    filter: drop-shadow(5px 5px 0px rgba(0,0,0,0.2));
+    position: relative;
+    z-index: 1;
+    user-select: none;
+}
+
+/* Phone Cord Adjustment */
+.phone-cord-svg {
+    position: absolute;
+    bottom: -140px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 55px;
+    height: 150px;
+    z-index: -1;
+}
+
+/* This locks the hook switch to the top section */
+.earpiece-section {
+    position: relative;
+    z-index: 3; 
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+/* The modular jack at the bottom */
+.cord-plug {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 12px;
+    background: #999;
+    border-radius: 2px 2px 6px 6px;
+    box-shadow: inset 0px 4px 5px rgba(0,0,0,0.3), 0px 2px 3px rgba(0,0,0,0.2);
+    z-index: 1; /* Tucks neatly behind the mouthpiece (which is z-index: 2) */
+}
+
+/* 1. EARPIECE */
+.earpiece-block {
+    width: 200px;
+    height: 165px;
+    top: 20px;
+    right: 7px;
+    background-color: var(--att-beige);
+    border-radius: 65px 65px 45px 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 3;
+box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px var(--att-shadow);
+}
+
+
+.speaker-indent {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: #e5deb7;
+    box-shadow: inset 0px 12px 18px rgba(0,0,0,0.15), inset 0px -5px 10px rgba(255,255,255,0.6);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+/* NEW: Radial Earpiece Layout */
+.ear-hole-radial {
+    position: relative;
+    width: 80px; 
+    height: 80px;
+}
+
+.ear-hole {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.8);
+    box-shadow: inset 1px 2px 3px rgba(0,0,0,0.9), 0px 1px 1px rgba(255,255,255,0.7);
+    
+    /* Stack them all perfectly dead-center to start */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -3.5px 0 0 -3.5px; 
+}
+
+/* * The Magic: We rotate the hole based on its inline variable (--i), 
+ * and then "push" it outward using translateY. 
+ */
+
+.ear-hole.inner {
+    /* 360deg / 6 holes = 60deg apart. Pushed out 16px */
+    transform: rotate(calc(60deg * var(--i))) translateY(-16px);
+}
+
+.ear-hole.outer {
+    /* 360deg / 12 holes = 30deg apart. Pushed out 32px */
+    transform: rotate(calc(30deg * var(--i))) translateY(-32px);
+}
+
+.mouth-slits { 
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.m-slit { 
+    width: 24px; 
+    height: 2px; 
+    background: rgba(0,0,0,0.5); 
+    border-radius: 2px; 
+    box-shadow: 0px 1px 1px rgba(255,255,255,0.6); 
+}
+
+.m-slit:nth-child(2) { width: 75%; margin: 0 auto; }
+
+.hook-switch {
+    position: absolute;
+    bottom: -30px;
+    left: 48%;                      /* Pull it to the middle */
+    transform: translateX(-50%);    /* Perfectly center it */
+    width: 60px;
+    height: 16px;
+    background: var(--att-shadow);
+    border-radius: 4px 4px 2px 2px;
+    box-shadow: inset 0px -4px 5px rgba(0,0,0,0.3), 0px 2px 3px rgba(0,0,0,0.2);
+    z-index: -1; 
+}
+/* 2. HANDLE & KEYPAD */
+.handle-block {
+    width: 185px;
+    background-color: var(--att-beige);
+    margin-top: -35px;
+    padding: 75px 10px 50px; /* Reduced side padding so buttons can grow wider */
     display: flex;
     flex-direction: column;
     align-items: center;
     position: relative;
     z-index: 1;
-}
-
-/* Base style for the flared ends */
-.handset-end {
-    background-color: #e8d9c0;
-    width: 210px; /* Slimmed down from the giant 240px */
-    height: 85px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    z-index: 2; 
-}
-
-/* The Ear Piece - Ergonomic rounded top, flat bottom */
-
-.telephone > .handset-end:first-child {
-    border-radius: 70px 24px 24px 24px;
-    right: 7px;
-    bottom: -15px;
-    width:108%;
-    padding: 10px 0px;
-}
-
-/* The Mouth Piece - Flat top, ergonomic rounded bottom */
-.telephone > .handset-end:last-child {
-    border-radius: 24px 24px 24px 70px;
-    top:-15px;
-    right:7px;
-    width:108%;
-    padding: 10px 0px;
-}
-
-/* The Speaker Grilles - Slimmed down into neat pills */
-.speaker-pad {
-    background-color: #cfc0a4;
-    border-radius: 18px;
-    box-shadow: inset 3px 3px 6px rgba(0,0,0,0.22), inset -1px -1px 3px rgba(255,255,255,0.15), 2px 2px 0px rgba(0,0,0,0.15);
-    width: 85px; 
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.dot-cluster {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
-}
-
-.sp-dot {
-    width: 4px; height: 4px;
-    background: #555;
-    border-radius: 50%;
-    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.5);
-}
-
-/* The Narrow Middle Handle - Merges seamlessly with the new flared ends */
-.phone-inner {
-    background-color: #e8d9c0;
-    width: 175px; 
-    margin: -15px 0; /* Smoother, less aggressive overlap */
-    padding: 35px 1rem; 
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-    position: relative;
-    z-index: 1; 
-    border-radius: 12px;
+    box-shadow: inset -10px 0px 15px var(--att-shadow), inset 10px 0px 15px rgba(255,255,255,0.5);
     box-sizing: border-box;
 }
-/* Tames the giant SVG into a realistic coiled cord */
-.phone-cord-svg {
-    position: absolute;
-    bottom: -35px;
-    left: 25%;
-    width: 35px;
-    height: 80px;
-    z-index: -1;
+
+/* The transparent wrapper that replaces the dark panel */
+.keypad-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Increased vertical breathing room */
+    box-sizing: border-box;
+    padding: 0 4px; /* Slight buffer from the plastic edges */
 }
 
-/* The Digital Screen */
+/* The Screen */
 .phone-screen {
     background-color: #8ca58c; 
-    width: 100%;
-    height: 45px; /* Slightly slimmer to fit the narrow waist */
-    border-radius: 8px;
-    box-shadow: inset 4px 4px 0px rgba(0,0,0,0.2);
+    width: 100%; /* Now auto-fills the wider wrapper */
+    height: 36px; /* Slightly taller */
+    border-radius: 6px;
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3), 0px 2px 0px rgba(255,255,255,0.5);
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    padding: 0 0.8rem;
+    padding: 0 0.5rem;
     font-family: var(--font-digital);
-    font-size: 1.5rem;
+    font-size: 1.3rem; /* Slightly larger text */
     color: #111;
     box-sizing: border-box;
     overflow: hidden;
     white-space: nowrap;
+    margin-bottom: 4px;
 }
 
-/* The Keypad Grid */
-.keypad {
+/* Top Actions Layout */
+.top-actions {
+    display: flex;
+    width: 100%;
+    gap: 12px; 
+}
+
+.top-actions .btn {
+    flex: 1; 
+    height: 32px; /* Taller actions */
+    font-size: 0.8rem;
+}
+
+.keypad-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem; /* Tighter gap to fit inside the 170px handle */
-    width: 100%;
+    gap: 12px; /* Much wider gaps between keys */
 }
 
-.key {
-    background-color: #f4ede1;
+/* Core Button Styles */
+.btn {
+    height: 32px; /* Taller buttons (was 24px) */
+    background-color: var(--att-btn-gray);
     border: none;
-    border-radius: 8px;
-    height: 45px;
-    font-family: var(--font-cartoon);
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #333;
-    box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+    border-radius: 4px;
+    box-shadow: 1px 3px 0px #979d8c, inset 1px 1px 2px rgba(255,255,255,0.8);
+    position: relative;
     cursor: pointer;
-    transition: all 0.1s;
-    user-select: none;
+    color: #111;
+    padding: 0;
 }
 
-.key:active, .key.keyboard-active, .action-btn.keyboard-active {
-    transform: translate(3px, 3px) !important;
-    box-shadow: 0px 0px 0px rgba(0,0,0,0.2) !important;
+.btn:active, .btn.keyboard-active {
+    transform: translateY(2px) !important;
+    box-shadow: 0px 1px 0px #979d8c, inset 1px 1px 4px rgba(0,0,0,0.3) !important;
 }
 
-/* The Call / Clear Actions */
-.phone-actions {
+/* Actions */
+.action-btn { color: #fff; font-family: var(--font-cartoon); font-weight: 700; }
+.clear-btn { background-color: var(--color-youtube); box-shadow: 1px 3px 0px #b34a4a, inset 1px 1px 2px rgba(255,255,255,0.4); }
+.call-btn { background-color: var(--color-podcast); box-shadow: 1px 3px 0px #2a7d51, inset 1px 1px 2px rgba(255,255,255,0.4); }
+.clear-btn:active, .clear-btn.keyboard-active { box-shadow: 0px 1px 0px #b34a4a, inset 1px 1px 4px rgba(0,0,0,0.3) !important;}
+.call-btn:active, .call-btn.keyboard-active { box-shadow: 0px 1px 0px #2a7d51, inset 1px 1px 4px rgba(0,0,0,0.3) !important;}
+
+/* Typography inside Numpad */
+.num {
+    position: absolute;
+    top: 4px; left: 6px; /* Shifted slightly for the larger button */
+    font-family: 'Arial Narrow', Arial, sans-serif;
+    font-size: 15px; /* Bumped up */
+    font-weight: 800;
+    font-style: italic;
+}
+.alpha {
+    position: absolute;
+    bottom: 3px; right: 5px; /* Shifted slightly */
+    font-family: 'Arial Narrow', Arial, sans-serif;
+    font-size: 7px; /* Bumped up */
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+/* Hardware Switches */
+.config-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
+.config-col { display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 24px; }
+/* Changed text color to #555 so it reads clearly against the beige body! */
+.micro-text { font-family: Arial, sans-serif; font-size: 5px; color: #555; font-weight: bold; letter-spacing: 0.2px; text-transform: uppercase;}
+.switch-groove { width: 14px; height: 6px; background: #4a4d46; border-radius: 3px; box-shadow: inset 1px 1px 2px rgba(0,0,0,0.5); position: relative; }
+.switch-nub { width: 6px; height: 6px; background: #e0e0e0; border-radius: 50%; position: absolute; top: 0; box-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+.nub-left { left: 0; } .nub-center { left: 4px; } .nub-right { right: 0; }
+
+/* 3. MOUTHPIECE */
+.mouthpiece-block {
+    width: 185px;
+    height: 100px;
+    top: -20px;
+    background-color: var(--att-beige);
+    border-radius: 30px 30px 65px 65px;
+    margin-top: -20px;
     display: flex;
-    gap: 0.5rem;
-    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    box-shadow: inset -10px -15px 25px var(--att-shadow), inset 10px 5px 15px rgba(255,255,255,0.6);
 }
 
-.action-btn {
-    flex: 1;
-    border: none;
-    border-radius: 8px;
-    height: 45px;
-    font-family: var(--font-cartoon);
-    font-size: 1.1rem;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
-    transition: all 0.1s;
-    color: #fff;
-}
+.brand { margin-top: 25px; display: flex; align-items: center; gap: 6px; color: #111; font-family: Arial, sans-serif;}
+.brand svg { width: 16px; height: 16px; }
+.brand .at-t { font-weight: 900; font-size: 14px; letter-spacing: -0.5px; }
+.brand .model { font-size: 11px; font-weight: 600; margin-left: 2px;}
 
-.action-btn:active {
-    transform: translate(3px, 3px);
-    box-shadow: 0px 0px 0px rgba(0,0,0,0.2);
-}
-
-.clear-btn { background-color: var(--color-youtube); }
-.call-btn { background-color: var(--color-podcast); }
 
 /* --- INTERACTIVE LAYOUT (Rows) --- */
 .interactive-layout {
@@ -771,6 +884,7 @@ body {
     flex-direction: column;
     gap: 0.2rem;
     width: 100%;
+    min-height: 420px; /* Lock the content area height so page turns don't resize the book */
 }
 
 .pb-category-header {

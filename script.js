@@ -356,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Keypad Logic ---
     keys.forEach(key => {
         key.addEventListener('mousedown', () => {
-            const val = key.innerText;
+            const val = key.querySelector('.key-num').textContent;
             playDTMF(val);
             if (currentNumber.length < 15 && currentNumber !== 'ERR') {
                 currentNumber += val;
@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Match 0-9, *, and # to the keypad
         if (['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '#'].includes(key)) {
-            targetButton = Array.from(keys).find(k => k.innerText === key);
+            targetButton = Array.from(keys).find(k => k.querySelector('.key-num').textContent === key);
         } 
         // Match Backspace or Delete to the CLEAR button
         else if (key === 'Backspace' || key === 'Delete') {
