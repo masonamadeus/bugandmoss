@@ -39,11 +39,11 @@
             {
                 "name": "Jack Billings Presents",
                 "number": "0917",
-                "url": "https://podcasts.apple.com/us/podcast/jack-billings-presents/id1701071750"
+                "url": "https://pod.link/1701071750"
             },
             {
                 "name": "Side Character Quest",
-                "number": "2242",
+                "number": "2422",
                 "url": "https://sidecharacterquest.com/"
             },
             {
@@ -77,6 +77,12 @@
                 "number": "0013",
                 "url": "https://imaginary.click/thirteen",
                 "isAd": false
+            },
+            {
+                "name": "Anticrastination",
+                "number": "8782",
+                "url": "https://anticrastination.fyi",
+                "isAd": false
             }
         ]
     },
@@ -85,7 +91,7 @@
         "entries": [
             {
                 "name": "Digital Folklore",
-                "number": "1063",
+                "number": "FOLK",
                 "url": "https://digitalfolklore.fm",
                 "isAd": false
             },
@@ -97,9 +103,17 @@
             },
             {
                 "name": "This Bizarre Adventure",
-                "number": "0918",
+                "number": "69-420",
                 "url": "https://podcasts.apple.com/us/podcast/this-bizarre-adventure/id1675264599",
                 "isAd": false
+            },
+            {
+                "name": "Edging",
+                "number": "GET-EDGY",
+                "url": "https://imaginary.click/edging",
+                "isAd": true,
+                "subtitle": "A Podcast About Books",
+                "description": "Deep, intersectional dives into horror and romance novels."
             }
         ]
     },
@@ -121,6 +135,12 @@
                 "name": "Man In Jumpsuit",
                 "number": "4819",
                 "url": "https://www.twitch.tv/man_in_jumpsuit",
+                "isAd": false
+            },
+            {
+                "name": "TheRealGChu",
+                "number": "GCHU",
+                "url": "https://twitch.tv/therealgchu",
                 "isAd": false
             },
             {
