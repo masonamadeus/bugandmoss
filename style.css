@@ -505,6 +505,7 @@ body {
 .patreon-note {
     background-color: var(--color-patreon);
     transform: rotate(3deg);
+    text-align: center;
     height: auto;
     padding: 2rem 1.5rem;
     animation: gentle-pulse 2s infinite alternate;
@@ -1329,15 +1330,44 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
     }
 }
 
-/* 1. Default Mobile Order (Vertical) */
-.telephone-outer { order: 1; }
-.scratch-pad { order: 2; }
-.phone-book-folded { order: 3; }
+/* --- GLOBAL MOBILE REORDER & TYPOGRAPHY FIXES --- */
+@media (max-width: 900px) {
+   
+    /* 2. Flatten the containers so we can reorder children globally */
+    .top-row, 
+    .middle-row, 
+    .top-right-column {
+        display: contents; 
+    }
 
-/* 2. Desktop Order (Horizontal) */
-/* Adjust 1100px if your items start wrapping at a slightly different width! */
-@media (min-width: 1100px) {
-    .phone-book-folded { order: 1; }  /* Yellow Pages moves to the far left */
-    .telephone-outer { order: 2; }    /* Phone stays in the middle */
-    .scratch-pad { order: 3; }        /* Scratch pad moves to the far right */
+    /* 3. Make the main layout a single vertical flex column */
+    .interactive-layout {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3rem; /* Spacing between all desk items */
+    }
+
+    /* 4. Set the New Mobile Order */
+    .tv-monitor          { order: 1; }
+    .taped-note          { order: 2; }
+    .telephone-outer     { order: 3; }
+    .scratch-pad         { order: 4; }
+    .phone-book-folded   { order: 5; }
+    .patreon-note        { order: 6; } /* Jumps to the bottom! */
+
+    /* 5. Mobile Styling for the Patreon Button */
+    .patreon-note {
+        width: 100%;
+        max-width: 280px;
+        margin-bottom: 4rem; /* Add extra room at the very bottom of the page */
+        animation: none; /* Optional: turn off pulse if it's too distracting at the bottom */
+    }
+}
+
+/* --- RESTORE DESKTOP LAYOUT --- */
+@media (min-width: 901px) {
+    .phone-book-folded { order: 1; }
+    .telephone-outer   { order: 2; }
+    .scratch-pad       { order: 3; }
 }
