@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug & Moss Widget Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-desk: #4b6d59;
+            --color-patreon: #ff914d;
+            --color-podcast: #3bb273;
+            --panel-bg: #fff9e6;
+            --hard-shadow: 6px 6px 0px rgba(0,0,0,0.3);
+        }
+
+        body {
+            background-color: var(--bg-desk);
+            font-family: 'Fredoka', sans-serif;
+            color: #111;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- LEFT SIDEBAR: THE TOOLKIT --- */
+        .toolkit-panel {
+            width: 420px;
+            background: var(--panel-bg);
+            height: 100%;
+            overflow-y: auto;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .toolkit-header {
+            padding: 2rem 2rem 1rem 2rem;
+            border-bottom: 2px solid #e0d8c3;
+        }
+        .toolkit-header h1 { margin: 0; color: var(--color-patreon); font-size: 2.2rem; line-height: 1.1; }
+        .toolkit-header p { margin: 0.5rem 0 0 0; color: #666; font-size: 0.9rem; }
+
+        .toolkit-section {
+            padding: 1.5rem 2rem;
+            border-bottom: 2px solid #e0d8c3;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: opacity 0.2s, height 0.2s;
+        }
+
+        /* Hide logic for component options */
+        .toolkit-section.hidden {
+            display: none;
+        }
+
+        h3 { margin: 0; color: #333; font-size: 1.2rem; }
+        .section-desc { margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #666; }
+
+        /* Custom Toggle Buttons */
+        .comp-toggles { display: flex; flex-direction: column; gap: 8px; }
+        .toggle-btn {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #fff; border: 2px solid #ccc; padding: 10px 15px;
+            border-radius: 8px; cursor: pointer; transition: all 0.1s;
+            font-family: 'Fredoka', sans-serif; font-size: 1.1rem; font-weight: 700; color: #555;
+        }
+        .toggle-btn.active { border-color: var(--color-podcast); background: #f0fdf4; color: var(--color-podcast); }
+        .toggle-btn:hover { transform: translateY(-2px); box-shadow: 2px 2px 0 rgba(0,0,0,0.1); }
+
+        /* Rotation Knob */
+        .knob-wrapper { display: flex; align-items: center; gap: 1rem; background: #fff; padding: 1rem; border-radius: 8px; border: 2px solid #ccc; }
+        .knob-container {
+            width: 60px; height: 60px; border-radius: 50%; background: #ddd; 
+            position: relative; cursor: grab; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2), 1px 1px 3px rgba(0,0,0,0.3);
+        }
+        .knob-container:active { cursor: grabbing; }
+        .knob-dial {
+            width: 100%; height: 100%; border-radius: 50%; position: absolute; top: 0; left: 0;
+            background: conic-gradient(from 180deg, #f4f4f4, #ccc);
+        }
+        .knob-indicator {
+            width: 6px; height: 15px; background: var(--color-patreon); border-radius: 3px;
+            position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+        }
+        .knob-readout { font-family: 'Space Mono', monospace; font-size: 1.2rem; font-weight: 700; width: 60px; text-align: right; }
+
+        /* Standard Inputs */
+        .checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 1rem; color: #dc2626; font-weight: 700; background: #fff; padding: 1rem; border-radius: 8px; border: 2px solid #ccc; margin: 0;}
+        textarea { width: 100%; font-family: 'Space Mono', monospace; font-size: 0.85rem; padding: 0.8rem; border: 2px solid #ccc; border-radius: 6px; resize: vertical; box-sizing: border-box; background: #fff; }
+        
+        .copy-btn {
+            background-color: var(--color-podcast); color: white; font-family: 'Fredoka', sans-serif; font-size: 1.1rem; font-weight: 700;
+            border: none; border-radius: 6px; padding: 1rem; cursor: pointer; box-shadow: 4px 4px 0px rgba(0,0,0,0.2); transition: all 0.1s; width: 100%;
+        }
+        .copy-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px rgba(0,0,0,0); }
+
+        /* --- RIGHT SIDE: THE CANVAS --- */
+        .canvas-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .canvas-instructions { color: #fff; text-align: center; margin-bottom: 1rem; }
+        .canvas-instructions h2 { margin: 0 0 0.5rem 0; }
+        .canvas-instructions p { margin: 0; opacity: 0.8; }
+
+        /* The resizable box */
+        .resizable-canvas {
+            width: 100%;
+            max-width: 900px;
+            height: 600px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 3px dashed rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            resize: both;
+            overflow: hidden; 
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* The little drag handle in the corner */
+        .resizable-canvas::after {
+            content: '⤡'; position: absolute; bottom: 0; right: 0; width: 30px; height: 30px;
+            background: var(--color-patreon); color: white; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; pointer-events: none; border-radius: 12px 0 0 0;
+        }
+
+        iframe { width: 100%; height: 100%; border: none; }
+
+        @media (max-width: 900px) {
+            body { flex-direction: column; overflow: auto; }
+            .toolkit-panel { width: 100%; height: auto; box-shadow: none; z-index: 1; }
+            .canvas-area { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toolkit-panel">
+        <div class="toolkit-header">
+            <h1>Widget Builder</h1>
+            <p>Design your webring embed and drag the canvas to test how it fits.</p>
+        </div>
+
+        <div class="toolkit-section">
+            <h3>1. Active Components</h3>
+            <p class="section-desc">Toggle items on or off.</p>
+            <div class="comp-toggles">
+                <div class="toggle-btn active" data-comp="phone">
+                    <span>☎️ Telephone</span><span class="status">ON</span>
+                </div>
+                <div class="toggle-btn active" data-comp="book">
+                    <span>📖 Yellow Pages</span><span class="status">ON</span>
+                </div>
+                <div class="toggle-btn active" data-comp="pad">
+                    <span>📝 Scratch Pad</span><span class="status">ON</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="toolkit-section" id="options-phone">
+            <h3>Telephone Settings</h3>
+            <p class="section-desc">Drag the knob to spin the phone.</p>
+            <div class="knob-wrapper">
+                <div class="knob-container" id="rotation-knob">
+                    <div class="knob-dial" id="knob-dial">
+                        <div class="knob-indicator"></div>
+                    </div>
+                </div>
+                <div class="knob-readout"><span id="knob-val">1</span>°</div>
+            </div>
+        </div>
+
+        <div class="toolkit-section" id="options-book">
+            <h3>Yellow Pages Settings</h3>
+            <p class="section-desc">Keep your embed safe for work.</p>
+            <label class="checkbox-label">
+                <input type="checkbox" id="safeMode"> Hide Explicit Links
+            </label>
+        </div>
+
+        <div class="toolkit-section" id="options-pad">
+            <h3>Scratch Pad Settings</h3>
+            <p class="section-desc">Add default text or favorite numbers. Line breaks are supported!</p>
+            <textarea id="pad-text-input" style="height: 100px;" placeholder="Hey! Call my buddy Ty at:&#10;8480"></textarea>
+        </div>
+
+        <div class="toolkit-section" style="border: none; padding-bottom: 3rem;">
+            <h3>Your Embed Code</h3>
+            <p class="section-desc">This updates automatically when you drag the canvas size.</p>
+            <textarea id="embed-code" style="height: 140px; margin-bottom: 1rem;" readonly></textarea>
+            <button class="copy-btn" id="copy-btn">📋 Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <div class="canvas-area">
+        <div class="canvas-instructions">
+            <h2>The Canvas</h2>
+            <p>Drag the bottom-right corner to simulate your website's width.</p>
+        </div>
+        
+        <div class="resizable-canvas" id="canvas-box">
+            <iframe id="preview-frame" src="widget.html?components=phone,book,pad"></iframe>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtns = document.querySelectorAll('.toggle-btn');
+            const safeModeInput = document.getElementById('safeMode');
+            const padTextInput = document.getElementById('pad-text-input');
+            const embedCodeArea = document.getElementById('embed-code');
+            const previewFrame = document.getElementById('preview-frame');
+            const canvasBox = document.getElementById('canvas-box');
+            const copyBtn = document.getElementById('copy-btn');
+            
+            // Options Sections
+            const optionsPhone = document.getElementById('options-phone');
+            const optionsBook = document.getElementById('options-book');
+            const optionsPad = document.getElementById('options-pad');
+
+            // Knob Elements
+            const knobContainer = document.getElementById('rotation-knob');
+            const knobDial = document.getElementById('knob-dial');
+            const knobValDisplay = document.getElementById('knob-val');
+
+            // CHANGE THIS to your actual live URL
+            const BASE_URL = 'https://bugandmoss.com/widget.html';
+
+            // State
+            let currentRotation = 1;
+            let activeComps = ['phone', 'book', 'pad'];
+
+            // --- 1. COMPONENT TOGGLES & SECTION VISIBILITY ---
+            toggleBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const comp = btn.dataset.comp;
+                    if (activeComps.includes(comp)) {
+                        activeComps = activeComps.filter(c => c !== comp);
+                        btn.classList.remove('active');
+                        btn.querySelector('.status').innerText = 'OFF';
+                    } else {
+                        activeComps.push(comp);
+                        btn.classList.add('active');
+                        btn.querySelector('.status').innerText = 'ON';
+                    }
+                    updateOptionsVisibility();
+                    updateEmbedUrl();
+                });
+            });
+
+            function updateOptionsVisibility() {
+                // Show/hide relevant settings sections
+                activeComps.includes('phone') ? optionsPhone.classList.remove('hidden') : optionsPhone.classList.add('hidden');
+                activeComps.includes('book') ? optionsBook.classList.remove('hidden') : optionsBook.classList.add('hidden');
+                activeComps.includes('pad') ? optionsPad.classList.remove('hidden') : optionsPad.classList.add('hidden');
+            }
+
+            // --- 2. ROTATION KNOB MATH ---
+            let isDraggingKnob = false;
+
+            knobContainer.addEventListener('mousedown', (e) => { isDraggingKnob = true; calculateRotation(e); });
+            window.addEventListener('mouseup', () => { 
+                if(isDraggingKnob) { isDraggingKnob = false; updateEmbedUrl(); } 
+            });
+            window.addEventListener('mousemove', (e) => { if (isDraggingKnob) calculateRotation(e); });
+
+            function calculateRotation(e) {
+                const rect = knobContainer.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                let radians = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+                let degrees = (radians * (180 / Math.PI)) + 90;
+                
+                if (degrees > 180) degrees -= 360;
+                
+                currentRotation = Math.round(degrees);
+                knobDial.style.transform = `rotate(${currentRotation}deg)`;
+                knobValDisplay.innerText = currentRotation;
+            }
+
+            // --- 3. CANVAS RESIZE OBSERVER ---
+            const resizeObserver = new ResizeObserver(entries => {
+                for (let entry of entries) {
+                    generateEmbedCode(entry.contentRect.width, entry.contentRect.height);
+                }
+            });
+            resizeObserver.observe(canvasBox);
+
+            // --- 4. UPDATE LOGIC ---
+            function updateEmbedUrl() {
+                const components = activeComps.length > 0 ? activeComps.join(',') : 'none';
+                const safeMode = safeModeInput.checked;
+                const padText = padTextInput.value;
+                
+                let params = `?components=${components}`;
+                if (safeMode && activeComps.includes('book')) params += '&safeMode=true';
+                if (currentRotation !== 1 && activeComps.includes('phone')) params += `&phoneRot=${currentRotation}`;
+                
+                // Properly encode multi-line strings for URL parameters
+                if (padText.trim() !== '' && activeComps.includes('pad')) {
+                    params += `&padText=${encodeURIComponent(padText)}`;
+                }
+                
+                previewFrame.src = `widget.html${params}`;
+                
+                const rect = canvasBox.getBoundingClientRect();
+                generateEmbedCode(rect.width, rect.height);
+            }
+
+            function generateEmbedCode(width, height) {
+                const w = Math.round(width);
+                const h = Math.round(height);
+                const currentSrc = previewFrame.src.split('widget.html')[1] || '';
+                
+                const embedHtml = `<iframe src="${BASE_URL}${currentSrc}" width="100%" height="${h}" style="border:none; background:transparent; max-width:${w}px;" title="Bug & Moss Webring"></iframe>`;
+                embedCodeArea.value = embedHtml;
+            }
+
+            // Standard Listeners
+            safeModeInput.addEventListener('change', updateEmbedUrl);
+            padTextInput.addEventListener('input', updateEmbedUrl);
+
+            // Copy button
+            copyBtn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(embedCodeArea.value);
+                    const originalText = copyBtn.innerText;
+                    copyBtn.innerText = "✅ Copied!";
+                    setTimeout(() => { copyBtn.innerText = originalText; }, 2000);
+                } catch (err) {
+                    alert("Failed to copy. Please copy manually.");
+                }
+            });
+
+            // Initial load
+            updateOptionsVisibility();
+            updateEmbedUrl();
+        });
+    </script>
+</body>
+</html>

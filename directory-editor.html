@@ -1,621 +1,1440 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Directory Visual Editor</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-desk: #4b6d59;
-            --color-tv: #95c7ff;
-            --color-patreon: #ff914d;
-            --color-podcast: #3bb273;
-            --color-youtube: #ff6b6b;
-            --hard-shadow: 4px 4px 0px rgba(0,0,0,0.3);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📞 Directory Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;700&family=Space+Mono:wght@400;700&family=Ranchers&family=Wellfleet&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --desk:       #3d5c48;
+      --desk-dark:  #2e4536;
+      --cream:      #fff9e6;
+      --cream-dim:  #f0e8d4;
+      --card-bg:    #ffffff;
+      --orange:     #ff914d;
+      --green:      #3bb273;
+      --red:        #ff6b6b;
+      --blue:       #4fa3e0;
+      --yellow:     #fae99e;
+      --gold:       #cca300;
+      --shadow:     4px 4px 0px rgba(0,0,0,0.28);
+      --shadow-sm:  2px 2px 0px rgba(0,0,0,0.2);
+      --font-ui:    'Fredoka', sans-serif;
+      --font-mono:  'Space Mono', monospace;
+      --font-book:  'Wellfleet', sans-serif;
+      --font-title: 'Ranchers', sans-serif;
+      --radius:     8px;
+      --radius-sm:  5px;
+    }
 
-        body {
-            background-color: var(--bg-desk);
-            font-family: 'Fredoka', sans-serif;
-            color: #111;
-            margin: 0;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    *, *::before, *::after { box-sizing: border-box; }
 
-        .editor-container {
-            width: 100%;
-            max-width: 950px;
-            background: #fff9e6;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 8px 8px 0px rgba(0,0,0,0.4);
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
+    body {
+      margin: 0; padding: 0;
+      background: var(--desk);
+      background-image:
+        repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(0,0,0,0.03) 20px, rgba(0,0,0,0.03) 40px);
+      font-family: var(--font-ui);
+      color: #111;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-        h1 { margin: 0; color: var(--color-patreon); font-size: 2.5rem; text-align: center; }
+    /* ─── HEADER ─────────────────────────────────── */
+    .app-header {
+      background: var(--desk-dark);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      border-bottom: 3px solid rgba(0,0,0,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .app-title {
+      font-family: var(--font-title);
+      font-size: 1.8rem;
+      color: var(--orange);
+      letter-spacing: 1px;
+      margin: 0;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+      flex-shrink: 0;
+    }
+    .header-stats {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+    .stat-chip {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.8);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .stat-chip.warn { background: rgba(255,107,107,0.25); color: #ffb3b3; border-color: rgba(255,107,107,0.4); }
+    #status-msg {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      margin-left: auto;
+      white-space: nowrap;
+    }
 
-        .toolbar { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    /* ─── TOOLBAR ─────────────────────────────────── */
+    .app-toolbar {
+      background: rgba(0,0,0,0.2);
+      padding: 0.6rem 1.2rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+      border-bottom: 2px solid rgba(0,0,0,0.2);
+    }
+    .toolbar-group { display: flex; gap: 0.4rem; align-items: center; }
+    .toolbar-sep { width: 1px; height: 28px; background: rgba(255,255,255,0.15); margin: 0 0.2rem; }
 
-        button {
-            font-family: 'Fredoka', sans-serif;
-            font-size: 1rem;
-            font-weight: 700;
-            border: none;
-            border-radius: 6px;
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            box-shadow: var(--hard-shadow);
-            transition: all 0.1s;
-        }
-        button:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px rgba(0,0,0,0.2); }
+    .search-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .search-wrap .search-icon {
+      position: absolute; left: 8px; font-size: 0.85rem; pointer-events: none; opacity: 0.5;
+    }
+    #search-input {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      padding: 5px 10px 5px 28px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      outline: none;
+      width: 180px;
+      transition: all 0.2s;
+    }
+    #search-input::placeholder { color: rgba(255,255,255,0.35); }
+    #search-input:focus { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.4); width: 230px; }
+    #search-input.active { background: rgba(250,233,158,0.25); border-color: var(--yellow); color: var(--yellow); }
 
-        .btn-add { background-color: var(--color-tv); }
-        .btn-copy { background-color: #3b82f6; color: white; } 
-        .btn-download { background-color: var(--color-podcast); color: white; }
-        .btn-reset { background-color: var(--color-youtube); color: white; }
-        .btn-delete { background-color: var(--color-youtube); color: white; font-size: 0.8rem; padding: 0.3rem 0.6rem; }
+    /* Buttons */
+    .btn {
+      font-family: var(--font-ui);
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 5px 12px;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.1s, box-shadow 0.1s;
+      white-space: nowrap;
+    }
+    .btn:active { transform: translate(1px,1px); box-shadow: 0 0 0; }
+    .btn-orange  { background: var(--orange); color: #fff; }
+    .btn-green   { background: var(--green);  color: #fff; }
+    .btn-blue    { background: var(--blue);   color: #fff; }
+    .btn-red     { background: var(--red);    color: #fff; }
+    .btn-cream   { background: var(--cream);  color: #333; }
+    .btn-ghost   { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.2); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.2); }
+    .btn-sm { font-size: 0.75rem; padding: 3px 8px; }
+    .btn-xs { font-size: 0.7rem; padding: 2px 6px; box-shadow: 1px 1px 0 rgba(0,0,0,0.2); }
 
-        .category-card {
-            background: #fff;
-            border: 2px dashed #ccc;
-            border-radius: 8px;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            transition: background-color 0.2s ease;
-        }
+    /* ─── MAIN LAYOUT ─────────────────────────────── */
+    .app-main {
+      display: flex;
+      flex: 1;
+      gap: 0;
+      min-height: 0;
+    }
 
-        .category-header { display: flex; gap: 1rem; align-items: center; }
-        .category-header input { 
-            flex-grow: 1; 
-            font-size: 1.5rem; 
-            font-family: 'Fredoka', sans-serif; 
-            font-weight: 700; 
-            border: none; 
-            border-bottom: 2px solid #ccc; 
-            outline: none; 
-            color: var(--color-patreon);
-        }
+    /* ─── EDITOR PANEL ────────────────────────────── */
+    .editor-panel {
+      flex: 1;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      overflow-y: auto;
+      min-width: 0;
+    }
 
-        .btn-reorder {
-            background-color: #ddd;
-            color: #333;
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            min-height: 20px;
-            box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
-        }
-        .btn-reorder:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
+    /* ─── CATEGORY CARD ───────────────────────────── */
+    .category-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .category-card.drag-over-card { box-shadow: 0 0 0 3px var(--green), var(--shadow); }
 
-        .reorder-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
+    .cat-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1rem;
+      background: var(--cream-dim);
+      border-bottom: 2px solid rgba(0,0,0,0.08);
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+    .cat-header:hover { background: #e8dfc8; }
 
-        .entry-row {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            background: #f4ede1;
-            padding: 0.5rem;
-            border-radius: 6px;
-            border: 2px solid transparent;
-            transition: box-shadow 0.1s, border 0.1s, opacity 0.2s;
-        }
+    .cat-toggle {
+      font-size: 0.9rem;
+      color: #888;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .cat-toggle.collapsed { transform: rotate(-90deg); }
 
-        .entry-row.is-ad {
-            background: #fff9d6;
-            border: 2px solid var(--color-youtube);
-        }
-        
-        .entry-row.is-hidden {
-            opacity: 0.6;
-            background: #e5e7eb;
-            border: 2px dashed #9ca3af;
-        }
+    .cat-drag-handle {
+      cursor: grab;
+      font-size: 1.1rem;
+      color: #bbb;
+      padding: 0 4px;
+      flex-shrink: 0;
+    }
+    .cat-drag-handle:active { cursor: grabbing; }
 
-        .entry-main-fields {
-            display: grid;
-            grid-template-columns: auto 2fr 1fr 2fr auto auto auto;
-            gap: 0.5rem;
-            align-items: center;
-            width: 100%;
-        }
+    .cat-order-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .cat-order-btns .btn-reorder {
+      font-family: var(--font-ui);
+      font-size: 0.6rem;
+      padding: 1px 5px;
+      border: none;
+      border-radius: 3px;
+      background: #ddd;
+      cursor: pointer;
+      box-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+      line-height: 1.4;
+    }
+    .cat-order-btns .btn-reorder:disabled { opacity: 0.3; cursor: default; box-shadow: none; }
+    .cat-order-btns .btn-reorder:not(:disabled):hover { background: #ccc; }
 
-        .entry-ad-fields {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 0.5rem;
-            width: 100%;
-            padding-left: 2.5rem; 
-            box-sizing: border-box;
-        }
-        
-        .entry-secret-fields {
-            width: 100%;
-            padding-left: 2.5rem; 
-            box-sizing: border-box;
-        }
+    .cat-title-input {
+      flex: 1;
+      font-family: var(--font-ui);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--orange);
+      border: none;
+      background: transparent;
+      outline: none;
+      border-bottom: 2px solid transparent;
+      padding: 2px 4px;
+      min-width: 0;
+    }
+    .cat-title-input:focus { border-bottom-color: var(--orange); background: rgba(255,145,77,0.07); border-radius: 3px 3px 0 0; }
 
-        .checkbox-label {
-            font-family: var(--font-cartoon);
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            color: var(--color-patreon);
-            font-weight: 700;
-        }
-        
-        .checkbox-label.secret { color: #6b7280; }
+    .cat-badge {
+      background: var(--orange);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+    .cat-badge.has-hidden { background: #9ca3af; }
 
-        .drag-handle {
-            cursor: grab;
-            font-size: 1.4rem;
-            color: #999;
-            padding: 0 8px;
-            user-select: none;
-        }
+    .cat-delete-btn {
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      flex-shrink: 0;
+    }
 
-        .drag-handle:active {
-            cursor: grabbing;
-        }
+    /* ─── CATEGORY BODY ───────────────────────────── */
+    .cat-body {
+      padding: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .cat-body.collapsed { display: none; }
+    .cat-no-results {
+      text-align: center;
+      color: #bbb;
+      font-size: 0.85rem;
+      padding: 0.5rem;
+      font-family: var(--font-mono);
+    }
 
-        .entry-row.dragging {
-            opacity: 0.5;
-            background: #e0d5c1;
-        }
+    /* ─── ENTRY ROW ───────────────────────────────── */
+    .entry-row {
+      background: #f8f2e6;
+      border-radius: 6px;
+      border: 2px solid transparent;
+      padding: 0.4rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      transition: box-shadow 0.1s, border-color 0.1s, opacity 0.2s;
+    }
+    .entry-row.is-ad      { background: #fff9d6; border-color: #f5c518; }
+    .entry-row.is-hidden  { background: #f3f4f6; border-color: #9ca3af; opacity: 0.7; border-style: dashed; }
+    .entry-row.is-explicit { border-color: #dc2626; }
+    .entry-row.dragging   { opacity: 0.4; }
+    .entry-row.drag-over-row { box-shadow: 0 -3px 0 0 var(--green); }
+    .entry-row.search-hide { display: none; }
+    .entry-row.search-match { border-color: rgba(59,178,115,0.5); }
 
-        .drag-over-row { box-shadow: 0 -4px 0 0 var(--color-podcast); }
-        .drag-over-card { background: #f0fdf4; border-color: var(--color-podcast); }
+    .entry-main {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto auto auto auto auto auto;
+      gap: 0.4rem;
+      align-items: center;
+    }
 
-        input[type="text"] {
-            font-family: 'Space Mono', monospace;
-            padding: 0.6rem;
-            border: 1px solid #aaa;
-            border-radius: 4px;
-            width: 100%;
-            box-sizing: border-box;
-            font-size: 0.9rem;
-        }
-        
-        .clash-warning {
-            border: 2px solid var(--color-youtube) !important;
-            background-color: #ffe5e5 !important;
-            color: var(--color-youtube);
-            font-weight: bold;
-        }
+    .drag-handle {
+      cursor: grab;
+      color: #ccc;
+      font-size: 1.1rem;
+      padding: 0 4px;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .drag-handle:active { cursor: grabbing; }
 
-        .status-bar { text-align: center; font-family: 'Space Mono', monospace; color: #666; font-size: 0.9rem;}
-    </style>
+    .entry-row input[type="text"] {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 4px 6px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #fff;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .entry-row input[type="text"]:focus { border-color: var(--blue); }
+    .entry-row input[type="text"].clash-warning { border-color: var(--red) !important; background: #ffe5e5; }
+    .input-name { font-family: var(--font-ui) !important; font-size: 0.85rem !important; font-weight: 600; }
+    .input-num  { font-weight: 700; text-align: center; width: 90px !important; color: var(--desk-dark); }
+    .input-url  { min-width: 0; }
+
+    .entry-flags {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .flag-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .flag-label.fl-ad       { color: var(--gold); }
+    .flag-label.fl-secret   { color: #6b7280; }
+    .flag-label.fl-explicit { color: #dc2626; }
+
+    .move-cat-select {
+      font-family: var(--font-ui);
+      font-size: 0.7rem;
+      padding: 3px 4px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+      color: #555;
+      max-width: 110px;
+    }
+
+    .entry-extra {
+      display: grid;
+      gap: 0.4rem;
+      padding-left: 1.5rem;
+    }
+    .entry-extra input[type="text"] { width: 100%; }
+    .extra-row-2col { grid-template-columns: 1fr 2fr; }
+    .extra-row-1col { grid-template-columns: 1fr; }
+
+    .field-hint {
+      font-size: 0.65rem;
+      color: #999;
+      font-family: var(--font-mono);
+      margin-bottom: -2px;
+    }
+
+    .cat-add-btn { align-self: flex-start; margin-top: 0.2rem; }
+
+    /* ─── PREVIEW PANEL ───────────────────────────── */
+    .preview-panel {
+      width: 0;
+      overflow: hidden;
+      transition: width 0.3s ease, opacity 0.3s;
+      opacity: 0;
+      background: var(--desk-dark);
+      border-left: 3px solid rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+    }
+    .preview-panel.open {
+      width: 390px;
+      opacity: 1;
+      overflow: visible;
+    }
+
+    .preview-header {
+      padding: 0.7rem 1rem;
+      background: rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 2px solid rgba(0,0,0,0.2);
+      flex-shrink: 0;
+    }
+    .preview-header h3 {
+      margin: 0;
+      font-family: var(--font-title);
+      color: var(--yellow);
+      font-size: 1.1rem;
+      flex: 1;
+    }
+    .preview-safe-toggle {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.6);
+      cursor: pointer;
+    }
+
+    .preview-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* ─── MINI PHONE BOOK ─────────────────────────── */
+    .pv-book {
+      width: 100%;
+      max-width: 330px;
+      background: var(--yellow);
+      border-radius: 4px 14px 14px 4px;
+      padding: 1.8rem 2rem 4rem 3.5rem;
+      position: relative;
+      box-shadow:
+        inset 12px 0px 12px rgba(0,0,0,0.1),
+        -6px 0px 0px #645713,
+        -8px 0px 8px rgba(0,0,0,0.15),
+        10px 10px 0px rgba(0,0,0,0.3),
+        4px 4px 0px #e6c32e,
+        7px 7px 0px #cca300;
+    }
+    .pv-spine {
+      position: absolute; left: 0; top: 0; bottom: 0; width: 25px;
+      background: linear-gradient(to right, rgba(0,0,0,0.15), rgba(0,0,0,0));
+      border-radius: 4px 0 0 4px; pointer-events: none;
+    }
+    .pv-header {
+      text-align: center;
+      border-bottom: 3px double #111;
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+    }
+    .pv-title {
+      font-family: var(--font-title);
+      font-size: 1.4rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin: 0;
+    }
+    .pv-subtitle { font-size: 0.75rem; font-weight: 700; color: #333; margin: 0; }
+
+    .pv-content { display: flex; flex-direction: column; gap: 0.15rem; min-height: 280px; }
+    .pv-cat-header {
+      font-size: 0.8rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      border-bottom: 2px double #111;
+      margin-top: 0.8rem;
+      margin-bottom: 0.4rem;
+      font-family: var(--font-book);
+    }
+    .pv-cat-header:first-child { margin-top: 0; }
+    .pv-normal {
+      display: flex;
+      align-items: baseline;
+      font-size: 0.78rem;
+      margin-bottom: 0.25rem;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      font-family: var(--font-book);
+    }
+    .pv-name { font-weight: 700; color: #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%; }
+    .pv-dots { flex: 1; border-bottom: 1.5px dotted #888; margin: 0 4px; position: relative; top: -3px; }
+    .pv-num  { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; white-space: nowrap; }
+    .pv-ad {
+      border: 2px solid #222;
+      border-radius: 4px;
+      padding: 0.4rem 0.6rem;
+      background: rgba(255,255,255,0.35);
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+      font-family: var(--font-book);
+    }
+    .pv-ad-header { display: flex; align-items: baseline; gap: 4px; margin-bottom: 0.15rem; }
+    .pv-ad-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; }
+    .pv-ad-num  { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; margin-left: auto; }
+    .pv-ad-sub  { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.15rem; }
+    .pv-ad-desc { font-size: 0.7rem; color: #333; line-height: 1.3; }
+
+    .pv-pagination {
+      position: absolute;
+      bottom: 0; left: 0; right: 0; height: 50px;
+      pointer-events: none;
+    }
+    .pv-prev, .pv-next {
+      position: absolute;
+      bottom: 0;
+      width: 50px; height: 50px;
+      border: none; cursor: pointer;
+      pointer-events: auto;
+      color: transparent;
+      transition: all 0.15s;
+    }
+    .pv-prev {
+      left: 0;
+      background: linear-gradient(225deg, transparent 50%, #cca300 50%);
+      border-radius: 0 0 0 14px;
+    }
+    .pv-prev::after { content: '◄'; position: absolute; bottom: 8px; left: 8px; color: #111; opacity: 0.5; font-size: 0.7rem; }
+    .pv-next {
+      right: 0;
+      background: linear-gradient(135deg, transparent 50%, #cca300 50%);
+      border-radius: 0 0 14px 0;
+    }
+    .pv-next::after { content: '►'; position: absolute; bottom: 8px; right: 8px; color: #111; opacity: 0.5; font-size: 0.7rem; }
+    .pv-prev:hover, .pv-next:hover { width: 65px; height: 65px; }
+    .pv-page-indicator {
+      position: absolute;
+      bottom: 0.5rem; left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: #666;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .pv-empty {
+      text-align: center;
+      color: #aaa;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      margin-top: 2rem;
+    }
+
+    /* ─── MODAL ───────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200;
+      backdrop-filter: blur(3px);
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-box {
+      background: var(--cream);
+      border-radius: var(--radius);
+      box-shadow: 8px 8px 0 rgba(0,0,0,0.4);
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .modal-box h2 { margin: 0; font-family: var(--font-title); color: var(--orange); font-size: 1.6rem; }
+    .modal-box p { margin: 0; color: #555; font-size: 0.9rem; line-height: 1.5; }
+    .modal-box textarea {
+      width: 100%;
+      height: 220px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      border: 2px solid #ddd;
+      border-radius: var(--radius-sm);
+      padding: 0.6rem;
+      resize: vertical;
+      outline: none;
+      background: #fff;
+    }
+    .modal-box textarea:focus { border-color: var(--blue); }
+    .modal-box textarea.error { border-color: var(--red); }
+    .modal-error { color: var(--red); font-size: 0.8rem; font-family: var(--font-mono); }
+    .modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap; }
+
+    /* ─── MISC ────────────────────────────────────── */
+    .no-cats {
+      text-align: center;
+      color: rgba(255,255,255,0.4);
+      font-size: 1rem;
+      padding: 2rem;
+      font-family: var(--font-mono);
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.25); border-radius: 3px; }
+  </style>
 </head>
 <body>
 
-    <div class="editor-container">
-        <h1>Directory Editor</h1>
-        
-        <div class="toolbar">
-            <button class="btn-add" id="btn-add-category">+ Add Page</button>
-            <button class="btn-copy" id="btn-copy">📋 Copy JSON</button>
-            <button class="btn-download" id="btn-download">💾 Download JSON</button>
-            <button class="btn-reset" id="btn-reset">⚠️ Reset to File</button>
-        </div>
+  <!-- ─── HEADER ─── -->
+  <header class="app-header">
+    <h1 class="app-title">📞 Directory Studio</h1>
+    <div class="header-stats" id="header-stats"></div>
+    <span id="status-msg">Loading...</span>
+  </header>
 
-        <div id="categories-container"></div>
+  <!-- ─── TOOLBAR ─── -->
+  <div class="app-toolbar">
+    <div class="toolbar-group">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Search entries…">
+      </div>
+    </div>
+    <div class="toolbar-sep"></div>
+    <div class="toolbar-group">
+      <button class="btn btn-orange" id="btn-add-cat">+ Add Page</button>
+      <button class="btn btn-ghost" id="btn-import">⬆ Import JSON</button>
+    </div>
+    <div class="toolbar-sep"></div>
+    <div class="toolbar-group">
+      <button class="btn btn-blue"  id="btn-copy">📋 Copy JSON</button>
+      <button class="btn btn-green" id="btn-download">💾 Download</button>
+      <button class="btn btn-red"   id="btn-reset">⚠ Reset</button>
+    </div>
+    <div class="toolbar-sep"></div>
+    <div class="toolbar-group">
+      <button class="btn btn-ghost" id="btn-toggle-preview">👁 Preview</button>
+    </div>
+  </div>
 
-        <div class="status-bar" id="save-status">Loading data...</div>
+  <!-- ─── MAIN ─── -->
+  <div class="app-main">
+
+    <!-- Editor -->
+    <div class="editor-panel" id="editor-panel">
+      <div id="categories-container"></div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const container = document.getElementById('categories-container');
-            const saveStatus = document.getElementById('save-status');
+    <!-- Preview -->
+    <div class="preview-panel" id="preview-panel">
+      <div class="preview-header">
+        <h3>📖 Live Preview</h3>
+        <label class="preview-safe-toggle">
+          <input type="checkbox" id="pv-safe-mode"> Safe Mode
+        </label>
+        <button class="btn btn-ghost btn-sm" id="btn-pv-refresh" title="Refresh preview">↺</button>
+      </div>
+      <div class="preview-scroll" id="preview-scroll">
+        <div class="pv-book" id="pv-book">
+          <div class="pv-spine"></div>
+          <div class="pv-header">
+            <h2 class="pv-title">Yellow Pages</h2>
+            <p class="pv-subtitle">Directory of Cool Places</p>
+          </div>
+          <div class="pv-content" id="pv-content">
+            <div class="pv-empty">No entries yet</div>
+          </div>
+          <div class="pv-pagination">
+            <button class="pv-prev" id="pv-prev" style="visibility:hidden"></button>
+            <span class="pv-page-indicator" id="pv-indicator">Pg 1 / 1</span>
+            <button class="pv-next" id="pv-next" style="visibility:hidden"></button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-            const STORAGE_KEY = 'bugandmoss-dir-draft-v4'; // Bumped version for hidden items
-            let directoryData = [];
+  </div>
 
-            // 1. Initialize and Load Data
-            async function init() {
-                const savedDraft = localStorage.getItem(STORAGE_KEY);
-                
-                if (savedDraft) {
-                    try {
-                        directoryData = JSON.parse(savedDraft);
-                        saveStatus.innerText = "Loaded unsaved draft from browser memory.";
-                    } catch (e) {
-                        directoryData = [];
-                    }
-                } 
-                
-                if (!directoryData || directoryData.length === 0) {
-                    try {
-                        const response = await fetch('directory.json?t=' + Date.now());
-                        if (response.ok) {
-                            directoryData = await response.json();
-                            saveStatus.innerText = "Loaded fresh from directory.json";
-                        } else {
-                            directoryData = [{ title: "New Page", entries: [] }];
-                        }
-                    } catch (e) {
-                        directoryData = [{ title: "New Page", entries: [] }];
-                        saveStatus.innerText = "Warning: Could not read directory.json. Starting fresh.";
-                    }
-                }
-                
-                renderEditor();
-                saveDraft();
-            }
+  <!-- ─── IMPORT MODAL ─── -->
+  <div class="modal-overlay hidden" id="import-modal">
+    <div class="modal-box">
+      <h2>Import JSON</h2>
+      <p>Paste a <code>directory.json</code> array below. Choose whether to <strong>Replace</strong> all existing data or <strong>Merge</strong> (appends categories / updates matching ones by title).</p>
+      <textarea id="import-textarea" placeholder='[{"title": "My Page", "entries": [...]}]'></textarea>
+      <div class="modal-error" id="import-error" style="display:none"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="import-cancel">Cancel</button>
+        <button class="btn btn-blue"  id="import-merge">Merge</button>
+        <button class="btn btn-orange" id="import-replace">Replace All</button>
+      </div>
+    </div>
+  </div>
 
-            function escapeHtml(unsafe) {
-                if (!unsafe) return "";
-                return unsafe.toString()
-                     .replace(/&/g, "&amp;")
-                     .replace(/</g, "&lt;")
-                     .replace(/>/g, "&gt;")
-                     .replace(/"/g, "&quot;")
-                     .replace(/'/g, "&#039;");
-            }
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
 
-            // 2. Render UI
-            function renderEditor() {
-                container.innerHTML = '';
-                
-                directoryData.forEach((category, cIdx) => {
-                    const card = document.createElement('div');
-                    card.className = 'category-card';
+    // ═══════════════════════════════════════════════
+    // CONSTANTS & STATE
+    // ═══════════════════════════════════════════════
+    const STORAGE_KEY = 'bugandmoss-studio-v1';
+    let directoryData  = [];
+    let searchQuery    = '';
+    let collapsedCats  = new Set();
+    let previewVisible = false;
+    let previewSafe    = false;
+    let pvPage         = 0;
+    let pvPages        = [];
+    let draggedEntry   = null;
+    let saveTimer      = null;
 
-                    let html = `
-                        <div class="category-header">
-                            <div class="reorder-controls">
-                                <button class="btn-reorder move-cat-up" data-cidx="${cIdx}" ${cIdx === 0 ? 'disabled' : ''}>▲</button>
-                                <button class="btn-reorder move-cat-down" data-cidx="${cIdx}" ${cIdx === directoryData.length - 1 ? 'disabled' : ''}>▼</button>
-                            </div>
-                            <input type="text" class="input-title" data-cidx="${cIdx}" value="${escapeHtml(category.title)}" placeholder="Page Title (e.g. Our Friends)">
-                            <button class="btn-delete delete-cat" data-cidx="${cIdx}">Delete Page</button>
-                        </div>
-                    `;
+    // ═══════════════════════════════════════════════
+    // INIT
+    // ═══════════════════════════════════════════════
+    async function init() {
+      const draft = localStorage.getItem(STORAGE_KEY);
+      if (draft) {
+        try { directoryData = JSON.parse(draft); setStatus('Loaded draft from browser cache.'); }
+        catch { directoryData = []; }
+      }
 
-                    const entries = category.entries || [];
-                    entries.forEach((entry, eIdx) => {
-                        const isAd = !!entry.isAd; 
-                        const isHidden = !!entry.isHidden;
-                        
-                        let rowClasses = 'entry-row';
-                        if (isAd) rowClasses += ' is-ad';
-                        if (isHidden) rowClasses += ' is-hidden';
-                        
-                        html += `
-                        <div class="${rowClasses}" data-cidx="${cIdx}" data-eidx="${eIdx}">
-                            <div class="entry-main-fields">
-                                <div class="drag-handle">☰</div>
-                                <input type="text" class="input-name" data-cidx="${cIdx}" data-eidx="${eIdx}" value="${escapeHtml(entry.name)}" placeholder="Name (e.g. Patreon)">
-                                <input type="text" class="input-num" data-cidx="${cIdx}" data-eidx="${eIdx}" value="${escapeHtml(entry.number)}" placeholder="Number (e.g. *800#)">
-                                <input type="text" class="input-url" data-cidx="${cIdx}" data-eidx="${eIdx}" value="${escapeHtml(entry.url)}" placeholder="URL (e.g. /podcast)">
-                                
-                                <label class="checkbox-label">
-                                    <input type="checkbox" class="input-is-ad" data-cidx="${cIdx}" data-eidx="${eIdx}" ${isAd ? 'checked' : ''} ${isHidden ? 'disabled' : ''}>
-                                    Ad
-                                </label>
-                                <label class="checkbox-label secret" title="Hides from book, dialable as secret code">
-                                    <input type="checkbox" class="input-is-hidden" data-cidx="${cIdx}" data-eidx="${eIdx}" ${isHidden ? 'checked' : ''}>
-                                    Secret
-                                </label>
-                                
-                                <button class="btn-delete delete-ent" data-cidx="${cIdx}" data-eidx="${eIdx}">X</button>
-                            </div>
-                            
-                            ${isAd && !isHidden ? `
-                            <div class="entry-ad-fields">
-                                <input type="text" class="input-subtitle" data-cidx="${cIdx}" data-eidx="${eIdx}" value="${escapeHtml(entry.subtitle || '')}" placeholder="Subtitle (e.g. Keep Us On The Air!)">
-                                <input type="text" class="input-desc" data-cidx="${cIdx}" data-eidx="${eIdx}" value="${escapeHtml(entry.description || '')}" placeholder="Ad Description Text...">
-                            </div>
-                            ` : ''}
-                            
-                            ${isHidden ? `
-                            <div class="entry-secret-fields">
-                                <input type="text" class="input-audio" data-cidx="${cIdx}" data-eidx="${eIdx}" value="${escapeHtml(entry.audioUrl || '')}" placeholder="Audio URL (Optional, plays sound instead of opening URL)">
-                            </div>
-                            ` : ''}
-                        </div>`;
-                    });
+      if (!directoryData || directoryData.length === 0) {
+        try {
+          const r = await fetch('directory.json?t=' + Date.now());
+          if (r.ok) { directoryData = await r.json(); setStatus('Loaded from directory.json'); }
+          else { directoryData = [{ title: 'New Page', entries: [] }]; setStatus('Starting fresh (no directory.json found)'); }
+        } catch {
+          directoryData = [{ title: 'New Page', entries: [] }];
+          setStatus('Could not load directory.json — starting fresh.');
+        }
+      }
 
-                    html += `<button class="btn-add add-ent" data-cidx="${cIdx}">+ Add Number</button>`;
-                    card.innerHTML = html;
-                    container.appendChild(card);
-                });
-                
-                checkNumberClashes();
-            }
+      renderEditor();
+      buildPreviewPages();
+      renderPreviewPage();
+      updateStats();
+    }
 
-            // 3. Save Draft
-            function saveDraft() {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(directoryData));
-            }
+    // ═══════════════════════════════════════════════
+    // RENDER EDITOR
+    // ═══════════════════════════════════════════════
+    function renderEditor() {
+      const container = document.getElementById('categories-container');
+      if (directoryData.length === 0) {
+        container.innerHTML = '<p class="no-cats">No pages yet — click + Add Page to start!</p>';
+        return;
+      }
 
-            // 3.4 Helper: Map Alphanumeric to Keypad Digits
-            function mapAlphaToDigits(str) {
-                const map = {
-                    'A': '2', 'B': '2', 'C': '2',
-                    'D': '3', 'E': '3', 'F': '3',
-                    'G': '4', 'H': '4', 'I': '4',
-                    'J': '5', 'K': '5', 'L': '5',
-                    'M': '6', 'N': '6', 'O': '6',
-                    'P': '7', 'Q': '7', 'R': '7', 'S': '7',
-                    'T': '8', 'U': '8', 'V': '8',
-                    'W': '9', 'X': '9', 'Y': '9', 'Z': '9'
-                };
-                return str.toUpperCase()
-                        .replace(/[A-Z]/g, L => map[L])
-                        .replace(/[^0-9*#]/g, '');
-            }
+      container.innerHTML = '';
+      directoryData.forEach((cat, cIdx) => {
+        const isCollapsed = collapsedCats.has(cIdx) && !searchQuery;
+        const entries     = cat.entries || [];
+        const visibleCount = entries.filter(e => !e.isHidden).length;
+        const hiddenCount  = entries.filter(e => e.isHidden).length;
 
-            // 3.5 Check for Number Clashes (Now with Alphanumeric Support)
-            function checkNumberClashes() {
-                const numInputs = document.querySelectorAll('.input-num');
-                const seenNumbers = new Set();
-                const clashNumbers = new Set();
+        const card = document.createElement('div');
+        card.className = 'category-card';
+        card.dataset.cidx = cIdx;
 
-                // First pass: map inputs to keypad digits and track duplicates
-                numInputs.forEach(input => {
-                    const rawVal = input.value.trim();
-                    if (rawVal !== "") {
-                        const dialCode = mapAlphaToDigits(rawVal);
-                        if (dialCode !== "") {
-                            if (seenNumbers.has(dialCode)) { clashNumbers.add(dialCode); } 
-                            else { seenNumbers.add(dialCode); }
-                        }
-                    }
-                });
-
-                // Second pass: apply warnings to any input whose dialed equivalent clashes
-                let hasClash = false;
-                numInputs.forEach(input => {
-                    const rawVal = input.value.trim();
-                    if (rawVal !== "") {
-                        const dialCode = mapAlphaToDigits(rawVal);
-                        if (dialCode !== "" && clashNumbers.has(dialCode)) {
-                            input.classList.add('clash-warning');
-                            hasClash = true;
-                        } else {
-                            input.classList.remove('clash-warning');
-                        }
-                    } else {
-                        input.classList.remove('clash-warning');
-                    }
-                });
-                return hasClash;
-            }
-
-            function updateStatus() {
-                const hasClash = checkNumberClashes();
-                if (hasClash) {
-                    saveStatus.innerHTML = `Draft auto-saved at ${new Date().toLocaleTimeString()} &mdash; <strong style="color: var(--color-youtube);">⚠️ DUPLICATE NUMBERS DETECTED</strong>`;
-                } else {
-                    saveStatus.innerText = `Draft auto-saved at ${new Date().toLocaleTimeString()}`;
-                }
-            }
-
-            // 4. Input & Button Delegation
-            container.addEventListener('input', (e) => {
-                const cIdx = e.target.dataset.cidx;
-                const eIdx = e.target.dataset.eidx;
-                const val = e.target.value;
-
-                if (e.target.classList.contains('input-title')) { directoryData[cIdx].title = val; } 
-                else if (e.target.classList.contains('input-name')) { directoryData[cIdx].entries[eIdx].name = val; } 
-                else if (e.target.classList.contains('input-num')) { directoryData[cIdx].entries[eIdx].number = val; } 
-                else if (e.target.classList.contains('input-url')) { directoryData[cIdx].entries[eIdx].url = val; } 
-                else if (e.target.classList.contains('input-subtitle')) { directoryData[cIdx].entries[eIdx].subtitle = val; } 
-                else if (e.target.classList.contains('input-desc')) { directoryData[cIdx].entries[eIdx].description = val; }
-                else if (e.target.classList.contains('input-audio')) { directoryData[cIdx].entries[eIdx].audioUrl = val; }
-                
-                saveDraft(); updateStatus();
-            });
-
-            container.addEventListener('change', (e) => {
-                if (e.target.classList.contains('input-is-ad')) {
-                    const cIdx = e.target.dataset.cidx;
-                    const eIdx = e.target.dataset.eidx;
-                    directoryData[cIdx].entries[eIdx].isAd = e.target.checked;
-                    if (!e.target.checked) {
-                        delete directoryData[cIdx].entries[eIdx].subtitle;
-                        delete directoryData[cIdx].entries[eIdx].description;
-                    }
-                    renderEditor(); saveDraft(); updateStatus();
-                } else if (e.target.classList.contains('input-is-hidden')) {
-                    const cIdx = e.target.dataset.cidx;
-                    const eIdx = e.target.dataset.eidx;
-                    directoryData[cIdx].entries[eIdx].isHidden = e.target.checked;
-                    
-                    // Secret items can't be ads
-                    if (e.target.checked) {
-                        directoryData[cIdx].entries[eIdx].isAd = false;
-                        delete directoryData[cIdx].entries[eIdx].subtitle;
-                        delete directoryData[cIdx].entries[eIdx].description;
-                    } else {
-                        delete directoryData[cIdx].entries[eIdx].audioUrl;
-                    }
-                    renderEditor(); saveDraft(); updateStatus();
-                }
-            });
-
-            container.addEventListener('click', (e) => {
-                const target = e.target;
-                const cIdx = parseInt(target.dataset.cidx);
-                const eIdx = parseInt(target.dataset.eidx);
-
-                if (target.classList.contains('move-cat-up')) {
-                    const temp = directoryData[cIdx];
-                    directoryData[cIdx] = directoryData[cIdx - 1];
-                    directoryData[cIdx - 1] = temp;
-                    renderEditor(); saveDraft(); updateStatus();
-                } else if (target.classList.contains('move-cat-down')) {
-                    const temp = directoryData[cIdx];
-                    directoryData[cIdx] = directoryData[cIdx + 1];
-                    directoryData[cIdx + 1] = temp;
-                    renderEditor(); saveDraft(); updateStatus();
-                } else if (target.classList.contains('delete-cat')) {
-                    if (confirm("Are you sure you want to delete this entire page and all its numbers?")) {
-                        directoryData.splice(cIdx, 1);
-                        renderEditor(); saveDraft(); updateStatus();
-                    }
-                } else if (target.classList.contains('delete-ent')) {
-                    directoryData[cIdx].entries.splice(eIdx, 1);
-                    renderEditor(); saveDraft(); updateStatus();
-                } else if (target.classList.contains('add-ent')) {
-                    if (!directoryData[cIdx].entries) directoryData[cIdx].entries = [];
-                    directoryData[cIdx].entries.push({ name: "", number: "", url: "", isAd: false });
-                    renderEditor(); saveDraft(); updateStatus();
-                }
-            });
-
-            // Drag handles
-            container.addEventListener('mousedown', (e) => {
-                if (e.target.classList.contains('drag-handle')) {
-                    const row = e.target.closest('.entry-row');
-                    if (row) row.setAttribute('draggable', 'true');
-                }
-            });
-
-            container.addEventListener('mouseup', (e) => {
-                if (e.target.classList.contains('drag-handle')) {
-                    const row = e.target.closest('.entry-row');
-                    if (row) row.removeAttribute('draggable');
-                }
-            });
-
-            // 5. DRAG AND DROP LOGIC
-            let draggedEntry = null;
-
-            container.addEventListener('dragstart', (e) => {
-                const row = e.target.closest('.entry-row');
-                if (row) {
-                    draggedEntry = { cIdx: parseInt(row.dataset.cidx), eIdx: parseInt(row.dataset.eidx) };
-                    setTimeout(() => row.classList.add('dragging'), 0);
-                    e.dataTransfer.effectAllowed = 'move';
-                    e.dataTransfer.setData('text/plain', 'entry'); 
-                }
-            });
-
-            container.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                if (!draggedEntry) return;
-
-                document.querySelectorAll('.drag-over-row, .drag-over-card').forEach(el => el.classList.remove('drag-over-row', 'drag-over-card'));
-
-                const targetRow = e.target.closest('.entry-row');
-                const targetCard = e.target.closest('.category-card');
-
-                if (targetRow && targetRow !== document.querySelector('.dragging')) {
-                    targetRow.classList.add('drag-over-row');
-                } else if (targetCard && !targetRow) {
-                    targetCard.classList.add('drag-over-card');
-                }
-            });
-
-            container.addEventListener('drop', (e) => {
-                e.preventDefault();
-                if (!draggedEntry) return;
-
-                const targetRow = e.target.closest('.entry-row');
-                const targetCard = e.target.closest('.category-card');
-
-                let toCIdx, toEIdx;
-
-                if (targetRow) {
-                    toCIdx = parseInt(targetRow.dataset.cidx);
-                    toEIdx = parseInt(targetRow.dataset.eidx);
-                } else if (targetCard) {
-                    toCIdx = parseInt(targetCard.querySelector('.delete-cat').dataset.cidx);
-                    toEIdx = directoryData[toCIdx].entries.length;
-                } else {
-                    draggedEntry = null; return; 
-                }
-
-                const { cIdx: fromCIdx, eIdx: fromEIdx } = draggedEntry;
-
-                if (fromCIdx === toCIdx && fromEIdx === toEIdx) { cleanupDrag(); return; }
-
-                const [movedItem] = directoryData[fromCIdx].entries.splice(fromEIdx, 1);
-                if (fromCIdx === toCIdx && fromEIdx < toEIdx) { toEIdx--; }
-
-                directoryData[toCIdx].entries.splice(toEIdx, 0, movedItem);
-
-                renderEditor(); saveDraft(); updateStatus(); draggedEntry = null;
-            });
-
-            function cleanupDrag() {
-                const row = document.querySelector('.dragging');
-                if (row) { row.classList.remove('dragging'); row.removeAttribute('draggable'); }
-                document.querySelectorAll('.drag-over-row, .drag-over-card').forEach(el => el.classList.remove('drag-over-row', 'drag-over-card'));
-                draggedEntry = null;
-            }
-
-            container.addEventListener('dragend', cleanupDrag);
-
-            // 6. Toolbar Buttons
-            document.getElementById('btn-add-category').addEventListener('click', () => {
-                directoryData.push({ title: "New Page", entries: [] });
-                renderEditor(); saveDraft(); updateStatus();
-            });
-
-            document.getElementById('btn-reset').addEventListener('click', () => {
-                if (confirm("WARNING: This will wipe your current unsaved edits and reload directly from your directory.json file. Proceed?")) {
-                    localStorage.removeItem(STORAGE_KEY);
-                    directoryData = []; init();
-                }
-            });
-
-            function getCleanData() {
-                return directoryData.map(category => {
-                    return {
-                        title: category.title,
-                        entries: category.entries.filter(entry => 
-                            (entry.name && entry.name.trim() !== "") || 
-                            (entry.number && entry.number.trim() !== "") || 
-                            (entry.url && entry.url.trim() !== "")
-                        )
-                    };
-                });
-            }
-
-            document.getElementById('btn-copy').addEventListener('click', async () => {
-                const jsonString = JSON.stringify(getCleanData(), null, 4);
-                try {
-                    await navigator.clipboard.writeText(jsonString);
-                    const copyBtn = document.getElementById('btn-copy');
-                    const originalText = copyBtn.innerText;
-                    copyBtn.innerText = "✅ Copied!";
-                    setTimeout(() => { copyBtn.innerText = originalText; }, 2000);
-                } catch (err) { alert("Failed to copy to clipboard."); }
-            });
-
-            document.getElementById('btn-download').addEventListener('click', () => {
-                const blob = new Blob([JSON.stringify(getCleanData(), null, 4)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'directory.json';
-                document.body.appendChild(a);
-                a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-            });
-
-            init();
+        // ── Category header ──
+        const header = document.createElement('div');
+        header.className = 'cat-header';
+        header.dataset.cidx = cIdx;
+        header.innerHTML = `
+          <span class="cat-toggle ${isCollapsed ? 'collapsed' : ''}" data-action="toggle" data-cidx="${cIdx}">▾</span>
+          <span class="cat-drag-handle" title="Drag to reorder page">⠿</span>
+          <div class="cat-order-btns">
+            <button class="btn-reorder" data-action="cat-up" data-cidx="${cIdx}" ${cIdx === 0 ? 'disabled' : ''}>▲</button>
+            <button class="btn-reorder" data-action="cat-down" data-cidx="${cIdx}" ${cIdx === directoryData.length-1 ? 'disabled' : ''}>▼</button>
+          </div>
+          <input class="cat-title-input input-title" data-cidx="${cIdx}" value="${escHtml(cat.title)}" placeholder="Page Title">
+          <span class="cat-badge ${hiddenCount > 0 ? 'has-hidden' : ''}"
+            title="${entries.length} entries, ${hiddenCount} secret">
+            ${visibleCount}${hiddenCount > 0 ? '+🔒' + hiddenCount : ''}
+          </span>
+          <button class="btn btn-red btn-xs cat-delete-btn" data-action="delete-cat" data-cidx="${cIdx}">Delete Page</button>
+        `;
+        header.addEventListener('click', e => {
+          // Don't toggle if clicking an input or button
+          if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+          toggleCollapse(cIdx);
         });
-    </script>
+        card.appendChild(header);
+
+        // ── Category body ──
+        const body = document.createElement('div');
+        body.className = `cat-body${isCollapsed ? ' collapsed' : ''}`;
+
+        let anyVisible = false;
+        entries.forEach((entry, eIdx) => {
+          const matchesSearch = entryMatchesSearch(entry);
+          if (searchQuery && !matchesSearch) return; // Skip non-matching when searching
+          anyVisible = true;
+
+          const isAd       = !!entry.isAd;
+          const isHidden   = !!entry.isHidden;
+          const isExplicit = !!entry.isExplicit;
+
+          let rowClass = 'entry-row';
+          if (isAd)       rowClass += ' is-ad';
+          if (isHidden)   rowClass += ' is-hidden';
+          if (isExplicit) rowClass += ' is-explicit';
+          if (searchQuery && matchesSearch) rowClass += ' search-match';
+
+          // Move-to select options
+          const moveOptions = directoryData.map((c, i) =>
+            i !== cIdx ? `<option value="${i}">${escHtml(c.title || 'Page ' + (i+1))}</option>` : ''
+          ).join('');
+
+          const row = document.createElement('div');
+          row.className = rowClass;
+          row.dataset.cidx = cIdx;
+          row.dataset.eidx = eIdx;
+
+          row.innerHTML = `
+            <div class="entry-main">
+              <span class="drag-handle" title="Drag to reorder">☰</span>
+              <input class="input-name" type="text" data-cidx="${cIdx}" data-eidx="${eIdx}"
+                value="${escHtml(entry.name)}" placeholder="Name">
+              <input class="input-num" type="text" data-cidx="${cIdx}" data-eidx="${eIdx}"
+                value="${escHtml(entry.number)}" placeholder="Number">
+              <input class="input-url" type="text" data-cidx="${cIdx}" data-eidx="${eIdx}"
+                value="${escHtml(entry.url)}" placeholder="URL" style="min-width:0;flex:1;">
+              <div class="entry-flags">
+                <label class="flag-label fl-ad" title="Marks as a sponsor/ad — shows ad-style block in book">
+                  <input type="checkbox" class="input-is-ad" data-cidx="${cIdx}" data-eidx="${eIdx}" ${isAd ? 'checked' : ''} ${isHidden ? 'disabled' : ''}>Ad
+                </label>
+                <label class="flag-label fl-secret" title="Hidden from book — dialable as secret code">
+                  <input type="checkbox" class="input-is-hidden" data-cidx="${cIdx}" data-eidx="${eIdx}" ${isHidden ? 'checked' : ''}>🔒
+                </label>
+                <label class="flag-label fl-explicit" title="NSFW — filtered out in Safe Mode">
+                  <input type="checkbox" class="input-is-explicit" data-cidx="${cIdx}" data-eidx="${eIdx}" ${isExplicit ? 'checked' : ''}>🔞
+                </label>
+              </div>
+              ${moveOptions ? `
+              <select class="move-cat-select" data-action="move-entry" data-cidx="${cIdx}" data-eidx="${eIdx}" title="Move to another page">
+                <option value="" disabled selected>Move →</option>
+                ${moveOptions}
+              </select>` : '<span></span>'}
+              <button class="btn btn-ghost btn-xs" data-action="dup-entry" data-cidx="${cIdx}" data-eidx="${eIdx}" title="Duplicate">⧉</button>
+              <button class="btn btn-red btn-xs"   data-action="del-entry" data-cidx="${cIdx}" data-eidx="${eIdx}">✕</button>
+            </div>
+            ${isAd && !isHidden ? `
+            <div class="entry-extra extra-row-2col">
+              <input class="input-subtitle" type="text" data-cidx="${cIdx}" data-eidx="${eIdx}"
+                value="${escHtml(entry.subtitle || '')}" placeholder="Ad Subtitle…">
+              <input class="input-desc" type="text" data-cidx="${cIdx}" data-eidx="${eIdx}"
+                value="${escHtml(entry.description || '')}" placeholder="Ad description text…">
+            </div>` : ''}
+            ${isHidden ? `
+            <div class="entry-extra extra-row-1col">
+              <input class="input-audio" type="text" data-cidx="${cIdx}" data-eidx="${eIdx}"
+                value="${escHtml(entry.audioUrl || '')}" placeholder="Audio URL (plays on dial instead of opening URL)">
+            </div>` : ''}
+          `;
+
+          body.appendChild(row);
+        });
+
+        if (!anyVisible && searchQuery) {
+          const msg = document.createElement('div');
+          msg.className = 'cat-no-results';
+          msg.textContent = 'No matches in this section';
+          body.appendChild(msg);
+        }
+
+        // Add Number button
+        const addBtn = document.createElement('button');
+        addBtn.className = 'btn btn-cream btn-sm cat-add-btn';
+        addBtn.dataset.action = 'add-entry';
+        addBtn.dataset.cidx = cIdx;
+        addBtn.textContent = '+ Add Number';
+        body.appendChild(addBtn);
+
+        card.appendChild(body);
+        container.appendChild(card);
+      });
+
+      setupDragAndDrop();
+      checkNumberClashes();
+    }
+
+    // ═══════════════════════════════════════════════
+    // PREVIEW RENDERING
+    // ═══════════════════════════════════════════════
+    function buildPreviewPages() {
+      pvPages = [];
+      let curPage = [], curWeight = 0;
+      const MAX = 10;
+
+      directoryData.forEach(cat => {
+        const entries = (cat.entries || []).filter(e => {
+          if (e.isHidden) return false;
+          if (previewSafe && e.isExplicit) return false;
+          return true;
+        });
+        if (entries.length === 0) return;
+
+        curPage.push({ type: 'header', text: cat.title });
+        curWeight += 2;
+
+        entries.forEach(item => {
+          const w = item.isAd ? 3 : 1;
+          if (curWeight + w > MAX && curPage.length > 0) {
+            pvPages.push(curPage);
+            curPage = [{ type: 'header', text: cat.title + ' (cont.)' }];
+            curWeight = 2;
+          }
+          curPage.push({ type: 'entry', data: item });
+          curWeight += w;
+        });
+      });
+      if (curPage.length > 0) pvPages.push(curPage);
+      if (pvPage >= pvPages.length) pvPage = Math.max(0, pvPages.length - 1);
+    }
+
+    function renderPreviewPage() {
+      if (!previewVisible) return;
+      const content = document.getElementById('pv-content');
+      const indicator = document.getElementById('pv-indicator');
+      const prevBtn = document.getElementById('pv-prev');
+      const nextBtn = document.getElementById('pv-next');
+
+      if (pvPages.length === 0) {
+        content.innerHTML = '<div class="pv-empty">Nothing to preview yet!</div>';
+        indicator.textContent = 'Pg 0 / 0';
+        prevBtn.style.visibility = 'hidden';
+        nextBtn.style.visibility = 'hidden';
+        return;
+      }
+
+      content.innerHTML = '';
+      pvPages[pvPage].forEach(item => {
+        if (item.type === 'header') {
+          const h = document.createElement('div');
+          h.className = 'pv-cat-header';
+          h.textContent = item.text;
+          content.appendChild(h);
+        } else {
+          const d = item.data;
+          const el = document.createElement('div');
+          if (d.isAd) {
+            el.className = 'pv-ad';
+            el.innerHTML = `
+              <div class="pv-ad-header">
+                <span class="pv-ad-name">${escHtml(d.name)}</span>
+                <span class="pv-ad-num">${escHtml(d.number)}</span>
+              </div>
+              ${d.subtitle ? `<div class="pv-ad-sub">${escHtml(d.subtitle)}</div>` : ''}
+              ${d.description ? `<div class="pv-ad-desc">${escHtml(d.description)}</div>` : ''}
+            `;
+          } else {
+            el.className = 'pv-normal';
+            el.innerHTML = `<span class="pv-name">${escHtml(d.name)}</span><span class="pv-dots"></span><strong class="pv-num">${escHtml(d.number)}</strong>`;
+          }
+          content.appendChild(el);
+        }
+      });
+
+      indicator.textContent = `Pg ${pvPage + 1} / ${pvPages.length}`;
+      prevBtn.style.visibility = pvPage === 0 ? 'hidden' : 'visible';
+      nextBtn.style.visibility = pvPage === pvPages.length - 1 ? 'hidden' : 'visible';
+    }
+
+    function refreshPreview() {
+      buildPreviewPages();
+      renderPreviewPage();
+    }
+
+    // ═══════════════════════════════════════════════
+    // TOGGLE COLLAPSE
+    // ═══════════════════════════════════════════════
+    function toggleCollapse(cIdx) {
+      if (collapsedCats.has(cIdx)) collapsedCats.delete(cIdx);
+      else collapsedCats.add(cIdx);
+      renderEditor();
+    }
+
+    // ═══════════════════════════════════════════════
+    // SEARCH
+    // ═══════════════════════════════════════════════
+    function entryMatchesSearch(entry) {
+      if (!searchQuery) return true;
+      const q = searchQuery.toLowerCase();
+      return [entry.name, entry.number, entry.url, entry.subtitle, entry.description]
+        .some(v => v && v.toLowerCase().includes(q));
+    }
+
+    // ═══════════════════════════════════════════════
+    // PERSISTENCE & STATUS
+    // ═══════════════════════════════════════════════
+    function saveDraft() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(directoryData));
+        setStatus('Auto-saved at ' + new Date().toLocaleTimeString());
+      }, 400);
+    }
+
+    function setStatus(msg) {
+      document.getElementById('status-msg').textContent = msg;
+    }
+
+    function updateStats() {
+      const allEntries  = directoryData.flatMap(c => c.entries || []);
+      const total       = allEntries.length;
+      const ads         = allEntries.filter(e => e.isAd).length;
+      const secrets     = allEntries.filter(e => e.isHidden).length;
+      const explicit    = allEntries.filter(e => e.isExplicit).length;
+      const hasClash    = getClashNumbers().size > 0;
+
+      const chips = [
+        { label: `${directoryData.length} pages` },
+        { label: `${total} entries` },
+        ads     ? { label: `${ads} ads` }     : null,
+        secrets ? { label: `${secrets} 🔒` }  : null,
+        explicit? { label: `${explicit} 🔞` } : null,
+        hasClash ? { label: '⚠ Number clash', cls: 'warn' } : null,
+      ].filter(Boolean);
+
+      document.getElementById('header-stats').innerHTML =
+        chips.map(c => `<span class="stat-chip ${c.cls||''}">${c.label}</span>`).join('');
+    }
+
+    // ═══════════════════════════════════════════════
+    // NUMBER CLASH CHECK
+    // ═══════════════════════════════════════════════
+    function mapAlpha(str) {
+      const M = { A:'2',B:'2',C:'2',D:'3',E:'3',F:'3',G:'4',H:'4',I:'4',J:'5',K:'5',L:'5',M:'6',N:'6',O:'6',P:'7',Q:'7',R:'7',S:'7',T:'8',U:'8',V:'8',W:'9',X:'9',Y:'9',Z:'9' };
+      return str.toUpperCase().replace(/[A-Z]/g, l => M[l]).replace(/[^0-9*#]/g,'');
+    }
+
+    function getClashNumbers() {
+      const seen = new Map(), clashes = new Set();
+      directoryData.flatMap(c => c.entries || []).forEach(e => {
+        if (!e.number) return;
+        const d = mapAlpha(e.number);
+        if (!d) return;
+        if (seen.has(d)) clashes.add(d);
+        seen.set(d, true);
+      });
+      return clashes;
+    }
+
+    function checkNumberClashes() {
+      const clashes = getClashNumbers();
+      document.querySelectorAll('.input-num').forEach(input => {
+        const d = mapAlpha(input.value || '');
+        if (d && clashes.has(d)) input.classList.add('clash-warning');
+        else input.classList.remove('clash-warning');
+      });
+    }
+
+    // ═══════════════════════════════════════════════
+    // CLEAN DATA FOR EXPORT
+    // ═══════════════════════════════════════════════
+    function getCleanData() {
+      return directoryData.map(cat => ({
+        ...cat,
+        entries: (cat.entries || []).filter(e => e.name?.trim() || e.number?.trim() || e.url?.trim()),
+      }));
+    }
+
+    // ═══════════════════════════════════════════════
+    // DRAG AND DROP (entries, cross-category)
+    // ═══════════════════════════════════════════════
+    function setupDragAndDrop() {
+      const container = document.getElementById('categories-container');
+
+      container.addEventListener('mousedown', e => {
+        if (e.target.classList.contains('drag-handle')) {
+          const row = e.target.closest('.entry-row');
+          if (row) row.setAttribute('draggable', 'true');
+        }
+      }, { passive: true });
+
+      container.addEventListener('mouseup', e => {
+        if (e.target.classList.contains('drag-handle')) {
+          const row = e.target.closest('.entry-row');
+          if (row) row.removeAttribute('draggable');
+        }
+      }, { passive: true });
+    }
+
+    const container = document.getElementById('categories-container');
+
+    container.addEventListener('dragstart', e => {
+      const row = e.target.closest('.entry-row');
+      if (!row) return;
+      draggedEntry = { cIdx: +row.dataset.cidx, eIdx: +row.dataset.eidx };
+      setTimeout(() => row.classList.add('dragging'), 0);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+
+    container.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (!draggedEntry) return;
+      document.querySelectorAll('.drag-over-row, .drag-over-card').forEach(el =>
+        el.classList.remove('drag-over-row', 'drag-over-card'));
+      const targetRow  = e.target.closest('.entry-row');
+      const targetCard = e.target.closest('.category-card');
+      if (targetRow && !targetRow.classList.contains('dragging')) targetRow.classList.add('drag-over-row');
+      else if (targetCard && !targetRow) targetCard.classList.add('drag-over-card');
+    });
+
+    container.addEventListener('drop', e => {
+      e.preventDefault();
+      if (!draggedEntry) return;
+      const targetRow  = e.target.closest('.entry-row');
+      const targetCard = e.target.closest('.category-card');
+      let toCIdx, toEIdx;
+
+      if (targetRow) {
+        toCIdx = +targetRow.dataset.cidx;
+        toEIdx = +targetRow.dataset.eidx;
+      } else if (targetCard) {
+        toCIdx = +targetCard.dataset.cidx;
+        toEIdx = (directoryData[toCIdx].entries || []).length;
+      } else { cleanupDrag(); return; }
+
+      const { cIdx: from, eIdx: fromE } = draggedEntry;
+      if (from === toCIdx && fromE === toEIdx) { cleanupDrag(); return; }
+      const [moved] = directoryData[from].entries.splice(fromE, 1);
+      if (from === toCIdx && fromE < toEIdx) toEIdx--;
+      if (!directoryData[toCIdx].entries) directoryData[toCIdx].entries = [];
+      directoryData[toCIdx].entries.splice(toEIdx, 0, moved);
+      cleanupDrag();
+      renderAll();
+    });
+
+    container.addEventListener('dragend', cleanupDrag);
+
+    function cleanupDrag() {
+      document.querySelectorAll('.dragging').forEach(el => { el.classList.remove('dragging'); el.removeAttribute('draggable'); });
+      document.querySelectorAll('.drag-over-row, .drag-over-card').forEach(el => el.classList.remove('drag-over-row', 'drag-over-card'));
+      draggedEntry = null;
+    }
+
+    // ═══════════════════════════════════════════════
+    // DELEGATED EVENTS — INPUTS
+    // ═══════════════════════════════════════════════
+    container.addEventListener('input', e => {
+      const t = e.target;
+      const ci = +t.dataset.cidx;
+      const ei = +t.dataset.eidx;
+      const v  = t.value;
+
+      if (t.classList.contains('input-title'))    { directoryData[ci].title = v; refreshPreview(); }
+      else if (t.classList.contains('input-name'))     directoryData[ci].entries[ei].name = v;
+      else if (t.classList.contains('input-num'))    { directoryData[ci].entries[ei].number = v; checkNumberClashes(); refreshPreview(); }
+      else if (t.classList.contains('input-url'))      directoryData[ci].entries[ei].url = v;
+      else if (t.classList.contains('input-subtitle')) directoryData[ci].entries[ei].subtitle = v;
+      else if (t.classList.contains('input-desc'))     directoryData[ci].entries[ei].description = v;
+      else if (t.classList.contains('input-audio'))    directoryData[ci].entries[ei].audioUrl = v;
+
+      saveDraft();
+      updateStats();
+    });
+
+    // ═══════════════════════════════════════════════
+    // DELEGATED EVENTS — CHECKBOXES & SELECTS
+    // ═══════════════════════════════════════════════
+    container.addEventListener('change', e => {
+      const t  = e.target;
+      const ci = +t.dataset.cidx;
+      const ei = +t.dataset.eidx;
+      const entries = directoryData[ci].entries;
+
+      if (t.classList.contains('input-is-ad')) {
+        entries[ei].isAd = t.checked;
+        if (!t.checked) { delete entries[ei].subtitle; delete entries[ei].description; }
+        renderAll();
+      } else if (t.classList.contains('input-is-hidden')) {
+        entries[ei].isHidden = t.checked;
+        if (t.checked) {
+          entries[ei].isAd = false;
+          delete entries[ei].subtitle; delete entries[ei].description;
+        } else { delete entries[ei].audioUrl; }
+        renderAll();
+      } else if (t.classList.contains('input-is-explicit')) {
+        entries[ei].isExplicit = t.checked;
+        renderAll();
+      } else if (t.dataset.action === 'move-entry') {
+        const toCIdx = +t.value;
+        if (!isNaN(toCIdx) && toCIdx !== ci) {
+          const [entry] = entries.splice(ei, 1);
+          if (!directoryData[toCIdx].entries) directoryData[toCIdx].entries = [];
+          directoryData[toCIdx].entries.push(entry);
+          renderAll();
+        }
+      }
+    });
+
+    // ═══════════════════════════════════════════════
+    // DELEGATED EVENTS — CLICKS
+    // ═══════════════════════════════════════════════
+    container.addEventListener('click', e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const ci = +btn.dataset.cidx;
+      const ei = +btn.dataset.eidx;
+
+      switch (action) {
+        case 'toggle':
+          toggleCollapse(ci);
+          break;
+        case 'cat-up':
+          if (ci > 0) { [directoryData[ci-1], directoryData[ci]] = [directoryData[ci], directoryData[ci-1]]; renderAll(); }
+          break;
+        case 'cat-down':
+          if (ci < directoryData.length-1) { [directoryData[ci], directoryData[ci+1]] = [directoryData[ci+1], directoryData[ci]]; renderAll(); }
+          break;
+        case 'delete-cat':
+          if (confirm(`Delete page "${directoryData[ci].title}" and all its entries?`)) {
+            directoryData.splice(ci, 1);
+            collapsedCats.delete(ci);
+            renderAll();
+          }
+          break;
+        case 'add-entry':
+          if (!directoryData[ci].entries) directoryData[ci].entries = [];
+          directoryData[ci].entries.push({ name: '', number: '', url: '', isAd: false, isHidden: false, isExplicit: false });
+          collapsedCats.delete(ci);
+          renderAll();
+          // Focus the new entry name input
+          setTimeout(() => {
+            const rows = document.querySelectorAll(`.entry-row[data-cidx="${ci}"]`);
+            const last = rows[rows.length - 1];
+            if (last) last.querySelector('.input-name')?.focus();
+          }, 30);
+          break;
+        case 'del-entry':
+          directoryData[ci].entries.splice(ei, 1);
+          renderAll();
+          break;
+        case 'dup-entry':
+          const dup = JSON.parse(JSON.stringify(directoryData[ci].entries[ei]));
+          directoryData[ci].entries.splice(ei + 1, 0, dup);
+          renderAll();
+          break;
+      }
+    });
+
+    // ═══════════════════════════════════════════════
+    // TOOLBAR BUTTONS
+    // ═══════════════════════════════════════════════
+    document.getElementById('btn-add-cat').addEventListener('click', () => {
+      directoryData.push({ title: 'New Page', entries: [] });
+      renderAll();
+      // Scroll to bottom of editor
+      document.getElementById('editor-panel').scrollTo({ top: 99999, behavior: 'smooth' });
+      setTimeout(() => {
+        const titles = document.querySelectorAll('.cat-title-input');
+        titles[titles.length - 1]?.focus();
+        titles[titles.length - 1]?.select();
+      }, 30);
+    });
+
+    document.getElementById('btn-copy').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(getCleanData(), null, 2));
+        const btn = document.getElementById('btn-copy');
+        const orig = btn.textContent;
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => btn.textContent = orig, 2000);
+      } catch { alert('Copy failed — try the Download button instead.'); }
+    });
+
+    document.getElementById('btn-download').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(getCleanData(), null, 2)], { type: 'application/json' });
+      const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: 'directory.json' });
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      if (confirm('This will wipe your draft and reload from directory.json. Continue?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        directoryData = []; collapsedCats.clear();
+        init();
+      }
+    });
+
+    // Preview toggle
+    document.getElementById('btn-toggle-preview').addEventListener('click', () => {
+      previewVisible = !previewVisible;
+      document.getElementById('preview-panel').classList.toggle('open', previewVisible);
+      const btn = document.getElementById('btn-toggle-preview');
+      btn.textContent = previewVisible ? '✕ Close Preview' : '👁 Preview';
+      if (previewVisible) { buildPreviewPages(); renderPreviewPage(); }
+    });
+
+    document.getElementById('btn-pv-refresh').addEventListener('click', () => {
+      buildPreviewPages(); renderPreviewPage();
+    });
+
+    document.getElementById('pv-prev').addEventListener('click', () => {
+      if (pvPage > 0) { pvPage--; renderPreviewPage(); }
+    });
+    document.getElementById('pv-next').addEventListener('click', () => {
+      if (pvPage < pvPages.length - 1) { pvPage++; renderPreviewPage(); }
+    });
+
+    document.getElementById('pv-safe-mode').addEventListener('change', e => {
+      previewSafe = e.target.checked;
+      buildPreviewPages(); renderPreviewPage();
+    });
+
+    // Search
+    document.getElementById('search-input').addEventListener('input', e => {
+      searchQuery = e.target.value.trim();
+      e.target.classList.toggle('active', !!searchQuery);
+      // Expand all categories while searching
+      if (searchQuery) collapsedCats.clear();
+      renderEditor();
+      updateStats();
+    });
+
+    // ═══════════════════════════════════════════════
+    // IMPORT MODAL
+    // ═══════════════════════════════════════════════
+    document.getElementById('btn-import').addEventListener('click', () => {
+      document.getElementById('import-modal').classList.remove('hidden');
+      document.getElementById('import-textarea').value = '';
+      document.getElementById('import-textarea').classList.remove('error');
+      document.getElementById('import-error').style.display = 'none';
+      document.getElementById('import-textarea').focus();
+    });
+
+    document.getElementById('import-cancel').addEventListener('click', () => {
+      document.getElementById('import-modal').classList.add('hidden');
+    });
+
+    document.getElementById('import-modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('import-modal'))
+        document.getElementById('import-modal').classList.add('hidden');
+    });
+
+    function parseImportJSON() {
+      const raw = document.getElementById('import-textarea').value.trim();
+      const errEl = document.getElementById('import-error');
+      const ta = document.getElementById('import-textarea');
+      try {
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) throw new Error('JSON must be an array of category objects.');
+        parsed.forEach((cat, i) => {
+          if (typeof cat.title !== 'string') throw new Error(`Category at index ${i} is missing a "title" string.`);
+          if (!Array.isArray(cat.entries)) cat.entries = [];
+        });
+        ta.classList.remove('error');
+        errEl.style.display = 'none';
+        return parsed;
+      } catch (err) {
+        ta.classList.add('error');
+        errEl.textContent = '⚠ ' + err.message;
+        errEl.style.display = 'block';
+        return null;
+      }
+    }
+
+    document.getElementById('import-replace').addEventListener('click', () => {
+      const parsed = parseImportJSON();
+      if (!parsed) return;
+      directoryData = parsed;
+      collapsedCats.clear();
+      document.getElementById('import-modal').classList.add('hidden');
+      renderAll();
+      setStatus('Replaced with imported data at ' + new Date().toLocaleTimeString());
+    });
+
+    document.getElementById('import-merge').addEventListener('click', () => {
+      const parsed = parseImportJSON();
+      if (!parsed) return;
+      parsed.forEach(newCat => {
+        const existing = directoryData.find(c => c.title === newCat.title);
+        if (existing) {
+          // Merge entries, avoiding exact duplicates by number
+          const existingNums = new Set(existing.entries.map(e => e.number));
+          newCat.entries.forEach(e => {
+            if (!existingNums.has(e.number)) existing.entries.push(e);
+          });
+        } else {
+          directoryData.push(newCat);
+        }
+      });
+      document.getElementById('import-modal').classList.add('hidden');
+      renderAll();
+      setStatus('Merged import at ' + new Date().toLocaleTimeString());
+    });
+
+    // ═══════════════════════════════════════════════
+    // KEYBOARD SHORTCUTS
+    // ═══════════════════════════════════════════════
+    document.addEventListener('keydown', e => {
+      // Esc closes modal or clears search
+      if (e.key === 'Escape') {
+        if (!document.getElementById('import-modal').classList.contains('hidden')) {
+          document.getElementById('import-modal').classList.add('hidden');
+        } else if (searchQuery) {
+          searchQuery = '';
+          document.getElementById('search-input').value = '';
+          document.getElementById('search-input').classList.remove('active');
+          renderEditor();
+        }
+      }
+      // Ctrl/Cmd+S → download
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        document.getElementById('btn-download').click();
+      }
+      // Ctrl/Cmd+K → focus search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('search-input').focus();
+        document.getElementById('search-input').select();
+      }
+    });
+
+    // ═══════════════════════════════════════════════
+    // HELPERS
+    // ═══════════════════════════════════════════════
+    function escHtml(s) {
+      if (!s) return '';
+      return s.toString()
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    }
+
+    function renderAll() {
+      renderEditor();
+      refreshPreview();
+      saveDraft();
+      updateStats();
+    }
+
+    // ═══════════════════════════════════════════════
+    // BOOT
+    // ═══════════════════════════════════════════════
+    init();
+  });
+  </script>
 </body>
 </html>

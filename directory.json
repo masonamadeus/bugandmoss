@@ -1,259 +1,365 @@
 [
-    {
-        "title": "The Morning Telephone Show",
-        "entries": [
-            {
-                "name": "Patreon",
-                "number": "0426",
-                "url": "https://patreon.com/bugandmoss"
-            },
-            {
-                "name": "Discord",
-                "number": "6677",
-                "url": "/discord",
-                "isAd": true,
-                "subtitle": "Join the Freak Forest!",
-                "description": "Call for a great time ;)"
-            },
-            {
-                "name": "Podcast",
-                "number": "1994",
-                "url": "/podcast"
-            },
-            {
-                "name": "Instagram",
-                "number": "8480",
-                "url": "https://www.instagram.com/848mossbug/",
-                "isAd": false
-            },
-            {
-                "name": "Tiktok",
-                "number": "1011",
-                "url": "https://tiktok.com/@bugandmoss"
-            }
-        ]
-    },
-    {
-        "title": "Podcasts (Fiction)",
-        "entries": [
-            {
-                "name": "Jack Billings Presents",
-                "number": "0917",
-                "url": "https://pod.link/1701071750"
-            },
-            {
-                "name": "Side Character Quest",
-                "number": "2422",
-                "url": "https://sidecharacterquest.com/"
-            },
-            {
-                "name": "Hemophobia",
-                "number": "####",
-                "url": "https://cswhorror.com",
-                "isAd": false
-            },
-            {
-                "name": "PodCube",
-                "number": "2048",
-                "url": "https://poweredbypodcube.com",
-                "isAd": true,
-                "subtitle": "The Future, is Yesterday",
-                "description": "Extremely high fidelity comedy from across time & space"
-            },
-            {
-                "name": "Inn Between",
-                "number": "0144",
-                "url": "https://thegoblinshead.com/",
-                "isAd": false
-            },
-            {
-                "name": "Something's Amiss at Juniper's House",
-                "number": "0911",
-                "url": "https://pod.link/1875054474",
-                "isAd": false
-            },
-            {
-                "name": "Thirteen",
-                "number": "0013",
-                "url": "https://imaginary.click/thirteen",
-                "isAd": false
-            },
-            {
-                "name": "Anticrastination",
-                "number": "8782",
-                "url": "https://anticrastination.fyi",
-                "isAd": false
-            }
-        ]
-    },
-    {
-        "title": "Podcasts (non-fiction)",
-        "entries": [
-            {
-                "name": "Digital Folklore",
-                "number": "FOLK",
-                "url": "https://digitalfolklore.fm",
-                "isAd": false
-            },
-            {
-                "name": "The FAIK Files",
-                "number": "4614",
-                "url": "https://faik.to/podcast",
-                "isAd": false
-            },
-            {
-                "name": "This Bizarre Adventure",
-                "number": "69-420",
-                "url": "https://podcasts.apple.com/us/podcast/this-bizarre-adventure/id1675264599",
-                "isAd": false
-            },
-            {
-                "name": "Edging",
-                "number": "GET-EDGY",
-                "url": "https://imaginary.click/edging",
-                "isAd": true,
-                "subtitle": "A Podcast About Books",
-                "description": "Deep, intersectional dives into horror and romance novels."
-            }
-        ]
-    },
-    {
-        "title": "Livestreamers",
-        "entries": [
-            {
-                "name": "Colin M Parker",
-                "number": "2747",
-                "url": "https://twitch.tv/colinmparker"
-            },
-            {
-                "name": "ItsNovali",
-                "number": "0221",
-                "url": "https://twitch.tv/itsnovali",
-                "isAd": false
-            },
-            {
-                "name": "Man In Jumpsuit",
-                "number": "4819",
-                "url": "https://www.twitch.tv/man_in_jumpsuit",
-                "isAd": false
-            },
-            {
-                "name": "TheRealGChu",
-                "number": "GCHU",
-                "url": "https://twitch.tv/therealgchu",
-                "isAd": false
-            },
-            {
-                "name": "Sudsley (the Kingmaker)",
-                "number": "2222",
-                "url": "https://www.twitch.tv/sudsley",
-                "isAd": false
-            },
-            {
-                "name": "Folkwise",
-                "number": "4014",
-                "url": "https://twitch.tv/folkwise",
-                "isAd": false
-            }
-        ]
-    },
-    {
-        "title": "YouTube Channels",
-        "entries": [
-            {
-                "name": "Brippy151",
-                "number": "0151",
-                "url": "https://youtube.com/@Brippy151",
-                "isAd": false
-            },
-            {
-                "name": "Rat House Gaming",
-                "number": "7284",
-                "url": "https://youtube.com/@realrathouse",
-                "isAd": false
-            },
-            {
-                "name": "Wicked Interesting",
-                "number": "0101",
-                "url": "https://wickedinterest.ing/",
-                "isAd": false
-            },
-            {
-                "name": "Checkpoint Gaming",
-                "number": "2077",
-                "url": "https://www.youtube.com/@CheckpointYT",
-                "isAd": false
-            },
-            {
-                "name": "Az's Calzones",
-                "number": "413",
-                "url": "https://www.youtube.com/@AzsCalzones",
-                "isAd": false
-            },
-            {
-                "name": "Mason Amadeus",
-                "number": "1234",
-                "url": "https://youtube.com/@masonamadeus",
-                "isAd": false
-            }
-        ]
-    },
-    {
-        "title": "Musicians (metal)",
-        "entries": [
-            {
-                "name": "Malacath",
-                "number": "666",
-                "url": "https://malacath.bandcamp.com",
-                "isAd": false
-            },
-            {
-                "name": "shade_cycle",
-                "number": "SHADE",
-                "url": "https://open.spotify.com/artist/2b4qeb1ngiP5PXwA52ptMK",
-                "isAd": false
-            }
-        ]
-    },
-    {
-        "title": "Cool Websites",
-        "entries": [
-            {
-                "name": "Strangers By Spring",
-                "number": "777-464",
-                "url": "https://strangersbyspring.com",
-                "isAd": true,
-                "subtitle": "Beautiful, Indulgent Post",
-                "description": "One of the most beautiful blog experiences on earth."
-            },
-            {
-                "name": "Really Simple Soundboard",
-                "number": "0420",
-                "url": "/soundboard",
-                "isAd": false
-            },
-            {
-                "name": "Chode Detected",
-                "number": "*69",
-                "url": "",
-                "isAd": false,
-                "isHidden": true,
-                "audioUrl": "/sounds/brillopillow.mp3"
-            },
-            {
-                "name": "The Scavengers Network",
-                "number": "7228",
-                "url": "https://scavengersnetwork.com",
-                "isAd": false
-            },
-            {
-                "name": "BugMossTheme",
-                "number": "8486677284",
-                "url": "",
-                "isAd": false,
-                "isHidden": true,
-                "audioUrl": "/sounds/JR_DIONNE%20WARWICK.mp3"
-            }
-        ]
-    }
+  {
+    "title": "The Morning Telephone Show",
+    "entries": [
+      {
+        "name": "Patreon",
+        "number": "0426",
+        "url": "https://patreon.com/bugandmoss"
+      },
+      {
+        "name": "Discord",
+        "number": "6677",
+        "url": "/discord",
+        "isAd": true,
+        "subtitle": "Join the Freak Forest!",
+        "description": "Call for a great time ;)"
+      },
+      {
+        "name": "Podcast",
+        "number": "1994",
+        "url": "/podcast"
+      },
+      {
+        "name": "Instagram",
+        "number": "8480",
+        "url": "https://www.instagram.com/848mossbug/",
+        "isAd": false
+      },
+      {
+        "name": "Tiktok",
+        "number": "1011",
+        "url": "https://tiktok.com/@bugandmoss"
+      }
+    ]
+  },
+  {
+    "title": "Podcasts (fiction)",
+    "entries": [
+      {
+        "name": "Jack Billings Presents",
+        "number": "0917",
+        "url": "https://pod.link/1701071750",
+        "isExplicit": true
+      },
+      {
+        "name": "Side Character Quest",
+        "number": "7277",
+        "url": "https://sidecharacterquest.com/"
+      },
+      {
+        "name": "Hemophobia",
+        "number": "####",
+        "url": "https://cswhorror.com",
+        "isAd": false,
+        "isExplicit": true
+      },
+      {
+        "name": "PodCube",
+        "number": "2048",
+        "url": "https://poweredbypodcube.com",
+        "isAd": true,
+        "subtitle": "The Future, is Yesterday",
+        "description": "Extremely high fidelity comedy from across time & space"
+      },
+      {
+        "name": "Inn Between",
+        "number": "0144",
+        "url": "https://thegoblinshead.com/",
+        "isAd": false
+      },
+      {
+        "name": "Something's Amiss at Juniper's House",
+        "number": "0911",
+        "url": "https://pod.link/1875054474",
+        "isAd": false
+      },
+      {
+        "name": "Thirteen",
+        "number": "0013",
+        "url": "https://imaginary.click/thirteen",
+        "isAd": false
+      },
+      {
+        "name": "Anticrastination",
+        "number": "8782",
+        "url": "https://anticrastination.fyi",
+        "isAd": false
+      }
+    ]
+  },
+  {
+    "title": "Podcasts (non-fiction)",
+    "entries": [
+      {
+        "name": "Digital Folklore",
+        "number": "FOLK",
+        "url": "https://digitalfolklore.fm",
+        "isAd": false
+      },
+      {
+        "name": "Edging",
+        "number": "GET-EDGY",
+        "url": "https://imaginary.click/edging",
+        "isAd": true,
+        "subtitle": "A Podcast About Books",
+        "description": "Deep, intersectional dives into horror and romance novels.",
+        "isExplicit": true
+      },
+      {
+        "name": "The FAIK Files",
+        "number": "4614",
+        "url": "https://faik.to/podcast",
+        "isAd": false
+      },
+      {
+        "name": "This Bizarre Adventure",
+        "number": "69-420",
+        "url": "https://podcasts.apple.com/us/podcast/this-bizarre-adventure/id1675264599",
+        "isAd": false
+      },
+      {
+        "name": "It Jams For Thee",
+        "number": "0217",
+        "url": "https://podcasts.apple.com/us/podcast/it-jams-for-thee/id1605655841",
+        "isAd": false,
+        "isHidden": false,
+        "isExplicit": false
+      }
+    ]
+  },
+  {
+    "title": "Livestreamers",
+    "entries": [
+      {
+        "name": "Colin M Parker",
+        "number": "2747",
+        "url": "https://twitch.tv/colinmparker"
+      },
+      {
+        "name": "ItsNovali",
+        "number": "0221",
+        "url": "https://twitch.tv/itsnovali",
+        "isAd": false
+      },
+      {
+        "name": "Man In Jumpsuit",
+        "number": "4819",
+        "url": "https://www.twitch.tv/man_in_jumpsuit",
+        "isAd": false
+      },
+      {
+        "name": "TheRealGChu",
+        "number": "GCHU",
+        "url": "https://twitch.tv/therealgchu",
+        "isAd": false
+      },
+      {
+        "name": "Sudsley (the Kingmaker)",
+        "number": "2222",
+        "url": "https://www.twitch.tv/sudsley",
+        "isAd": false
+      },
+      {
+        "name": "Folkwise",
+        "number": "4014",
+        "url": "https://twitch.tv/folkwise",
+        "isAd": false
+      },
+      {
+        "name": "French Alexander",
+        "number": "313624-8",
+        "url": "https://www.twitch.tv/frenchalexander",
+        "isAd": false,
+        "isHidden": false,
+        "isExplicit": false
+      }
+    ]
+  },
+  {
+    "title": "YouTubers (essays/science)",
+    "entries": [
+      {
+        "name": "Mason Amadeus",
+        "number": "1234",
+        "url": "https://youtube.com/@masonamadeus",
+        "isAd": false
+      },
+      {
+        "name": "Az's Calzones",
+        "number": "413",
+        "url": "https://www.youtube.com/@AzsCalzones",
+        "isAd": false
+      },
+      {
+        "name": "Wicked Interesting",
+        "number": "0101",
+        "url": "https://wickedinterest.ing/",
+        "isAd": false
+      },
+      {
+        "name": "Manda-LORE",
+        "number": "1138",
+        "url": "https://youtube.com/@manda-lore",
+        "isAd": false,
+        "isHidden": false,
+        "isExplicit": false
+      }
+    ]
+  },
+  {
+    "title": "YouTubers (gaming)",
+    "entries": [
+      {
+        "name": "Brippy151",
+        "number": "0151",
+        "url": "https://youtube.com/@Brippy151",
+        "isAd": false
+      },
+      {
+        "name": "Rat House Gaming",
+        "number": "7284",
+        "url": "https://youtube.com/@realrathouse",
+        "isAd": false
+      },
+      {
+        "name": "Checkpoint Gaming",
+        "number": "2077",
+        "url": "https://www.youtube.com/@CheckpointYT",
+        "isAd": false
+      }
+    ]
+  },
+  {
+    "title": "Musicians",
+    "entries": [
+      {
+        "name": "Malacath",
+        "number": "666",
+        "url": "https://malacath.bandcamp.com",
+        "isAd": false
+      },
+      {
+        "name": "shade_cycle",
+        "number": "SHADE",
+        "url": "https://open.spotify.com/artist/2b4qeb1ngiP5PXwA52ptMK",
+        "isAd": false
+      },
+      {
+        "name": "French Alexander",
+        "number": "313624-7",
+        "url": "https://frenchalexander.bandcamp.com/",
+        "isAd": false,
+        "isHidden": false,
+        "isExplicit": false
+      }
+    ]
+  },
+  {
+    "title": "Writers",
+    "entries": [
+      {
+        "name": "Strangers By Spring",
+        "number": "777-464",
+        "url": "https://strangersbyspring.com",
+        "isAd": true,
+        "subtitle": "Beautiful, Indulgent Post",
+        "description": "One of the most beautiful blog experiences on earth."
+      },
+      {
+        "name": "Eva May Morin",
+        "number": "READ",
+        "url": "https://evamaymorin.com/",
+        "isAd": false,
+        "isHidden": false,
+        "isExplicit": false
+      }
+    ]
+  },
+  {
+    "title": "Visual & Performing Artists",
+    "entries": [
+      {
+        "name": "Transcend Cabaret",
+        "number": "TRANS",
+        "url": "https://instagram.com/@transcendcabaret",
+        "isAd": false,
+        "isHidden": false,
+        "isExplicit": false
+      },
+      {
+        "name": "Autumn Von Plinsky",
+        "number": "FALL",
+        "url": "https://autumnvonplinsky.com",
+        "isAd": false,
+        "isHidden": false,
+        "isExplicit": false
+      }
+    ]
+  },
+  {
+    "title": "Cool Websites",
+    "entries": [
+      {
+        "name": "Really Simple Soundboard",
+        "number": "7772",
+        "url": "/soundboard",
+        "isAd": false
+      },
+      {
+        "name": "The Scavengers Network",
+        "number": "7228",
+        "url": "https://scavengersnetwork.com",
+        "isAd": false
+      },
+      {
+        "name": "Chode Detected",
+        "number": "*69",
+        "url": "",
+        "isAd": false,
+        "isHidden": true,
+        "audioUrl": "/sounds/brillopillow.mp3"
+      },
+      {
+        "name": "BugMossTheme",
+        "number": "8486677284",
+        "url": "",
+        "isAd": false,
+        "isHidden": true,
+        "audioUrl": "/sounds/JR_DIONNE%20WARWICK.mp3"
+      },
+      {
+        "name": "Bowling For Soup",
+        "number": "1985",
+        "url": "",
+        "isAd": false,
+        "isHidden": true,
+        "isExplicit": false
+      },
+      {
+        "name": "Operator",
+        "number": "0",
+        "url": "/operator",
+        "isAd": false,
+        "isHidden": true,
+        "isExplicit": false
+      },
+      {
+        "name": "Wikipedia",
+        "number": "9454",
+        "url": "https://donate.wikimedia.org/w/index.php",
+        "isAd": false,
+        "isHidden": true,
+        "isExplicit": false
+      },
+      {
+        "name": "Fart",
+        "number": "FART",
+        "url": "",
+        "isAd": false,
+        "isHidden": true,
+        "isExplicit": false
+      }
+    ]
+  }
 ]

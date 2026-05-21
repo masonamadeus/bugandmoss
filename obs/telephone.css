@@ -1,0 +1,145 @@
+/* 1. Base Setup for Square Source */
+html, body {
+    background-color: transparent !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    font-family: 'Open Sans', 'Segoe UI', sans-serif !important;
+}
+
+#log {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+    align-items: flex-start !important; 
+    
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    padding: 2vw 4vw 4vw 4vw !important; 
+    box-sizing: border-box !important;
+    
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 100%) !important;
+    mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 100%) !important;
+}
+
+/* Strip the clutter so we can rebuild the header cleanly */
+.badges, .badge, .colon { display: none !important; }
+
+
+/* 2. THE YELLOW PAGES ENTRY (Older Messages) */
+#log > div {
+    position: relative !important;
+    
+    /* Display Flex allows us to cleanly separate the name and message vertically */
+    display: flex !important;
+    flex-direction: column !important;
+    
+    /* Creamy Yellow Pages Paper */
+    background: #FDF6CC !important; 
+    
+    
+    padding: 8px 12px 10px 12px !important; 
+    margin-top: 10px !important;
+    
+    overflow-wrap: anywhere !important; 
+    word-break: break-word !important;
+    flex-shrink: 0 !important; 
+    
+    /* Restricts the older log to 65% width */
+    max-width: 65% !important; 
+    width: fit-content !important;
+    min-width: 35% !important; /* Ensures very short messages still look like directory blocks */
+    
+    color: #1a1a1a !important; 
+    font-size: 18px !important; 
+    line-height: 1.3 !important;
+    font-weight: 600 !important;
+    
+    
+    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
+    transform-origin: left bottom !important; 
+}
+
+/* 3. THE DIRECTORY HEADER (Username Separation) */
+.meta { 
+    /* Forces the username to sit on its own line like a header */
+    display: block !important; 
+    width: 100% !important;
+    
+    /* Dotted printed line separating name from message */
+    border-bottom: 2px dotted #1a1a1a !important; 
+    padding-bottom: 4px !important;
+    margin-bottom: 6px !important;
+}
+
+.name { 
+    color: #1a1a1a !important; 
+    text-transform: uppercase; 
+    font-family: 'Arial Black', Impact, sans-serif !important;
+    font-weight: 900 !important; 
+    letter-spacing: 0.5px !important; 
+}
+
+/* THE EASTER EGG: Injects a little phone icon next to every name */
+.name::before {
+    content: '✆ ' !important;
+    font-size: 1.1em !important;
+    opacity: 0.7 !important;
+}
+
+.message { 
+    display: block !important; 
+    font-family: 'Arial', Courier, monospace !important; /* Typewriter font for the message body! */
+    font-weight: 700 !important;
+}
+
+
+/* 4. THE SCATTER EFFECT */
+/* Permanently tilts odd and even entries to look like clipped-out ads */
+#log > div:nth-child(even) { transform: rotate(1.5deg) !important; }
+#log > div:nth-child(odd) { transform: rotate(-1deg) !important; }
+
+
+/* 5. THE ANIMATION ENGINE */
+@keyframes dropIn {
+    0% { 
+        transform: translateY(-20px) scale(1.1) rotate(0deg); 
+        opacity: 0; 
+    }
+    100% { 
+        transform: translateY(0px) scale(1) rotate(0deg); 
+        opacity: 1; 
+    }
+}
+
+
+/* 6. THE SPOTLIGHT (Newest Message) */
+#log > div:nth-last-child(1) { 
+    font-size: 24px !important; 
+    padding: 12px 18px 16px 18px !important; 
+    
+    /* Spotlight gets 90% of the screen */
+    max-width: 90% !important; 
+    margin-top: 24px !important; 
+    
+    /* Brighter yellow for the newest listing */
+    background: #FFF9D6 !important; 
+    
+    animation: dropIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important; 
+}
+
+
+/* 7. GARBAGE COLLECTION */
+#log > div:nth-last-child(n+15) {
+    opacity: 0 !important;
+    max-height: 0px !important; 
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+}
