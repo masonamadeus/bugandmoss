@@ -1335,9 +1335,10 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
    
     /* Flatten the containers so we can reorder children globally */
     .top-row, 
+    .schedule-row,
     .middle-row, 
     .top-right-column {
-        display: contents; 
+        display: contents!important; 
     }
 
     /* Make the main layout a single vertical flex column */
@@ -1351,10 +1352,11 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
     /* Set the Mobile Order */
     .tv-monitor          { order: 1; }
     .taped-note          { order: 2; }
-    .telephone-outer     { order: 3; }
-    .scratch-pad         { order: 4; }
-    .phone-book-folded   { order: 5; }
-    .patreon-note        { order: 6; } /* Jumps to the bottom! */
+    .schedule-board      { order: 3; } /* Tucks the schedule right under the TV/Note */
+    .telephone-outer     { order: 4; }
+    .scratch-pad         { order: 5; }
+    .phone-book-folded   { order: 6; }
+    .patreon-note        { order: 7; } /* Jumps to the bottom! */
 
     /* Mobile Styling for the Patreon Button */
     .patreon-note {
@@ -1370,4 +1372,171 @@ box-shadow: inset 8px 15px 20px rgba(255, 255, 255, 0.7), inset -14px 0px 15px v
     .phone-book-folded { order: 1; }
     .telephone-outer   { order: 2; }
     .scratch-pad       { order: 3; }
+}
+
+/* --- THE SCHEDULE BOARD --- */
+.schedule-row {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.schedule-board {
+    background-color: #f4e8d1;
+    background-image: linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px);
+    background-size: 100% 1.5rem;
+    padding: 2.5rem 2rem 2rem 2rem;
+    width: 100%;
+    max-width: 1000px; /* Wide horizontal layout on desktop */
+    position: relative;
+    border-radius: 8px;
+    font-family: var(--font-cartoon);
+}
+
+.clipboard-clip {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px; /* Slightly wider clip for the wider board */
+    height: 30px;
+    background: linear-gradient(to bottom, #ccc, #888);
+    border-radius: 10px 10px 4px 4px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.5);
+    z-index: 2;
+}
+
+.clipboard-clip::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px; height: 12px;
+    background: #222;
+    border-radius: 50%;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+.schedule-board h2 {
+    margin: 0 0 1.5rem 0;
+    text-align: center;
+    color: #333;
+    font-size: 1.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-bottom: 2px solid rgba(0,0,0,0.2);
+    padding-bottom: 0.5rem;
+}
+
+/* Horizontal Grid for Days */
+#schedule-list {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 5 columns for desktop */
+    gap: 1.5rem;
+}
+
+.schedule-day {
+    padding: 1rem;
+    border-radius: 8px;
+    border-top: 5px solid transparent; /* Highlight border is on top for horizontal */
+    background-color: rgba(0,0,0,0.03);
+    transition: all 0.2s;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.schedule-day .day-name {
+    font-weight: 900;
+    font-size: 1rem;
+    text-transform: uppercase;
+    color: #555;
+}
+
+.schedule-day .day-theme {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--color-youtube);
+    margin: 0.5rem 0;
+}
+
+.schedule-day .day-desc {
+    font-size: 0.85rem;
+    color: #444;
+    line-height: 1.3;
+}
+
+/* Highlight for the Current Day */
+.schedule-day.current-day {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-top: 6px solid var(--color-podcast);
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+    transform: translateY(-4px); /* Pops out towards the user */
+}
+
+.schedule-day.current-day .day-name {
+    color: var(--color-podcast);
+}
+
+/* Action Buttons */
+.schedule-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px dashed rgba(0,0,0,0.2);
+}
+
+.schedule-actions .action-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.schedule-actions .action-btn:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0px transparent;
+}
+
+.schedule-actions .email-btn { background-color: var(--color-tv); color: #111; }
+.schedule-actions .call-btn { background-color: var(--color-podcast); color: #fff; }
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 900px) {
+    #schedule-list {
+        grid-template-columns: 1fr; /* Stack vertically */
+        gap: 0.8rem;
+    }
+    
+    .schedule-board {
+        max-width: 400px; /* Constrain back to a vertical clipboard size */
+        padding: 2rem 1.5rem 1.5rem 1.5rem;
+    }
+
+    .schedule-day {
+        text-align: left;
+        border-top: none;
+        border-left: 4px solid transparent;
+        display: block;
+    }
+    
+    .schedule-day.current-day {
+        border-top: none;
+        border-left: 6px solid var(--color-podcast);
+        transform: translateX(4px);
+    }
+
+    .schedule-actions {
+        flex-direction: column;
+    }
 }

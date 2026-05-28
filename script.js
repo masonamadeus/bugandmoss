@@ -554,4 +554,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 .replace(/[^0-9*#]/g, '');
     }
 
+    // ==========================================
+    // SCHEDULE WIDGET LOGIC
+    // ==========================================
+    async function loadSchedule() {
+        try {
+            const response = await fetch('schedule.json?t=' + Date.now());
+            if (!response.ok) throw new Error("Could not load schedule.json");
+            
+            const scheduleData = await response.json();
+            const listEl = document.getElementById('schedule-list');
+            listEl.innerHTML = ''; // Clear loading state
+            
+            // Determine current day in EST/EDT
+            const now = new Date();
+            const est = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+            const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const currentDayName = dayNames[est.getDay()];
+
+            for (const [day, details] of Object.entries(scheduleData)) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'schedule-day';
+                
+                // Highlight the current day
+                if (day === currentDayName) {
+                    dayDiv.classList.add('current-day');
+                }
+                
+                dayDiv.innerHTML = `
+                    <div class="day-name">${day}</div>
+                    <div class="day-theme">${details.theme}</div>
+                    <div class="day-desc">${details.description}</div>
+                `;
+                
+                listEl.appendChild(dayDiv);
+            }
+        } catch (error) {
+            console.error("Schedule Error:", error);
+            document.getElementById('schedule-list').innerHTML = "<p style='color:red;'>Schedule unavailable.</p>";
+        }
+    }
+
+    // Call it immediately
+    loadSchedule();
+
 });

@@ -1,0 +1,22 @@
+{
+  "Monday": {
+    "theme": "Monday See, Monday Do",
+    "description": "What have you seen lately that has inspired you to do something?"
+  },
+  "Tuesday": {
+    "theme": "Chooseday",
+    "description": "Send in 'Would You Rather' questions, moral dilemmas, and other tough choices!"
+  },
+  "Wednesday": {
+    "theme": "Witnessday",
+    "description": "We want to hear your awkward stories that you wish someone else was there to witness."
+  },
+  "Thursday": {
+    "theme": "Through-it's Day",
+    "description": "Give us your petty grievances. Complain about what you're going through. Share a story of perserverence."
+  },
+  "Friday": {
+    "theme": "Freak Forest Friday",
+    "description": "Got an upcoming event? Something cool you want more people to know about? It's a community billboard segment, basically!"
+  }
+}
