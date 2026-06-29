@@ -9,20 +9,31 @@
     .photo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; width: 100%; max-width: 1100px; margin: 1rem auto; }
     .photo-card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: var(--hard-shadow); }
     .photo-card img { width: 100%; height: 160px; object-fit: cover; display: block; cursor: pointer; }
-    h1 { color: var(--color-patreon);}
-    p {color: var(--color-patreon);}
+    h1 { color: var(--color-patreon); }
+    p { color: var(--color-patreon); }
+
+    /* Mobile-friendly type and spacing */
+    h1 { font-size: 2.2rem; margin: 0.4rem 0; }
+    .subtitle { font-size: 1rem; margin-bottom: 1rem; }
 
     /* Lightbox modal */
-    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 2rem; visibility: hidden; opacity: 0; transition: opacity .15s ease; }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.86); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 1.25rem; visibility: hidden; opacity: 0; transition: opacity .15s ease; }
     .modal.open { visibility: visible; opacity: 1; }
-    .modal-content { max-width: 95%; max-height: 95%; text-align: center; }
-    .modal-content img { max-width: 100%; max-height: 80vh; border-radius: 6px; }
+    .modal-content { max-width: 95%; max-height: 95%; text-align: center; touch-action: manipulation; }
+    .modal-content img { max-width: 100%; max-height: 78vh; border-radius: 6px; }
     .modal-actions { margin-top: 0.6rem; display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; }
-    .btn { background: var(--color-podcast); color: #fff; border: none; padding: .45rem .9rem; border-radius: 6px; font-weight: 700; cursor: pointer; }
+    .btn { background: var(--color-podcast); color: #fff; border: none; padding: .6rem 1rem; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.95rem; }
     .btn.alt { background: #666; }
-    .caption { color: #fff; text-align: center; margin-top: .5rem; }
+    .caption { color: #fff; text-align: center; margin-top: .5rem; font-size: 0.95rem; }
 
-    @media (max-width: 520px) { .photo-card img { height: 120px; } }
+    /* Larger tap targets and scaled text on small screens */
+    @media (max-width: 600px) {
+      h1 { font-size: 1.5rem; }
+      .subtitle { font-size: 0.95rem; }
+      .photo-card img { height: 120px; }
+      .modal-content img { max-height: 72vh; }
+      .btn { padding: .7rem 1.1rem; font-size: 1rem; }
+    }
   </style>
 </head>
 <body>
@@ -31,14 +42,14 @@
 
   <main class="desk-container">
     <div class="photo-grid">
-      <div class="photo-card"><img src="images/photos/solsticeparty/D92A9238.00_01_23_04.Still017.jpeg" alt="Bug on the left, dressed as the constellation Aries. Moss on the right dressed as a celestial gameshow host." data-src="images/photos/solsticeparty/D92A9238.00_01_23_04.Still017.jpeg"></div>
-      <div class="photo-card"><img src="images/photos/solsticeparty/D92A9238.00_01_23_17.Still018.jpeg" alt="Bug on the left, dressed as the constellation Aries. Moss on the right dressed as a celestial gameshow host." data-src="images/photos/solsticeparty/D92A9238.00_01_23_17.Still018.jpeg"></div>
-      <div class="photo-card"><img src="images/photos/solsticeparty/D92A9238.00_01_30_08.Still010.jpeg" alt="Bug on the left, dressed as the constellation Aries. Moss on the right dressed as a celestial gameshow host." data-src="images/photos/solsticeparty/D92A9238.00_01_30_08.Still010.jpeg"></div>
-      <div class="photo-card"><img src="images/photos/solsticeparty/D92A9238.00_01_31_19.Still012.jpeg" alt="Bug on the left, dressed as the constellation Aries. Moss on the right dressed as a celestial gameshow host." data-src="images/photos/solsticeparty/D92A9238.00_01_31_19.Still012.jpeg"></div>
-      <div class="photo-card"><img src="images/photos/solsticeparty/D92A9238.00_01_32_11.Still013.jpeg" alt="Bug on the left, dressed as the constellation Aries. Moss on the right dressed as a celestial gameshow host." data-src="images/photos/solsticeparty/D92A9238.00_01_32_11.Still013.jpeg"></div>
-      <div class="photo-card"><img src="images/photos/solsticeparty/D92A9238.00_01_32_23.Still014.jpeg" alt="Bug on the left, dressed as the constellation Aries. Moss on the right dressed as a celestial gameshow host." data-src="images/photos/solsticeparty/D92A9238.00_01_32_23.Still014.jpeg"></div>
-      <div class="photo-card"><img src="images/photos/solsticeparty/D92A9238.00_01_33_15.Still015.jpeg" alt="Bug on the left, dressed as the constellation Aries. Moss on the right dressed as a celestial gameshow host." data-src="images/photos/solsticeparty/D92A9238.00_01_33_15.Still015.jpeg"></div>
-      <div class="photo-card"><img src="images/photos/solsticeparty/D92A9238.00_01_34_11.Still016.jpeg" alt="Bug on the left, dressed as the constellation Aries. Moss on the right dressed as a celestial gameshow host." data-src="images/photos/solsticeparty/D92A9238.00_01_34_11.Still016.jpeg"></div>
+      <div class="photo-card"><img src="images/photos/solsticeparty/D92A9238.00_01_23_04.Still017.webp" alt="Bug on the left, dressed as the constellation Aries. Moss on the right dressed as a celestial gameshow host." data-src="images/photos/solsticeparty/D92A9238.00_01_23_04.Still017.webp"></div>
+      <div class="photo-card"><img src="images/photos/solsticeparty/D92A9238.00_01_23_17.Still018.webp" alt="Bug on the left, dressed as the constellation Aries. Moss on the right dressed as a celestial gameshow host." data-src="images/photos/solsticeparty/D92A9238.00_01_23_17.Still018.webp"></div>
+      <div class="photo-card"><img src="images/photos/solsticeparty/D92A9238.00_01_30_08.Still010.webp" alt="Bug on the left, dressed as the constellation Aries. Moss on the right dressed as a celestial gameshow host." data-src="images/photos/solsticeparty/D92A9238.00_01_30_08.Still010.webp"></div>
+      <div class="photo-card"><img src="images/photos/solsticeparty/D92A9238.00_01_31_19.Still012.webp" alt="Bug on the left, dressed as the constellation Aries. Moss on the right dressed as a celestial gameshow host." data-src="images/photos/solsticeparty/D92A9238.00_01_31_19.Still012.webp"></div>
+      <div class="photo-card"><img src="images/photos/solsticeparty/D92A9238.00_01_32_11.Still013.webp" alt="Bug on the left, dressed as the constellation Aries. Moss on the right dressed as a celestial gameshow host." data-src="images/photos/solsticeparty/D92A9238.00_01_32_11.Still013.webp"></div>
+      <div class="photo-card"><img src="images/photos/solsticeparty/D92A9238.00_01_32_23.Still014.webp" alt="Bug on the left, dressed as the constellation Aries. Moss on the right dressed as a celestial gameshow host." data-src="images/photos/solsticeparty/D92A9238.00_01_32_23.Still014.webp"></div>
+      <div class="photo-card"><img src="images/photos/solsticeparty/D92A9238.00_01_33_15.Still015.webp" alt="Bug on the left, dressed as the constellation Aries. Moss on the right dressed as a celestial gameshow host." data-src="images/photos/solsticeparty/D92A9238.00_01_33_15.Still015.webp"></div>
+      <div class="photo-card"><img src="images/photos/solsticeparty/D92A9238.00_01_34_11.Still016.webp" alt="Bug on the left, dressed as the constellation Aries. Moss on the right dressed as a celestial gameshow host." data-src="images/photos/solsticeparty/D92A9238.00_01_34_11.Still016.webp"></div>
     </div>
   </main>
 
@@ -80,7 +91,16 @@
     }
 
     document.getElementById('closeBtn').addEventListener('click', closeModal);
-    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+    // Close when tapping/clicking outside the modal-content (backdrop) — use pointer events for better mobile reliability
+    modal.addEventListener('pointerdown', e => {
+      const content = document.querySelector('.modal-content');
+      if (!content) return;
+      if (!content.contains(e.target)) closeModal();
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
     document.getElementById('copyBtn').addEventListener('click', async () => {
       try {
