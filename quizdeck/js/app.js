@@ -160,8 +160,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       conn.on('error', () => window.obsConnections.delete(conn)); 
     });
 
-    navigate('browse'); 
-    browse.renderGrid();
+    if (!localStorage.getItem('quizdeck_tutorial_loaded')) {
+      await browse.createTutorial();
+      localStorage.setItem('quizdeck_tutorial_loaded', 'true');
+    }
+
+    navigate('browse');
     
   } catch (error) {
     console.error('Failed to initialize QuizDeck DB:', error);
