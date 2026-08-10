@@ -1,0 +1,895 @@
+:root {
+    /* Desk & Paper Theme */
+    --bg-desk: #2b3a42;
+    /* Dark slate desk mat */
+    --bg-paper: #f4ebd0;
+    /* Manilla folder / Index card */
+    --bg-paper-light: #fcf8eb;
+    /* Light paper */
+    --text-ink: #2b2b2b;
+    /* Softer dark ink */
+    --text-desk: #e0e6ed;
+    --accent-ink: #c0392b;
+    --accent-blue: #2980b9;
+    
+    /* Hard Edge, 25% Opacity Drop Shadow */
+    --shadow-hard: 4px 4px 0px rgba(0, 0, 0, 0.25);
+    --shadow-hard-hover: 6px 6px 0px rgba(0, 0, 0, 0.25);
+    
+    /* Perform Mode */
+    --perf-bg: #000000;
+    --perf-text: #ffffff;
+    --perf-font: sans-serif;
+    --perf-font-size: 2rem;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background-color: var(--bg-desk);
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+    color: var(--text-desk);
+}
+
+/* -----------------------
+   Header & Navigation
+------------------------ */
+header {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+header h1 {
+    margin: 0;
+    font-family: Georgia, serif;
+    font-style: italic;
+    letter-spacing: 1px;
+    color: #fff;
+}
+
+nav button {
+    background: var(--bg-paper);
+    color: var(--text-ink);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    padding: 0.5rem 1rem;
+    margin-left: 0.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: var(--shadow-hard);
+    transition: all 0.05s ease-in-out;
+}
+
+nav button:active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.25);
+}
+
+main {
+    padding: 2rem;
+}
+
+.view {
+    display: none;
+}
+
+.view.active {
+    display: block;
+}
+
+.view.hidden {
+    display: none;
+}
+
+/* -----------------------
+   Buttons & Inputs
+------------------------ */
+.btn {
+    background: var(--bg-paper-light);
+    color: var(--text-ink);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    display: inline-block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.25);
+    transition: all 0.05s ease-in-out;
+}
+
+.btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.25);
+}
+
+.btn.primary {
+    background: var(--accent-blue);
+    color: #fff;
+}
+
+.header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 1rem;
+}
+
+.header-actions h2 {
+    margin: 0;
+    font-family: Georgia, serif;
+}
+
+/* -----------------------
+   Browse Grid (Misaligned Index Cards)
+------------------------ */
+.deck-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    padding: 1rem 0;
+}
+
+.deck-card {
+    background: var(--bg-paper);
+    color: var(--text-ink);
+    padding: 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-top: 12px solid #dccca3;
+    /* Manilla accent top */
+    box-shadow: var(--shadow-hard);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.deck-card::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(192, 57, 43, 0.3);
+}
+
+/* The subtle scatter effect */
+.deck-card:nth-child(even) {
+    transform: rotate(1.5deg);
+}
+
+.deck-card:nth-child(odd) {
+    transform: rotate(-1deg);
+}
+
+.deck-card:nth-child(3n) {
+    transform: rotate(2deg) translateY(-2px);
+}
+
+.deck-card:hover {
+    transform: translateY(-6px) rotate(0deg);
+    box-shadow: var(--shadow-hard-hover);
+    z-index: 10;
+}
+
+.deck-card h3 {
+    margin-top: 0.5rem;
+    font-family: Georgia, serif;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 0.5rem;
+}
+
+.deck-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+/* -----------------------
+   Create Editor Layout (Clean Desk)
+------------------------ */
+.title-input {
+    background: var(--bg-paper);
+    color: var(--text-ink);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    padding: 0.5rem 1rem;
+    font-size: 1.5rem;
+    outline: none;
+    width: 100%;
+    max-width: 350px;
+    box-shadow: var(--shadow-hard);
+    font-family: Georgia, serif;
+}
+
+.title-input:focus {
+    background: #fff;
+}
+
+.create-layout {
+    display: flex;
+    gap: 2rem;
+    height: calc(100vh - 200px);
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+}
+
+.card-thumb {
+    background: var(--bg-paper);
+    color: var(--text-ink);
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    cursor: grab;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.15);
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.card-thumb:active {
+    cursor: grabbing;
+}
+
+.card-thumb.active {
+    background: #fff;
+    border-left: 4px solid var(--accent-blue);
+}
+
+/* Drag and Drop visual indicator */
+.card-thumb.drag-over {
+    border-top: 4px solid var(--accent-blue);
+    opacity: 0.8;
+}
+
+/* Editor Mat */
+.editor {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.15);
+    /* Clean, slightly darker mat */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    box-shadow: inset 4px 4px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.editor-pane {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+/* The Index Cards (Q&A Panes) */
+.index-card {
+    flex: 1;
+    min-width: 250px;
+    background: var(--bg-paper-light);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-top: 10px solid #dccca3;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-hard);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: relative;
+}
+
+.index-card::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(192, 57, 43, 0.2);
+}
+
+.index-card h4 {
+    margin: 0;
+    font-family: Georgia, serif;
+    color: var(--text-ink);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 0.5rem;
+}
+
+textarea {
+    width: 100%;
+    height: 120px;
+    background: transparent;
+    color: var(--text-ink);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    padding: 0.75rem;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    background: #fff;
+}
+
+/* -----------------------
+   Settings Modal
+------------------------ */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: var(--bg-paper);
+    color: var(--text-ink);
+    padding: 2rem;
+    width: 90%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-hard-hover);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-family: Georgia, serif;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+.settings-group {
+    background: var(--bg-paper-light);
+    padding: 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-hard);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.settings-group h3 {
+    margin: 0 0 0.5rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 0.5rem;
+    font-family: Georgia, serif;
+}
+
+.settings-group label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.settings-group input[type="text"],
+.settings-group select {
+    background: #fff;
+    color: var(--text-ink);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    padding: 0.75rem;
+    font-size: 1rem;
+    font-family: monospace;
+}
+
+.hotkey-input {
+    cursor: pointer;
+    text-align: center;
+    background: #eef2f5 !important;
+    color: var(--accent-blue) !important;
+    border: 1px dashed var(--accent-blue) !important;
+}
+
+.hotkey-input:focus {
+    outline: none;
+    background: #fff !important;
+    border-style: solid !important;
+}
+
+/* -----------------------
+   Perform Mode (Fullscreen)
+------------------------ */
+body.perform-active #app-header {
+    display: none;
+}
+
+body.perform-active main {
+    padding: 0;
+}
+
+#view-perform {
+    background-color: var(--perf-bg);
+    color: var(--perf-text);
+    font-family: var(--perf-font);
+    font-size: var(--perf-font-size);
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+.perform-layout {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 4rem); 
+    max-height: calc(100vh - 4rem);
+}
+
+.perform-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1rem;
+    opacity: 0.3;
+    transition: opacity 0.2s;
+}
+
+.perform-header:hover {
+    opacity: 1;
+}
+
+.perform-header .btn {
+    background: transparent;
+    color: var(--perf-text);
+    border: 1px solid var(--perf-text);
+    box-shadow: none;
+}
+
+.perform-header .btn:active {
+    transform: none;
+    box-shadow: none;
+}
+
+.perf-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 2rem;
+    margin: 1rem 0;
+    width: 100%;
+    max-height: 100%;
+    overflow: hidden; 
+}
+.perf-text {
+    font-size: 1.5em;
+    max-width: 900px;
+    white-space: pre-wrap;
+    font-weight: bold;
+    text-shadow: var(--shadow-hard); /* Added text-shadow */
+}
+
+.perf-media {
+    max-width: 100%;
+    max-height: 50vh;
+    border: 2px solid var(--perf-text);
+    box-shadow: var(--shadow-hard); /* Added box-shadow */
+}
+
+.perform-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 1rem;
+}
+
+.perform-controls .btn {
+    font-size: 1.25rem;
+    padding: 1rem 2rem;
+    box-shadow: none;
+}
+
+#btn-perf-wrong {
+    background-color: #a00;
+    color: white;
+    border: 1px solid #fff;
+}
+
+#btn-perf-correct {
+    background-color: #080;
+    color: white;
+    border: 1px solid #fff;
+}
+
+#btn-perf-next {
+    background-color: #333;
+    color: white;
+    border: 1px solid #fff;
+}
+
+.score-screen {
+    font-size: 1.5em; /* Slightly scaled down from 2em */
+    animation: popIn 0.5s ease-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem; /* Tightly controls vertical spacing */
+}
+
+/* Kill default browser margins that cause massive overflow */
+.score-screen h1, .score-screen p {
+    margin: 0;
+    text-shadow: var(--shadow-hard);
+}
+
+.score-screen-total {
+    font-size: 0.6em;
+    margin-top: 1rem;
+    opacity: 0.8;
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Media Filename Truncation */
+.text-truncate {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Custom Audio Player in Perform Mode */
+.custom-audio-player {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 4px dashed var(--perf-text);
+    border-radius: 8px;
+    /* Safe rounded corners just for stream elements */
+    width: 100%;
+    max-width: 400px;
+    box-shadow: var(--shadow-hard); /* Added box-shadow */
+}
+
+.custom-audio-player .btn {
+    font-size: 1.5rem;
+    padding: 1rem 2rem;
+    border: 2px solid var(--perf-text);
+    color: var(--perf-text);
+    background: transparent;
+}
+
+.custom-audio-player .btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* -----------------------
+   Title Card Styling
+------------------------ */
+.title-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+}
+.title-card h1 {
+    font-size: 3.5em;
+    margin: 0;
+    text-shadow: var(--shadow-hard);
+}
+.title-card .by-text {
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-size: 1.25em;
+    opacity: 0.8;
+}
+.title-card h3 {
+    font-size: 1.75em;
+    margin: 0;
+    font-weight: normal;
+    opacity: 0.9;
+}
+
+/* -----------------------
+   Deck Metadata Header (Create View)
+------------------------ */
+.deck-header-paper {
+    background: var(--bg-paper);
+    color: var(--text-ink);
+    padding: 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-top: 12px solid #dccca3;
+    box-shadow: var(--shadow-hard);
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.deck-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.title-input {
+    background: transparent;
+    color: var(--text-ink);
+    border: none;
+    border-bottom: 2px dashed rgba(0, 0, 0, 0.3);
+    padding: 0.25rem 0.5rem;
+    font-size: 2rem;
+    font-family: Georgia, serif;
+    font-weight: bold;
+    outline: none;
+    flex: 2;
+    min-width: 200px;
+    box-shadow: none; /* overrides previous rigid brutalist shadow */
+}
+.title-input:focus {
+    background: rgba(255, 255, 255, 0.5);
+}
+.by-text {
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--text-ink);
+}
+.author-input {
+    background: transparent;
+    color: var(--text-ink);
+    border: none;
+    border-bottom: 2px dashed rgba(0, 0, 0, 0.3);
+    padding: 0.25rem 0.5rem;
+    font-size: 1.5rem;
+    font-family: Georgia, serif;
+    font-style: italic;
+    outline: none;
+    flex: 1;
+    min-width: 150px;
+}
+.author-input:focus {
+    background: rgba(255, 255, 255, 0.5);
+}
+.deck-settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding-top: 1rem;
+    font-size: 0.9rem;
+    font-weight: bold;
+    flex-wrap: wrap;
+    gap: 1rem;
+    color: var(--text-ink);
+}
+.deck-settings-row input[type="color"] {
+    width: 40px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid rgba(0,0,0,0.3);
+    cursor: pointer;
+}
+
+/* Force Ink Color on all paper elements to prevent contrast bleeding */
+.index-card, .deck-header-paper, .card-thumb, .sidebar {
+    color: var(--text-ink);
+}
+.index-card label, .index-card small, .index-card h4, .deck-header-paper label, .deck-header-paper small {
+    color: var(--text-ink);
+}
+
+/* -----------------------
+   OBS Layout Positioning Engine
+------------------------ */
+body.obs-mode #view-perform {
+    position: relative;
+    overflow: hidden; /* Prevents scrollbars if scaled up */
+}
+
+/* Ensure the OBS specific mode is correctly bounded to the window size */
+body.obs-mode .perf-content {
+    position: absolute;
+    left: var(--obs-x, 50%);
+    top: var(--obs-y, 50%);
+    transform: translate(-50%, -50%) scale(var(--obs-scale, 1));
+    width: 100%;
+    max-width: var(--obs-max-w, 900px);
+    max-height: var(--obs-max-h, 800px); /* Updated to pixel fallback */
+    padding: 2rem;
+    transition: outline 0.1s, background 0.1s;
+}
+
+/* The Live Preview Bounding Box */
+body.obs-mode.previewing-layout .perf-content {
+    outline: 4px dashed rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    height: var(--obs-max-h, 1200px); /* Forces preview box to fill full max-height */
+}
+
+/* -----------------------
+   OBS Dedicated Source Mode
+------------------------ */
+body.obs-mode {
+    background: transparent !important;
+    background-image: none !important;
+}
+
+/* Hide the entire top navigation bar */
+body.obs-mode #app-header {
+    display: none !important;
+}
+
+/* Subtle Watermark in the corner */
+body.obs-mode::before {
+    content: 'QuizDeck';
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    color: rgba(255, 255, 255, 0.2);
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-size: 1.25rem;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+/* Hide Perform UI clutter */
+body.obs-mode .perform-header {
+    display: none !important;
+}
+
+body.obs-mode .perform-controls {
+    display: none !important;
+}
+
+/* -----------------------
+   Responsive & Mobile Friendly
+------------------------ */
+@media (max-width: 768px) {
+    /* Header & Navigation */
+    header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    nav button {
+        margin: 0;
+        font-size: 0.85rem;
+    }
+
+    /* Base Layouts */
+    main { 
+        padding: 1rem; 
+    }
+    .header-actions { 
+        flex-direction: column; 
+        align-items: stretch; 
+        text-align: center; 
+    }
+    .title-input { 
+        text-align: center; 
+    }
+
+    /* Convert Create Layout to Stacked */
+    .create-layout { 
+        height: auto; 
+        flex-direction: column; 
+        gap: 1rem;
+    }
+    
+    /* Convert Sidebar to Horizontal Swipe Bar */
+    .sidebar {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 0.5rem;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .sidebar button {
+        width: auto !important;
+        margin-bottom: 0 !important;
+        flex-shrink: 0;
+    }
+    .card-thumb {
+        margin-bottom: 0;
+        flex-shrink: 0;
+        padding: 0.5rem 1rem;
+    }
+
+    /* Simplify Editor Mat */
+    .editor {
+        padding: 1rem;
+    }
+    .editor-pane { 
+        flex-direction: column; 
+    }
+    
+    /* Safe Grids for Mobile */
+    .deck-grid { 
+        grid-template-columns: 1fr; 
+    }
+    .deck-actions { 
+        justify-content: center; 
+    }
+    .settings-grid { 
+        grid-template-columns: 1fr; 
+    }
+    .modal-content {
+        width: 95%;
+        padding: 1.5rem 1rem;
+    }
+
+    .deck-title-row {
+        flex-direction: column;
+        align-items: center;
+    }
+    .deck-settings-row {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .title-input, .author-input {
+        width: 100%;
+        text-align: center;
+    }
+    #btn-save-deck {
+        margin-left: 0 !important;
+        width: 100%;
+    }
+}

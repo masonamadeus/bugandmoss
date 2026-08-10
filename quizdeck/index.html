@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizDeck</title>
+    <link rel="stylesheet" href="styles.css">
+    <link id="dynamic-font" rel="stylesheet" href="">
+</head>
+
+<body>
+    <!-- Navigation / Header -->
+    <header id="app-header">
+        <h1>QuizDeck</h1>
+        <nav>
+            <button onclick="navigate('browse')">Browse</button>
+            <button onclick="create.startNew()">Create</button>
+            <button onclick="copyOBSLink()" style="border-color: var(--accent-blue); color: var(--accent-blue);">Copy
+                OBS Link</button>
+            <button onclick="settings.open()">Settings</button>
+        </nav>
+    </header>
+
+    <!-- Main Views -->
+    <main>
+        <section id="view-browse" class="view active">
+            <div class="header-actions">
+                <h2>Your Library</h2>
+                <!-- Hidden file input triggered by the label -->
+                <label for="import-file" class="btn primary">Import .qzd</label>
+                <input type="file" id="import-file" accept=".qzd" style="display: none;"
+                    onchange="browse.handleImport(event)">
+            </div>
+            <div id="deck-grid" class="deck-grid"></div>
+        </section>
+
+        <section id="view-create" class="view hidden">
+            <!-- New Cohesive Metadata Header -->
+            <div class="deck-header-paper">
+                <div class="deck-title-row">
+                    <input type="text" id="deck-title-input" placeholder="Deck Title" class="title-input"
+                        oninput="create.updateDeckMeta('title', this.value)">
+                    <span class="by-text">by</span>
+                    <input type="text" id="deck-author-input" placeholder="Author Name" class="author-input"
+                        oninput="create.updateDeckMeta('author', this.value)">
+
+                    <button id="btn-save-deck" class="btn primary" onclick="create.saveDeck()"
+                        style="margin-left: auto;">Save to Library</button>
+                </div>
+
+                <div class="deck-settings-row">
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <label style="display:flex; align-items:center; gap:0.5rem; color: var(--text-ink);">Background:
+                            <input type="color" id="deck-bg-input"
+                                onchange="create.updateDeckStyle('bg', this.value)"></label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; color: var(--text-ink);">Text:
+                            <input type="color" id="deck-text-input"
+                                onchange="create.updateDeckStyle('text', this.value)"></label>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <label class="btn" style="margin:0; padding: 0.2rem 0.5rem; font-size: 0.8rem;">
+                            <span id="intro-media-label">Upload Intro Media</span>
+                            <input type="file" accept="image/*,audio/*,video/*" style="display:none;"
+                                onchange="create.handleIntroMedia(event)">
+                        </label>
+                        <button class="btn" id="btn-remove-intro-media"
+                            style="display:none; padding: 0.2rem 0.5rem; font-size: 0.8rem; color:var(--accent-ink);"
+                            onclick="create.removeIntroMedia()">Remove</button>
+                        <small class="text-truncate" id="intro-media-filename"
+                            style="max-width: 150px; font-weight: normal; color: var(--text-ink);"></small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="create-layout">
+                <aside id="card-list-sidebar" class="sidebar">
+                    <!-- Card thumbnails injected here -->
+                </aside>
+                <section id="card-editor" class="editor">
+                    <!-- Q/A Editor injected here -->
+                </section>
+            </div>
+        </section>
+
+        <section id="view-perform" class="view hidden">
+            <div class="perform-layout">
+                <!-- Minimal Header -->
+                <div class="perform-header">
+                    <span id="perf-progress">Card 1 / 10</span>
+                    <button class="btn" onclick="perform.exit()">Exit Show</button>
+                </div>
+
+                <!-- Main Content Area -->
+                <div id="perf-content" class="perf-content">
+                    <!-- Text and Media will be injected here -->
+                </div>
+
+                <!-- On-Screen Backup Controls -->
+                <div class="perform-controls">
+                    <button id="btn-perf-wrong" class="btn" onclick="perform.mark(false)">❌ Wrong</button>
+                    <button id="btn-perf-next" class="btn primary" onclick="perform.next()">Show Answer</button>
+                    <button id="btn-perf-correct" class="btn" onclick="perform.mark(true)">✅ Correct</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden" onclick="if(event.target === this) settings.close()">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Presentation Settings</h2>
+                <button class="btn primary" onclick="settings.close()">Done (Saves Automatically)</button>
+            </div>
+            <div class="settings-grid">
+                <!-- Appearance Panel -->
+                <div class="settings-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+                        <h3 style="margin: 0; border: none; padding: 0;">Appearance (Perform Mode)</h3>
+                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="settings.resetSection('appearance')">Reset Section</button>
+                    </div>
+                    <label>Background Color: <input type="color" id="set-bg" onchange="settings.save()"></label>
+                    <label>Text Color: <input type="color" id="set-text" onchange="settings.save()"></label>
+                    <label>Font Family (System or Google Font): <input type="text" id="set-font"
+                            placeholder="e.g. Roboto or Arial" onchange="settings.save()"></label>
+                    <label>Font Size (Scaling): <input type="range" id="set-size" min="1" max="4" step="0.25" value="2"
+                            oninput="settings.save()"><span id="set-size-val">2rem</span></label>
+                </div>
+                <!-- Hotkeys Panel -->
+                <div class="settings-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+                        <h3 style="margin: 0; border: none; padding: 0;">Hotkeys & Controls</h3>
+                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="settings.resetSection('hotkeys')">Reset Section</button>
+                    </div>
+                    <label style="flex-direction: row; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="set-show-controls" onchange="settings.save()">
+                        Show On-Screen Buttons
+                    </label>
+                    <p><small>Click an input below, then press a key. Press Backspace to clear.</small></p>
+                    <label>Next (Show Answer/Next): <input type="text" id="key-next" class="hotkey-input" readonly
+                            onkeydown="settings.captureKey(event, 'key-next')"></label>
+                    <label>Mark Correct (Plays Sound): <input type="text" id="key-correct" class="hotkey-input" readonly
+                            onkeydown="settings.captureKey(event, 'key-correct')"></label>
+                    <label>Mark Wrong (Plays Sound): <input type="text" id="key-wrong" class="hotkey-input" readonly
+                            onkeydown="settings.captureKey(event, 'key-wrong')"></label>
+                </div>
+                <!-- Custom Audio Panel -->
+                <div class="settings-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+                        <h3 style="margin: 0; border: none; padding: 0;">Custom Sound Effects</h3>
+                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="settings.resetSection('sfx')">Reset Section</button>
+                    </div>
+                    <p><small>Override the default synthesized sounds with your own audio files. Leave blank to use
+                            defaults.</small></p>
+                    <label>Correct Sound (✅): <input type="file" accept="audio/*" id="file-sfx-correct"
+                            onchange="settings.uploadSFX('correct', event)">
+                        <button class="btn" id="btn-clear-sfx-correct" onclick="settings.clearSFX('correct')"
+                            style="display:none; margin-top: 0.5rem;">Revert to Default</button>
+                    </label>
+                    <label>Wrong Sound (❌): <input type="file" accept="audio/*" id="file-sfx-wrong"
+                            onchange="settings.uploadSFX('wrong', event)">
+                        <button class="btn" id="btn-clear-sfx-wrong" onclick="settings.clearSFX('wrong')"
+                            style="display:none; margin-top: 0.5rem;">Revert to Default</button>
+                    </label>
+                </div>
+                <!-- OBS Layout Panel -->
+                <div class="settings-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+                        <h3 style="margin: 0; border: none; padding: 0;">OBS Overlay Layout</h3>
+                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="settings.resetSection('obs')">Reset Section</button>
+                    </div>
+                    <p><small>The preview box automatically shows in OBS while this menu is open.</small></p>
+                    <label>Background Opacity (%): <input type="range" id="set-obs-opacity" min="0" max="100" step="5" value="0" 
+                            oninput="settings.save()"><span id="set-obs-opacity-val">0%</span></label>
+                    <label>Position X (Horizontal %):
+                        <input type="range" id="set-obs-x" min="0" max="100" value="50" oninput="settings.save()">
+                        <span id="set-obs-x-val">50%</span>
+                    </label>
+                    <label>Position Y (Vertical %):
+                        <input type="range" id="set-obs-y" min="0" max="100" value="50" oninput="settings.save()">
+                        <span id="set-obs-y-val">50%</span>
+                    </label>
+                    <label>Scale Multiplier:
+                        <input type="range" id="set-obs-scale" min="0.5" max="2" step="0.1" value="1"
+                            oninput="settings.save()">
+                        <span id="set-obs-scale-val">1.0x</span>
+                    </label>
+                    <label>Max Width (px): 
+                        <input type="range" id="set-obs-max-w" min="400" max="1600" step="50" value="1600" oninput="settings.save()">
+                        <span id="set-obs-max-w-val">1600px</span>
+                    </label>
+                    <label>Max Height (px): 
+                        <input type="range" id="set-obs-max-h" min="300" max="1200" step="50" value="1200" oninput="settings.save()">
+                        <span id="set-obs-max-h-val">1200px</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PeerJS for OBS Sync -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <!-- JSZip via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- Our Scripts -->
+    <script src="js/db.js"></script>
+    <script src="js/archive.js"></script>
+    <script src="js/browse.js"></script>
+    <script src="js/create.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/perform.js"></script>
+</body>
+
+</html>
