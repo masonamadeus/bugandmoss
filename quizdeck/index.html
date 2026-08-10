@@ -45,8 +45,10 @@
                     <input type="text" id="deck-author-input" placeholder="Author Name" class="author-input"
                         oninput="create.updateDeckMeta('author', this.value)">
 
-                    <button id="btn-save-deck" class="btn primary" onclick="create.saveDeck()"
-                        style="margin-left: auto;">Save to Library</button>
+                    <div style="margin-left: auto; display: flex; align-items: center; gap: 0.75rem;">
+                        <span id="autosave-status" class="autosave-badge">✓ Saved</span>
+                        <button class="btn primary" onclick="navigate('browse')">Done</button>
+                    </div>
                 </div>
 
                 <div class="deck-settings-row">
