@@ -14,11 +14,11 @@
     <header id="app-header">
         <h1>QuizDeck</h1>
         <nav>
-            <button onclick="navigate('browse')">Browse</button>
-            <button onclick="create.startNew()">Create</button>
-            <button onclick="copyOBSLink()" style="border-color: var(--accent-blue); color: var(--accent-blue);">Copy
+            <button id="btn-browse" onclick="navigate('browse')">Browse</button>
+            <button id="btn-create" onclick="create.startNew()">Create</button>
+            <button id="btn-obs-link" onclick="copyOBSLink()" style="border-color: var(--accent-blue); color: var(--accent-blue);">Copy
                 OBS Link</button>
-            <button onclick="settings.open()">Settings</button>
+            <button id="btn-settings" onclick="settings.open()">Settings</button>
         </nav>
     </header>
 

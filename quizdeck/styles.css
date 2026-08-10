@@ -36,7 +36,9 @@ body {
     background-size: 20px 20px;
     color: var(--text-desk);
 }
-
+btn.danger {
+    background: #ff4d4d!important;
+}
 /* -----------------------
    Header & Navigation
 ------------------------ */
@@ -891,5 +893,11 @@ body.obs-mode .perform-controls {
     #btn-save-deck {
         margin-left: 0 !important;
         width: 100%;
+    }
+    #btn-settings {
+        display:none;
+    }
+    #btn-obs-link{
+        display:none;
     }
 }

@@ -35,6 +35,12 @@ const browse = {
       btnEdit.innerText = 'Edit';
       btnEdit.onclick = () => create.loadDeck(deck.id);
 
+      // Send/Share Button
+      const btnSend = document.createElement('button');
+      btnSend.className = 'btn';
+      btnSend.innerText = 'Share';
+      btnSend.onclick = () => archive.shareDeck(deck.id);
+
       // Export Button
       const btnExport = document.createElement('button');
       btnExport.className = 'btn';
@@ -43,7 +49,7 @@ const browse = {
 
       // Delete Button
       const btnDelete = document.createElement('button');
-      btnDelete.className = 'btn';
+      btnDelete.className = 'btn danger';
       btnDelete.innerText = 'Delete';
       btnDelete.onclick = async () => {
         if(confirm(`Are you sure you want to delete "${deck.title}"?`)) {
@@ -63,7 +69,7 @@ const browse = {
         }
       };
 
-      actions.append(btnPerform, btnEdit, btnExport, btnDelete);
+      actions.append(btnPerform, btnEdit, btnSend, btnDelete);
       card.append(title, count, actions);
       grid.appendChild(card);
     });
