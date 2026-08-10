@@ -1,6 +1,6 @@
 const settings = {
   defaultPrefs: {
-    bg: '#000000', text: '#ffffff', font: 'Roboto', size: '2', obsOpacity: '0',
+    bg: '#000000', text: '#ffffff', font: 'Roboto', size: '2', obsOpacity: '100',
     obsX: '50', obsY: '50', obsScale: '1', 
     obsMaxW: '1600', obsMaxH: '1200', // Maxed out defaults
     showControls: true, keyNext: '', keyCorrect: '', keyWrong: '',
