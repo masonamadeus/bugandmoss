@@ -779,8 +779,14 @@ body.perform-active main {
    OBS Layout Positioning Engine
 ------------------------ */
 body.obs-mode #view-perform {
-    position: relative;
-    overflow: hidden; /* Prevents scrollbars if scaled up */
+    position: absolute; /* Takes it completely out of the padding flow */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden;
 }
 
 /* Ensure the OBS specific mode is correctly bounded to the window size */
@@ -791,8 +797,10 @@ body.obs-mode .perf-content {
     transform: translate(-50%, -50%) scale(var(--obs-scale, 1));
     width: 100%;
     max-width: var(--obs-max-w, 900px);
-    max-height: var(--obs-max-h, 800px); /* Updated to pixel fallback */
+    max-height: var(--obs-max-h, 800px);
     padding: 2rem;
+    margin: 0;
+    box-sizing: border-box; /* CRITICAL: prevents padding from inflating the width and skewing the center */
     transition: outline 0.1s, background 0.1s;
 }
 
