@@ -1,3 +1,14 @@
+// HTML Sanitization helper to prevent XSS and tag breakout
+function escapeHTML(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 const create = {
   deck: { id: '', title: '', author: '', styles: { bg: '#000000', text: '#ffffff' }, titleMediaId: null, cards: [] },
   activeIndex: 0,
@@ -9,17 +20,16 @@ const create = {
     this.hasUnsavedChanges = true;
     const statusEl = document.getElementById('autosave-status');
     if (statusEl) {
-      statusEl.innerText = '● Saving...';
+      statusEl.innerText = '  Saving...';
       statusEl.classList.add('saving');
     }
-
     clearTimeout(this.autosaveTimer);
     this.autosaveTimer = setTimeout(async () => {
       if (!this.deck.title) this.deck.title = 'Untitled Deck';
       await db.saveDeck(this.deck);
       this.hasUnsavedChanges = false;
       if (statusEl) {
-        statusEl.innerText = '✓ Saved';
+        statusEl.innerText = '  Saved';
         statusEl.classList.remove('saving');
       }
     }, 600);
@@ -47,7 +57,6 @@ const create = {
     if (!this.deck.cards || this.deck.cards.length === 0) {
       this.deck.cards = [{ qText: '', qMediaId: null, aText: '', aMediaId: null }];
     }
-
     this.activeIndex = 0;
     this.hasUnsavedChanges = false;
     
@@ -113,7 +122,6 @@ const create = {
     this.renderSidebar();
     this.renderEditor();
     
-    // Auto-focus question text of newly created card
     setTimeout(() => {
       document.getElementById('qText-input')?.focus();
     }, 50);
@@ -155,7 +163,6 @@ const create = {
     this.renderSidebar(); 
   },
 
-  // Auto-Advancing Mechanics
   focusAnswer: function() {
     document.getElementById('aText-input')?.focus();
   },
@@ -165,7 +172,7 @@ const create = {
       this.selectCard(this.activeIndex + 1);
       setTimeout(() => document.getElementById('qText-input')?.focus(), 50);
     } else {
-      this.addCard(); // Automatically creates and focuses next question!
+      this.addCard();
     }
   },
 
@@ -220,9 +227,9 @@ const create = {
     editor.innerHTML = `
       <!-- Inline Card Switcher Bar (Mobile Friendly) -->
       <div class="editor-card-nav">
-        <button class="btn" ${this.activeIndex === 0 ? 'disabled style="opacity:0.4;"' : ''} onclick="create.selectCard(${this.activeIndex - 1})">← Prev Card</button>
+        <button class="btn" ${this.activeIndex === 0 ? 'disabled style="opacity:0.4;"' : ''} onclick="create.selectCard(${this.activeIndex - 1})">  Prev Card</button>
         <span>${this.activeIndex + 1} of ${this.deck.cards.length}</span>
-        <button class="btn" ${isLastCard ? 'disabled style="opacity:0.4;"' : ''} onclick="create.selectCard(${this.activeIndex + 1})">Next Card →</button>
+        <button class="btn" ${isLastCard ? 'disabled style="opacity:0.4;"' : ''} onclick="create.selectCard(${this.activeIndex + 1})">Next Card  </button>
       </div>
 
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -234,7 +241,7 @@ const create = {
         <!-- Question Index Card -->
         <div class="pane index-card">
           <h4>Question</h4>
-          <textarea id="qText-input" oninput="create.updateText('qText', this.value)" placeholder="Enter question text...">${card.qText}</textarea>
+          <textarea id="qText-input" oninput="create.updateText('qText', this.value)" placeholder="Enter question text...">${escapeHTML(card.qText)}</textarea>
           
           <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
             <div style="display: flex; gap: 0.5rem; align-items: center;">
@@ -244,15 +251,15 @@ const create = {
               </label>
               ${card.qMediaId ? `<button class="btn" style="color:var(--accent-ink);" onclick="create.removeMedia('qMediaId')">Remove</button>` : ''}
             </div>
-            <button class="btn jump-btn" onclick="create.focusAnswer()">Go to Answer ↓</button>
+            <button class="btn jump-btn" onclick="create.focusAnswer()">Go to Answer  </button>
           </div>
-          <small class="text-truncate">${card.qMediaId ? 'Attached: ' + card.qMediaId : 'No media attached'}</small>
+          <small class="text-truncate">${card.qMediaId ? 'Attached: ' + escapeHTML(card.qMediaId) : 'No media attached'}</small>
         </div>
 
         <!-- Answer Index Card -->
         <div class="pane index-card">
           <h4>Answer</h4>
-          <textarea id="aText-input" oninput="create.updateText('aText', this.value)" placeholder="Enter answer text...">${card.aText}</textarea>
+          <textarea id="aText-input" oninput="create.updateText('aText', this.value)" placeholder="Enter answer text...">${escapeHTML(card.aText)}</textarea>
           
           <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
             <div style="display: flex; gap: 0.5rem; align-items: center;">
@@ -262,9 +269,9 @@ const create = {
               </label>
               ${card.aMediaId ? `<button class="btn" style="color:var(--accent-ink);" onclick="create.removeMedia('aMediaId')">Remove</button>` : ''}
             </div>
-            <button class="btn jump-btn" onclick="create.advanceToNextCard()">${isLastCard ? '+ Add Next Question' : 'Next Question →'}</button>
+            <button class="btn jump-btn" onclick="create.advanceToNextCard()">${isLastCard ? '+ Add Next Question' : 'Next Question  '}</button>
           </div>
-          <small class="text-truncate">${card.aMediaId ? 'Attached: ' + card.aMediaId : 'No media attached'}</small>
+          <small class="text-truncate">${card.aMediaId ? 'Attached: ' + escapeHTML(card.aMediaId) : 'No media attached'}</small>
         </div>
       </div>
     `;

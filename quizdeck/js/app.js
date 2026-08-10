@@ -8,7 +8,17 @@ window.obsConnections = new Set();
 // Broadcast helper for the Host
 window.broadcastToOBS = function(payload) {
   window.obsConnections.forEach(conn => {
-    if (conn.open) conn.send(payload); 
+    if (conn && conn.open) {
+      try {
+        conn.send(payload);
+      } catch (err) {
+        console.warn('Failed sending to OBS peer, removing stale connection:', err);
+        window.obsConnections.delete(conn);
+      }
+    } else {
+      // Remove silently disconnected or closed peers to prevent memory leaks
+      window.obsConnections.delete(conn);
+    }
   });
 };
 

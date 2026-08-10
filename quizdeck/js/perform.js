@@ -6,6 +6,7 @@ const perform = {
   activeMediaUrl: null, 
   audioCtx: null,
   totalCards: 0,
+  alreadyMarked: false, // NEW: Tracks if the current card was scored during the question phase
 
   start: async function(deckId) {
     this.deck = await db.getDeck(deckId);
@@ -18,6 +19,7 @@ const perform = {
     this.state = 'title'; 
     this.score = { correct: 0, wrong: 0 };
     this.totalCards = this.deck.cards ? this.deck.cards.length : 0;
+    this.alreadyMarked = false;
     
     this.applyDeckStyles();
 
@@ -33,6 +35,7 @@ const perform = {
     document.getElementById('view-perform').classList.add('active');
     document.body.classList.add('perform-active');
     this.score = { correct: 0, wrong: 0 };
+    this.alreadyMarked = false;
   },
 
   applyDeckStyles: function() {
@@ -117,6 +120,7 @@ const perform = {
         state: this.state,
         score: this.score,
         totalCards: this.totalCards,
+        alreadyMarked: this.alreadyMarked,
         textStr: textStr,
         authorStr: authorStr,
         mediaBuffer: arrayBuffer,
@@ -132,6 +136,7 @@ const perform = {
     this.state = stateData.state;
     this.score = stateData.score;
     this.totalCards = stateData.totalCards;
+    this.alreadyMarked = stateData.alreadyMarked;
     
     if (stateData.styles) {
       this.deck = { styles: stateData.styles };
@@ -144,18 +149,24 @@ const perform = {
   next: function() {
     if (this.state === 'title') {
       this.state = 'question';
+      this.alreadyMarked = false;
     } else if (this.state === 'question') {
       this.state = 'answer';
+      // alreadyMarked remains whatever it was
     } else if (this.state === 'answer') {
       this.currentIndex++;
       this.state = 'question';
+      this.alreadyMarked = false; // Reset for the new card
     }
     this.render();
     this.broadcast();
   },
 
   mark: function(isCorrect) {
-    if (this.state !== 'answer') return; 
+    // Only allow marking on active question/answer states
+    if (this.state !== 'question' && this.state !== 'answer') return; 
+    // Prevent double marking
+    if (this.alreadyMarked) return;
 
     if (isCorrect) {
       this.score.correct++;
@@ -165,8 +176,18 @@ const perform = {
       this.playSFX('wrong');
     }
 
-    this.currentIndex++;
-    this.state = 'question';
+    // Adaptive Flow Routing
+    if (this.state === 'question') {
+      // Marked during question: reveal answer, but disable double-scoring
+      this.state = 'answer';
+      this.alreadyMarked = true;
+    } else {
+      // Marked during answer (Standard): advance to next question instantly
+      this.currentIndex++;
+      this.state = 'question';
+      this.alreadyMarked = false;
+    }
+    
     this.render();
     this.broadcast();
   },
@@ -203,11 +224,19 @@ const perform = {
 
     contentDiv.innerHTML = ''; 
 
+    // Update Adaptive Controls visibility
     if (settings.prefs.showControls) {
       controlsContainer.style.display = 'flex';
       btnNext.style.display = 'inline-block'; 
-      btnCorrect.style.display = this.state === 'answer' ? 'inline-block' : 'none';
-      btnWrong.style.display = this.state === 'answer' ? 'inline-block' : 'none';
+      
+      // Show correct/wrong buttons on both states, UNLESS we already marked this card
+      if ((this.state === 'question' || this.state === 'answer') && !this.alreadyMarked) {
+        btnCorrect.style.display = 'inline-block';
+        btnWrong.style.display = 'inline-block';
+      } else {
+        btnCorrect.style.display = 'none';
+        btnWrong.style.display = 'none';
+      }
     } else {
       controlsContainer.style.display = 'none';
     }
@@ -230,16 +259,34 @@ const perform = {
       mediaId = this.state === 'question' ? card.qMediaId : card.aMediaId;
     }
 
+    // Safe DOM construction inside render()
     if (this.state === 'title') {
       const container = document.createElement('div');
       container.className = 'title-card';
-      if (textStr) container.innerHTML += `<h1>${textStr}</h1>`;
-      if (authorStr) container.innerHTML += `<span class="by-text">by</span><h3>${authorStr}</h3>`;
+
+      if (textStr) {
+        const h1 = document.createElement('h1');
+        h1.textContent = textStr;
+        container.appendChild(h1);
+      }
+
+      if (authorStr) {
+        const span = document.createElement('span');
+        span.className = 'by-text';
+        span.textContent = 'by';
+        container.appendChild(span);
+
+        const h3 = document.createElement('h3');
+        h3.textContent = authorStr;
+        container.appendChild(h3);
+      }
+
       contentDiv.appendChild(container);
     } else if (textStr) {
+      // Standard Question/Answer Text Rendering
       const p = document.createElement('div');
       p.className = 'perf-text';
-      p.innerText = textStr;
+      p.textContent = textStr; 
       contentDiv.appendChild(p);
     }
 
@@ -257,7 +304,6 @@ const perform = {
           mediaEl = document.createElement('img');
           mediaEl.src = this.activeMediaUrl;
           mediaEl.className = 'perf-media';
-          // Ensure autoFit re-triggers once image establishes its real height
           mediaEl.onload = () => this.fitContent(); 
         } else if (isVideo) {
           mediaEl = document.createElement('video');
@@ -270,16 +316,20 @@ const perform = {
         } else if (isAudio) {
           mediaEl = document.createElement('div');
           mediaEl.className = 'custom-audio-player perf-media';
+          
           const audio = document.createElement('audio');
           audio.src = this.activeMediaUrl;
           audio.autoplay = true;
+          
           const btn = document.createElement('button');
           btn.className = 'btn';
           btn.innerText = '⏸ Pause Audio';
           btn.onclick = () => { if (audio.paused) { audio.play(); btn.innerText = '⏸ Pause Audio'; } else { audio.pause(); btn.innerText = '▶ Play Audio'; } };
           audio.onended = () => btn.innerText = '▶ Play Audio';
+          
           mediaEl.appendChild(audio); mediaEl.appendChild(btn);
         }
+
         if (mediaEl) {
           if (this.state === 'title' && !isAudio) contentDiv.querySelector('.title-card').prepend(mediaEl);
           else contentDiv.appendChild(mediaEl);
@@ -313,16 +363,34 @@ const perform = {
 
     contentDiv.innerHTML = ''; 
 
+    // Safe DOM construction inside renderRemote()
     if (this.state === 'title') {
       const container = document.createElement('div');
       container.className = 'title-card';
-      if (stateData.textStr) container.innerHTML += `<h1>${stateData.textStr}</h1>`;
-      if (stateData.authorStr) container.innerHTML += `<span class="by-text">by</span><h3>${stateData.authorStr}</h3>`;
+
+      if (stateData.textStr) {
+        const h1 = document.createElement('h1');
+        h1.textContent = stateData.textStr;
+        container.appendChild(h1);
+      }
+
+      if (stateData.authorStr) {
+        const span = document.createElement('span');
+        span.className = 'by-text';
+        span.textContent = 'by';
+        container.appendChild(span);
+
+        const h3 = document.createElement('h3');
+        h3.textContent = stateData.authorStr;
+        container.appendChild(h3);
+      }
+
       contentDiv.appendChild(container);
     } else if (stateData.textStr) {
+      // Standard Question/Answer Text Rendering for OBS
       const p = document.createElement('div');
       p.className = 'perf-text';
-      p.innerText = stateData.textStr;
+      p.textContent = stateData.textStr; 
       contentDiv.appendChild(p);
     }
 
@@ -440,9 +508,11 @@ window.addEventListener('keydown', (e) => {
   
   if (settings.prefs.keyNext && e.code === settings.prefs.keyNext) {
     e.preventDefault(); perform.next();
-  } else if (settings.prefs.keyCorrect && e.code === settings.prefs.keyCorrect && perform.state === 'answer') {
+  } else if (settings.prefs.keyCorrect && e.code === settings.prefs.keyCorrect) {
+    // Removed restriction limiting this to the answer phase
     e.preventDefault(); perform.mark(true);
-  } else if (settings.prefs.keyWrong && e.code === settings.prefs.keyWrong && perform.state === 'answer') {
+  } else if (settings.prefs.keyWrong && e.code === settings.prefs.keyWrong) {
+    // Removed restriction limiting this to the answer phase
     e.preventDefault(); perform.mark(false);
   }
 });
