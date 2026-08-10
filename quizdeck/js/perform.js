@@ -6,7 +6,9 @@ const perform = {
   activeMediaUrl: null, 
   audioCtx: null,
   totalCards: 0,
-  alreadyMarked: false, // NEW: Tracks if the current card was scored during the question phase
+  alreadyMarked: false, 
+  startTime: null, // NEW: Tracks when the quiz actually starts
+  endTime: null,   // NEW: Tracks when the final card is completed
 
   start: async function(deckId) {
     this.deck = await db.getDeck(deckId);
@@ -20,6 +22,8 @@ const perform = {
     this.score = { correct: 0, wrong: 0 };
     this.totalCards = this.deck.cards ? this.deck.cards.length : 0;
     this.alreadyMarked = false;
+    this.startTime = null;
+    this.endTime = null;
     
     this.applyDeckStyles();
 
@@ -36,6 +40,8 @@ const perform = {
     document.body.classList.add('perform-active');
     this.score = { correct: 0, wrong: 0 };
     this.alreadyMarked = false;
+    this.startTime = null;
+    this.endTime = null;
   },
 
   applyDeckStyles: function() {
@@ -70,13 +76,10 @@ const perform = {
     const textEls = contentDiv.querySelectorAll('.perf-text, .title-card');
     if (textEls.length === 0) return;
 
-    // Reset scaling to default
     textEls.forEach(el => el.style.fontSize = '100%');
 
-    // Give DOM a frame to update height calculations
     requestAnimationFrame(() => {
         let size = 100;
-        // Shrink text in 5% increments until it fits both vertically and horizontally
         while ((contentDiv.scrollHeight > contentDiv.clientHeight || contentDiv.scrollWidth > contentDiv.clientWidth) && size > 40) {
             size -= 5;
             textEls.forEach(el => el.style.fontSize = size + '%');
@@ -121,6 +124,8 @@ const perform = {
         score: this.score,
         totalCards: this.totalCards,
         alreadyMarked: this.alreadyMarked,
+        startTime: this.startTime, // Pass timers to OBS
+        endTime: this.endTime,
         textStr: textStr,
         authorStr: authorStr,
         mediaBuffer: arrayBuffer,
@@ -137,6 +142,8 @@ const perform = {
     this.score = stateData.score;
     this.totalCards = stateData.totalCards;
     this.alreadyMarked = stateData.alreadyMarked;
+    this.startTime = stateData.startTime;
+    this.endTime = stateData.endTime;
     
     if (stateData.styles) {
       this.deck = { styles: stateData.styles };
@@ -150,22 +157,20 @@ const perform = {
     if (this.state === 'title') {
       this.state = 'question';
       this.alreadyMarked = false;
+      if (!this.startTime) this.startTime = Date.now(); // Start timer exactly when leaving title screen
     } else if (this.state === 'question') {
       this.state = 'answer';
-      // alreadyMarked remains whatever it was
     } else if (this.state === 'answer') {
       this.currentIndex++;
       this.state = 'question';
-      this.alreadyMarked = false; // Reset for the new card
+      this.alreadyMarked = false; 
     }
     this.render();
     this.broadcast();
   },
 
   mark: function(isCorrect) {
-    // Only allow marking on active question/answer states
     if (this.state !== 'question' && this.state !== 'answer') return; 
-    // Prevent double marking
     if (this.alreadyMarked) return;
 
     if (isCorrect) {
@@ -176,13 +181,10 @@ const perform = {
       this.playSFX('wrong');
     }
 
-    // Adaptive Flow Routing
     if (this.state === 'question') {
-      // Marked during question: reveal answer, but disable double-scoring
       this.state = 'answer';
       this.alreadyMarked = true;
     } else {
-      // Marked during answer (Standard): advance to next question instantly
       this.currentIndex++;
       this.state = 'question';
       this.alreadyMarked = false;
@@ -207,6 +209,16 @@ const perform = {
 
     if (this.currentIndex >= this.totalCards && this.state !== 'title') {
       this.state = 'finished';
+      if (!this.endTime) this.endTime = Date.now(); // Lock in final completion time
+      
+      let timeStr = "00:00";
+      if (this.startTime) {
+          const elapsed = Math.floor((this.endTime - this.startTime) / 1000);
+          const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+          const secs = String(elapsed % 60).padStart(2, '0');
+          timeStr = `${mins}:${secs}`;
+      }
+
       progress.innerText = 'Finished';
       controlsContainer.style.display = 'none'; 
       
@@ -216,7 +228,7 @@ const perform = {
           <h1>Quiz Complete!</h1>
           <p>Correct: <span style="color:#00ff00">${this.score.correct}</span></p>
           <p>Wrong: <span style="color:#ff0000">${this.score.wrong}</span></p>
-          <p class="score-screen-total">Total Scored: ${total} / ${this.totalCards}</p>
+          <p class="score-screen-total">Total Scored: ${total} / ${this.totalCards} in: ${timeStr}</p>
         </div>
       `;
       return;
@@ -224,12 +236,10 @@ const perform = {
 
     contentDiv.innerHTML = ''; 
 
-    // Update Adaptive Controls visibility
     if (settings.prefs.showControls) {
       controlsContainer.style.display = 'flex';
       btnNext.style.display = 'inline-block'; 
       
-      // Show correct/wrong buttons on both states, UNLESS we already marked this card
       if ((this.state === 'question' || this.state === 'answer') && !this.alreadyMarked) {
         btnCorrect.style.display = 'inline-block';
         btnWrong.style.display = 'inline-block';
@@ -259,7 +269,6 @@ const perform = {
       mediaId = this.state === 'question' ? card.qMediaId : card.aMediaId;
     }
 
-    // Safe DOM construction inside render()
     if (this.state === 'title') {
       const container = document.createElement('div');
       container.className = 'title-card';
@@ -283,7 +292,6 @@ const perform = {
 
       contentDiv.appendChild(container);
     } else if (textStr) {
-      // Standard Question/Answer Text Rendering
       const p = document.createElement('div');
       p.className = 'perf-text';
       p.textContent = textStr; 
@@ -337,7 +345,7 @@ const perform = {
       }
     }
 
-    this.fitContent(); // Initial scale execution
+    this.fitContent(); 
   },
 
   renderRemote: function(stateData) {
@@ -349,13 +357,24 @@ const perform = {
     }
 
     if (this.state === 'finished' || (this.currentIndex >= this.totalCards && this.state !== 'title')) {
+      this.state = 'finished';
+      if (!this.endTime) this.endTime = Date.now();
+      
+      let timeStr = "00:00";
+      if (this.startTime) {
+          const elapsed = Math.floor((this.endTime - this.startTime) / 1000);
+          const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+          const secs = String(elapsed % 60).padStart(2, '0');
+          timeStr = `${mins}:${secs}`;
+      }
+
       const total = this.score.correct + this.score.wrong;
       contentDiv.innerHTML = `
         <div class="score-screen">
           <h1>Quiz Complete!</h1>
           <p>Correct: <span style="color:#00ff00">${this.score.correct}</span></p>
           <p>Wrong: <span style="color:#ff0000">${this.score.wrong}</span></p>
-          <p class="score-screen-total">Total Scored: ${total} / ${this.totalCards}</p>
+          <p class="score-screen-total">Total Scored: ${total} / ${this.totalCards} in: ${timeStr}</p>
         </div>
       `;
       return;
@@ -363,7 +382,6 @@ const perform = {
 
     contentDiv.innerHTML = ''; 
 
-    // Safe DOM construction inside renderRemote()
     if (this.state === 'title') {
       const container = document.createElement('div');
       container.className = 'title-card';
@@ -387,7 +405,6 @@ const perform = {
 
       contentDiv.appendChild(container);
     } else if (stateData.textStr) {
-      // Standard Question/Answer Text Rendering for OBS
       const p = document.createElement('div');
       p.className = 'perf-text';
       p.textContent = stateData.textStr; 
@@ -430,7 +447,7 @@ const perform = {
       }
     }
 
-    this.fitContent(); // Execute remote scaling
+    this.fitContent(); 
   },
 
   playSFX: async function(type, isRemote = false, remoteBuffer = null, remoteMime = null) {
@@ -509,10 +526,8 @@ window.addEventListener('keydown', (e) => {
   if (settings.prefs.keyNext && e.code === settings.prefs.keyNext) {
     e.preventDefault(); perform.next();
   } else if (settings.prefs.keyCorrect && e.code === settings.prefs.keyCorrect) {
-    // Removed restriction limiting this to the answer phase
     e.preventDefault(); perform.mark(true);
   } else if (settings.prefs.keyWrong && e.code === settings.prefs.keyWrong) {
-    // Removed restriction limiting this to the answer phase
     e.preventDefault(); perform.mark(false);
   }
 });
