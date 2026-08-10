@@ -73,7 +73,8 @@ const perform = {
     const contentDiv = document.getElementById('perf-content');
     if (!contentDiv) return;
 
-    const textEls = contentDiv.querySelectorAll('.perf-text, .title-card');
+    // Look for the wrapper containers, not the direct text elements
+    const textEls = contentDiv.querySelectorAll('.text-card, .title-card');
     if (textEls.length === 0) return;
 
     textEls.forEach(el => el.style.fontSize = '100%');
@@ -292,10 +293,16 @@ const perform = {
 
       contentDiv.appendChild(container);
     } else if (textStr) {
+      // Wrap the Q/A text in a scaling container
+      const container = document.createElement('div');
+      container.className = 'text-card';
+      
       const p = document.createElement('div');
       p.className = 'perf-text';
       p.textContent = textStr; 
-      contentDiv.appendChild(p);
+      
+      container.appendChild(p);
+      contentDiv.appendChild(container);
     }
 
     if (mediaId) {
@@ -405,10 +412,16 @@ const perform = {
 
       contentDiv.appendChild(container);
     } else if (stateData.textStr) {
+      // Wrap the Q/A text in a scaling container for OBS
+      const container = document.createElement('div');
+      container.className = 'text-card';
+      
       const p = document.createElement('div');
       p.className = 'perf-text';
       p.textContent = stateData.textStr; 
-      contentDiv.appendChild(p);
+      
+      container.appendChild(p);
+      contentDiv.appendChild(container);
     }
 
     if (stateData.mediaBuffer) {
