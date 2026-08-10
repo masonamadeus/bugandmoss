@@ -14,7 +14,7 @@ function navigate(viewId) {
     el.classList.remove('active');
     el.classList.add('hidden');
   });
-  
+
   // 3. Show target view
   const target = document.getElementById(`view-${viewId}`);
   if (target) {
@@ -30,5 +30,10 @@ function navigate(viewId) {
     // Hard-stop any orphaned media by destroying inner HTML just in case
     const perfContent = document.getElementById('perf-content');
     if (perfContent) perfContent.innerHTML = '';
+  }
+
+  // 5. Auto-Refresh Data on Browse
+  if (viewId === 'browse' && typeof browse !== 'undefined') {
+    browse.renderGrid();
   }
 }
