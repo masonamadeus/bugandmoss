@@ -24,6 +24,7 @@
 }
 
 * {
+    touch-action: manipulation;
     box-sizing: border-box;
 }
 
@@ -455,14 +456,14 @@ body.perform-active main {
     font-family: var(--perf-font);
     font-size: var(--perf-font-size);
     min-height: 100vh;
+    min-height: 100dvh; /* Mobile browser URL bar fix */
     padding: 2rem;
 }
-
 .perform-layout {
     display: flex;
     flex-direction: column;
     height: calc(100vh - 4rem); 
-    max-height: calc(100vh - 4rem);
+    height: calc(100dvh - 4rem); /* Mobile browser URL bar fix */
 }
 
 .perform-header {
@@ -500,14 +501,19 @@ body.perform-active main {
     margin: 1rem 0;
     width: 100%;
     max-height: 100%;
+    min-height: 0; /* CRITICAL: Allows flex child to shrink, triggering JS math */
+    min-width: 0;  /* CRITICAL: Prevents horizontal overflow */
     overflow: hidden; 
 }
+
 .perf-text {
-    font-size: 3.5em;
+    font-size: 3.5em; 
     max-width: 900px;
     white-space: pre-wrap;
     font-weight: bold;
-    text-shadow: var(--shadow-hard); /* Added text-shadow */
+    text-shadow: var(--shadow-hard);
+    word-wrap: break-word; /* Forces long words to break instead of spilling wide */
+    overflow-wrap: break-word;
 }
 
 .perf-media {
@@ -549,9 +555,10 @@ body.perform-active main {
     color: white;
     border: 1px solid #fff;
 }
-
+/* -----------------------
+   Score Screen Styling
+------------------------ */
 .score-screen {
-    font-size: 1.5em; /* Slightly scaled down from 2em */
     animation: popIn 0.5s ease-out;
     display: flex;
     flex-direction: column;
@@ -559,14 +566,21 @@ body.perform-active main {
     gap: 0.5rem; /* Tightly controls vertical spacing */
 }
 
-/* Kill default browser margins that cause massive overflow */
-.score-screen h1, .score-screen p {
+/* Base text sizing to match the Title Cards */
+.score-screen h1 {
+    font-size: 3.5em; 
+    margin: 0;
+    text-shadow: var(--shadow-hard);
+}
+
+.score-screen p {
+    font-size: 2em; 
     margin: 0;
     text-shadow: var(--shadow-hard);
 }
 
 .score-screen-total {
-    font-size: 0.6em;
+    font-size: 1.2em !important;
     margin-top: 1rem;
     opacity: 0.8;
 }
@@ -688,7 +702,7 @@ body.perform-active main {
     font-family: Georgia, serif;
     font-style: italic;
     font-size: 1.25rem;
-    color: var(--text-ink);
+    color: var(--text-desk);
 }
 .author-input {
     background: transparent;
@@ -967,5 +981,24 @@ body.obs-mode .perform-controls {
     }
     #btn-obs-link{
         display:none;
+    }
+
+    /* Mobile Perform Mode Tweaks */
+    #view-perform {
+        padding: 1rem;
+    }
+    .perform-layout {
+        height: calc(100vh - 2rem);
+        height: calc(100dvh - 2rem);
+    }
+    .perform-controls {
+        gap: 0.5rem;
+        width: 100%;
+    }
+    .perform-controls .btn {
+        font-size: 1rem;
+        padding: 0.75rem 0.5rem;
+        flex: 1; /* Stretch buttons to fill the row evenly */
+        text-align: center;
     }
 }

@@ -73,15 +73,15 @@ const perform = {
     const contentDiv = document.getElementById('perf-content');
     if (!contentDiv) return;
 
-    // Look for the wrapper containers, not the direct text elements
-    const textEls = contentDiv.querySelectorAll('.text-card, .title-card');
+    // Make sure we grab wrappers for accurate scaling
+    const textEls = contentDiv.querySelectorAll('.text-card, .title-card, .score-screen');
     if (textEls.length === 0) return;
 
     textEls.forEach(el => el.style.fontSize = '100%');
 
     requestAnimationFrame(() => {
         let size = 100;
-        while ((contentDiv.scrollHeight > contentDiv.clientHeight || contentDiv.scrollWidth > contentDiv.clientWidth) && size > 40) {
+        while ((contentDiv.scrollHeight > contentDiv.clientHeight || contentDiv.scrollWidth > contentDiv.clientWidth) && size > 20) {
             size -= 5;
             textEls.forEach(el => el.style.fontSize = size + '%');
         }
@@ -232,6 +232,7 @@ const perform = {
           <p class="score-screen-total">Total Scored: ${total} / ${this.totalCards} in: ${timeStr}</p>
         </div>
       `;
+      this.fitContent();
       return;
     }
 
@@ -384,6 +385,7 @@ const perform = {
           <p class="score-screen-total">Total Scored: ${total} / ${this.totalCards} in: ${timeStr}</p>
         </div>
       `;
+      this.fitContent();
       return;
     }
 
