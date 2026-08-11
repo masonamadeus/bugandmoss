@@ -123,7 +123,7 @@ const browse = {
         {
           qText: "Are you ready to host your first live game show?",
           qMediaId: null,
-          aText: "Check out the Settings menu to set up custom hotkeys, adjust your OBS layout visually, and override the default sound effects.\n\nHave fun!",
+          aText: "Check out the Settings menu to set up custom hotkeys, adjust your OBS layout visually, and override the default sound effects.\n\n Exit performance mode by clicking the button in the top right. \n\nHave fun!",
           aMediaId: null
         }
       ]
