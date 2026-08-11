@@ -87,6 +87,11 @@ const browse = {
       btnEdit.innerText = 'Edit';
       btnEdit.onclick = () => create.loadDeck(deck.id);
 
+      const btnShare = document.createElement('button');
+      btnShare.className = 'btn';
+      btnShare.innerText = 'Share';
+      btnShare.onclick = () => archive.shareDeck(deck.id);
+      
       const btnExport = document.createElement('button');
       btnExport.className = 'btn';
       btnExport.innerText = 'Export';
@@ -119,7 +124,7 @@ const browse = {
         }
       };
 
-      actions.append(btnPerform, btnEdit, btnExport, btnDelete);
+      actions.append(btnPerform, btnEdit, btnShare, btnDelete);
       card.append(title, dateEl, count, actions); // Injected dateEl here
       grid.appendChild(card);
     });
