@@ -1,16 +1,16 @@
 const perform = {
   deck: null,
   currentIndex: 0,
-  state: 'title', 
+  state: 'title',
   score: { correct: 0, wrong: 0 },
-  activeMediaUrl: null, 
+  activeMediaUrl: null,
   audioCtx: null,
   totalCards: 0,
-  alreadyMarked: false, 
+  alreadyMarked: false,
   startTime: null, // NEW: Tracks when the quiz actually starts
   endTime: null,   // NEW: Tracks when the final card is completed
 
-  start: async function(deckId) {
+  start: async function (deckId) {
     this.deck = await db.getDeck(deckId);
     if (!this.deck) {
       alert("This deck was not found!");
@@ -18,13 +18,13 @@ const perform = {
     }
 
     this.currentIndex = 0;
-    this.state = 'title'; 
+    this.state = 'title';
     this.score = { correct: 0, wrong: 0 };
     this.totalCards = this.deck.cards ? this.deck.cards.length : 0;
     this.alreadyMarked = false;
     this.startTime = null;
     this.endTime = null;
-    
+
     this.applyDeckStyles();
 
     window.broadcastToOBS({ type: 'START' });
@@ -34,7 +34,7 @@ const perform = {
     this.broadcast();
   },
 
-  startRemote: function() {
+  startRemote: function () {
     document.getElementById('view-perform').classList.remove('hidden');
     document.getElementById('view-perform').classList.add('active');
     document.body.classList.add('perform-active');
@@ -44,7 +44,7 @@ const perform = {
     this.endTime = null;
   },
 
-  applyDeckStyles: function() {
+  applyDeckStyles: function () {
     const root = document.documentElement;
     let bg = settings.prefs.bg;
     let text = settings.prefs.text;
@@ -65,11 +65,11 @@ const perform = {
     } else {
       root.style.setProperty('--perf-bg', bg);
     }
-    
+
     root.style.setProperty('--perf-text', text);
   },
 
-  fitContent: function() {
+  fitContent: function () {
     const contentDiv = document.getElementById('perf-content');
     if (!contentDiv) return;
 
@@ -80,16 +80,16 @@ const perform = {
     textEls.forEach(el => el.style.fontSize = '100%');
 
     requestAnimationFrame(() => {
-        let size = 100;
-        while ((contentDiv.scrollHeight > contentDiv.clientHeight || contentDiv.scrollWidth > contentDiv.clientWidth) && size > 20) {
-            size -= 5;
-            textEls.forEach(el => el.style.fontSize = size + '%');
-        }
+      let size = 100;
+      while ((contentDiv.scrollHeight > contentDiv.clientHeight || contentDiv.scrollWidth > contentDiv.clientWidth) && size > 20) {
+        size -= 5;
+        textEls.forEach(el => el.style.fontSize = size + '%');
+      }
     });
   },
 
-  broadcast: async function() {
-    if (window.isOBS) return; 
+  broadcast: async function () {
+    if (window.isOBS) return;
 
     let textStr = '';
     let authorStr = '';
@@ -132,12 +132,12 @@ const perform = {
         mediaBuffer: arrayBuffer,
         mimeType: mimeType,
         mediaExt: ext,
-        styles: this.deck.styles 
+        styles: this.deck.styles
       }
     });
   },
 
-  syncOBS: function(stateData) {
+  syncOBS: function (stateData) {
     this.currentIndex = stateData.currentIndex;
     this.state = stateData.state;
     this.score = stateData.score;
@@ -145,7 +145,7 @@ const perform = {
     this.alreadyMarked = stateData.alreadyMarked;
     this.startTime = stateData.startTime;
     this.endTime = stateData.endTime;
-    
+
     if (stateData.styles) {
       this.deck = { styles: stateData.styles };
       this.applyDeckStyles();
@@ -154,7 +154,7 @@ const perform = {
     this.renderRemote(stateData);
   },
 
-  next: function() {
+  next: function () {
     if (this.state === 'title') {
       this.state = 'question';
       this.alreadyMarked = false;
@@ -164,14 +164,14 @@ const perform = {
     } else if (this.state === 'answer') {
       this.currentIndex++;
       this.state = 'question';
-      this.alreadyMarked = false; 
+      this.alreadyMarked = false;
     }
     this.render();
     this.broadcast();
   },
 
-  mark: function(isCorrect) {
-    if (this.state !== 'question' && this.state !== 'answer') return; 
+  mark: function (isCorrect) {
+    if (this.state !== 'question' && this.state !== 'answer') return;
     if (this.alreadyMarked) return;
 
     if (isCorrect) {
@@ -190,12 +190,12 @@ const perform = {
       this.state = 'question';
       this.alreadyMarked = false;
     }
-    
+
     this.render();
     this.broadcast();
   },
 
-  render: async function() {
+  render: async function () {
     const contentDiv = document.getElementById('perf-content');
     const controlsContainer = document.querySelector('.perform-controls');
     const btnNext = document.getElementById('btn-perf-next');
@@ -211,18 +211,18 @@ const perform = {
     if (this.currentIndex >= this.totalCards && this.state !== 'title') {
       this.state = 'finished';
       if (!this.endTime) this.endTime = Date.now(); // Lock in final completion time
-      
+
       let timeStr = "00:00";
       if (this.startTime) {
-          const elapsed = Math.floor((this.endTime - this.startTime) / 1000);
-          const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
-          const secs = String(elapsed % 60).padStart(2, '0');
-          timeStr = `${mins}:${secs}`;
+        const elapsed = Math.floor((this.endTime - this.startTime) / 1000);
+        const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+        const secs = String(elapsed % 60).padStart(2, '0');
+        timeStr = `${mins}:${secs}`;
       }
 
       progress.innerText = 'Finished';
-      controlsContainer.style.display = 'none'; 
-      
+      controlsContainer.style.display = 'none';
+
       const total = this.score.correct + this.score.wrong;
       contentDiv.innerHTML = `
         <div class="score-screen">
@@ -236,12 +236,12 @@ const perform = {
       return;
     }
 
-    contentDiv.innerHTML = ''; 
+    contentDiv.innerHTML = '';
 
     if (settings.prefs.showControls) {
       controlsContainer.style.display = 'flex';
-      btnNext.style.display = 'inline-block'; 
-      
+      btnNext.style.display = 'inline-block';
+
       if ((this.state === 'question' || this.state === 'answer') && !this.alreadyMarked) {
         btnCorrect.style.display = 'inline-block';
         btnWrong.style.display = 'inline-block';
@@ -297,11 +297,11 @@ const perform = {
       // Wrap the Q/A text in a scaling container
       const container = document.createElement('div');
       container.className = 'text-card';
-      
+
       const p = document.createElement('div');
       p.className = 'perf-text';
-      p.textContent = textStr; 
-      
+      p.textContent = textStr;
+
       container.appendChild(p);
       contentDiv.appendChild(container);
     }
@@ -312,37 +312,37 @@ const perform = {
         this.activeMediaUrl = URL.createObjectURL(blob);
         let mediaEl;
         const ext = mediaId.split('.').pop().toLowerCase();
-        const isImage = blob.type.startsWith('image/') || ['png','jpg','jpeg','gif','webp'].includes(ext);
-        const isVideo = blob.type.startsWith('video/') || ['mp4','webm','ogg'].includes(ext);
-        const isAudio = blob.type.startsWith('audio/') || ['mp3','wav','m4a'].includes(ext);
+        const isImage = blob.type.startsWith('image/') || ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico', 'avif'].includes(ext);
+        const isVideo = blob.type.startsWith('video/') || ['mp4', 'webm', 'ogg', 'ogv', 'mov', 'mkv'].includes(ext);
+        const isAudio = blob.type.startsWith('audio/') || ['mp3', 'wav', 'm4a', 'aac', 'flac', 'oga'].includes(ext);
 
         if (isImage) {
           mediaEl = document.createElement('img');
           mediaEl.src = this.activeMediaUrl;
           mediaEl.className = 'perf-media';
-          mediaEl.onload = () => this.fitContent(); 
+          mediaEl.onload = () => this.fitContent();
         } else if (isVideo) {
           mediaEl = document.createElement('video');
           mediaEl.src = this.activeMediaUrl;
           mediaEl.autoplay = true;
           mediaEl.loop = true;
-          mediaEl.controls = true; 
+          mediaEl.controls = true;
           mediaEl.className = 'perf-media';
           mediaEl.onloadedmetadata = () => this.fitContent();
         } else if (isAudio) {
           mediaEl = document.createElement('div');
           mediaEl.className = 'custom-audio-player perf-media';
-          
+
           const audio = document.createElement('audio');
           audio.src = this.activeMediaUrl;
           audio.autoplay = true;
-          
+
           const btn = document.createElement('button');
           btn.className = 'btn';
           btn.innerText = '⏸ Pause Audio';
           btn.onclick = () => { if (audio.paused) { audio.play(); btn.innerText = '⏸ Pause Audio'; } else { audio.pause(); btn.innerText = '▶ Play Audio'; } };
           audio.onended = () => btn.innerText = '▶ Play Audio';
-          
+
           mediaEl.appendChild(audio); mediaEl.appendChild(btn);
         }
 
@@ -353,12 +353,12 @@ const perform = {
       }
     }
 
-    this.fitContent(); 
+    this.fitContent();
   },
 
-  renderRemote: function(stateData) {
+  renderRemote: function (stateData) {
     const contentDiv = document.getElementById('perf-content');
-    
+
     if (this.activeMediaUrl) {
       URL.revokeObjectURL(this.activeMediaUrl);
       this.activeMediaUrl = null;
@@ -367,13 +367,13 @@ const perform = {
     if (this.state === 'finished' || (this.currentIndex >= this.totalCards && this.state !== 'title')) {
       this.state = 'finished';
       if (!this.endTime) this.endTime = Date.now();
-      
+
       let timeStr = "00:00";
       if (this.startTime) {
-          const elapsed = Math.floor((this.endTime - this.startTime) / 1000);
-          const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
-          const secs = String(elapsed % 60).padStart(2, '0');
-          timeStr = `${mins}:${secs}`;
+        const elapsed = Math.floor((this.endTime - this.startTime) / 1000);
+        const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+        const secs = String(elapsed % 60).padStart(2, '0');
+        timeStr = `${mins}:${secs}`;
       }
 
       const total = this.score.correct + this.score.wrong;
@@ -389,7 +389,7 @@ const perform = {
       return;
     }
 
-    contentDiv.innerHTML = ''; 
+    contentDiv.innerHTML = '';
 
     if (this.state === 'title') {
       const container = document.createElement('div');
@@ -417,11 +417,11 @@ const perform = {
       // Wrap the Q/A text in a scaling container for OBS
       const container = document.createElement('div');
       container.className = 'text-card';
-      
+
       const p = document.createElement('div');
       p.className = 'perf-text';
-      p.textContent = stateData.textStr; 
-      
+      p.textContent = stateData.textStr;
+
       container.appendChild(p);
       contentDiv.appendChild(container);
     }
@@ -432,23 +432,23 @@ const perform = {
       let mediaEl;
 
       const ext = stateData.mediaExt || '';
-      const isImage = blob.type.startsWith('image/') || ['png','jpg','jpeg','gif','webp'].includes(ext);
-      const isVideo = blob.type.startsWith('video/') || ['mp4','webm','ogg'].includes(ext);
-      const isAudio = blob.type.startsWith('audio/') || ['mp3','wav','m4a'].includes(ext);
+      const isImage = blob.type.startsWith('image/') || ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico', 'avif'].includes(ext);
+      const isVideo = blob.type.startsWith('video/') || ['mp4', 'webm', 'ogg', 'ogv', 'mov', 'mkv'].includes(ext);
+      const isAudio = blob.type.startsWith('audio/') || ['mp3', 'wav', 'm4a', 'aac', 'flac', 'oga'].includes(ext);
 
       if (isImage) {
         mediaEl = document.createElement('img');
         mediaEl.src = this.activeMediaUrl;
         mediaEl.className = 'perf-media';
-        mediaEl.onload = () => this.fitContent(); 
+        mediaEl.onload = () => this.fitContent();
       } else if (isVideo) {
         mediaEl = document.createElement('video');
         mediaEl.src = this.activeMediaUrl;
         mediaEl.autoplay = true;
         mediaEl.loop = true;
-        mediaEl.controls = false; 
+        mediaEl.controls = false;
         mediaEl.className = 'perf-media';
-        mediaEl.onloadedmetadata = () => this.fitContent(); 
+        mediaEl.onloadedmetadata = () => this.fitContent();
       } else if (isAudio) {
         mediaEl = document.createElement('audio');
         mediaEl.src = this.activeMediaUrl;
@@ -457,25 +457,25 @@ const perform = {
       }
 
       if (mediaEl) {
-          if (this.state === 'title' && !isAudio) contentDiv.querySelector('.title-card').prepend(mediaEl);
-          else contentDiv.appendChild(mediaEl);
+        if (this.state === 'title' && !isAudio) contentDiv.querySelector('.title-card').prepend(mediaEl);
+        else contentDiv.appendChild(mediaEl);
       }
     }
 
-    this.fitContent(); 
+    this.fitContent();
   },
 
-  playSFX: async function(type, isRemote = false, remoteBuffer = null, remoteMime = null) {
-      if (!window.isOBS && !isRemote) {
+  playSFX: async function (type, isRemote = false, remoteBuffer = null, remoteMime = null) {
+    if (!window.isOBS && !isRemote) {
       let customBuffer = null;
       let mimeType = null;
       const hasCustom = type === 'correct' ? settings.prefs.hasCustomSfxCorrect : settings.prefs.hasCustomSfxWrong;
-      
+
       if (hasCustom) {
         const blob = await db.getMedia(`sfx_${type}`);
         if (blob) { customBuffer = await blob.arrayBuffer(); mimeType = blob.type; }
       }
-      
+
       window.broadcastToOBS({ type: 'SFX', sfxType: type, buffer: customBuffer, mimeType: mimeType });
 
       if (customBuffer) {
@@ -484,7 +484,7 @@ const perform = {
         const audio = new Audio(url);
         audio.onended = () => URL.revokeObjectURL(url);
         audio.play().catch(e => console.error("Audio play failed:", e));
-        return; 
+        return;
       }
     } else if (isRemote && remoteBuffer) {
       const blob = new Blob([remoteBuffer], { type: remoteMime || 'audio/mpeg' });
@@ -498,7 +498,7 @@ const perform = {
     if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const osc = this.audioCtx.createOscillator();
     const gain = this.audioCtx.createGain();
-    
+
     osc.connect(gain);
     gain.connect(this.audioCtx.destination);
 
@@ -514,30 +514,30 @@ const perform = {
     }
   },
 
-  exitOBS: function() {
+  exitOBS: function () {
     if (this.activeMediaUrl) URL.revokeObjectURL(this.activeMediaUrl);
     this.deck = null;
     document.getElementById('view-perform').classList.remove('active');
     document.getElementById('view-perform').classList.add('hidden');
     document.body.classList.remove('perform-active');
-    document.getElementById('perf-content').innerHTML = ''; 
-    settings.applyToDOM(); 
+    document.getElementById('perf-content').innerHTML = '';
+    settings.applyToDOM();
   },
 
-  exit: function() {
+  exit: function () {
     if (this.activeMediaUrl) URL.revokeObjectURL(this.activeMediaUrl);
     this.deck = null;
-    
+
     window.broadcastToOBS({ type: 'EXIT' });
-    settings.applyToDOM(); 
+    settings.applyToDOM();
     navigate('browse');
   }
 };
 
 window.addEventListener('keydown', (e) => {
   if (!document.getElementById('view-perform').classList.contains('active')) return;
-  if (window.isOBS) return; 
-  
+  if (window.isOBS) return;
+
   if (settings.prefs.keyNext && e.code === settings.prefs.keyNext) {
     e.preventDefault(); perform.next();
   } else if (settings.prefs.keyCorrect && e.code === settings.prefs.keyCorrect) {

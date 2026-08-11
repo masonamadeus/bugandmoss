@@ -92,11 +92,33 @@ const archive = {
       deckObj.id = 'deck_' + Date.now(); 
       deckObj.lastEdited = Date.now();
               
+      // Helper to reconstruct MIME type from the saved file extension
       const getMimeType = (filename) => {
         const ext = filename.split('.').pop().toLowerCase();
-        if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) return 'image/' + (ext==='jpg'?'jpeg':ext);
-        if (['mp4', 'webm', 'ogg'].includes(ext)) return 'video/' + ext;
-        if (['mp3', 'wav', 'm4a'].includes(ext)) return 'audio/' + (ext==='mp3'?'mpeg':ext);
+        
+        // Images
+        if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico', 'avif'].includes(ext)) {
+          if (ext === 'jpg') return 'image/jpeg';
+          if (ext === 'svg') return 'image/svg+xml';
+          return 'image/' + ext;
+        }
+        
+        // Video
+        if (['mp4', 'webm', 'ogg', 'ogv', 'mov', 'mkv'].includes(ext)) {
+          if (ext === 'mov') return 'video/quicktime';
+          if (ext === 'mkv') return 'video/x-matroska';
+          if (ext === 'ogv') return 'video/ogg';
+          return 'video/' + ext;
+        }
+        
+        // Audio
+        if (['mp3', 'wav', 'm4a', 'aac', 'flac', 'oga'].includes(ext)) {
+          if (ext === 'mp3') return 'audio/mpeg';
+          if (ext === 'm4a') return 'audio/mp4';
+          if (ext === 'oga') return 'audio/ogg';
+          return 'audio/' + ext;
+        }
+        
         return 'application/octet-stream';
       };
       const mediaPromises = [];

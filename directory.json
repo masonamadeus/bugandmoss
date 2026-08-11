@@ -307,6 +307,16 @@
         "isAd": false
       },
       {
+        "name": "QuizDeck",
+        "number": "411",
+        "url": "/quizdeck",
+        "isAd": true,
+        "isHidden": false,
+        "isExplicit": false,
+        "subtitle": "Free, Easy Quiz Builder!",
+        "description": "Create quizzes and guessing games for us, or your own projects! Totally free!"
+      },
+      {
         "name": "The Scavengers Network",
         "number": "7228",
         "url": "https://scavengersnetwork.com",
