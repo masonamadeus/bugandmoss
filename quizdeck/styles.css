@@ -143,16 +143,25 @@ main {
     gap: 2rem;
     padding: 1rem 0;
 }
-
 .deck-card {
     background: var(--bg-paper);
     color: var(--text-ink);
     padding: 1.5rem;
     border: 1px solid rgba(0, 0, 0, 0.2);
     border-top: 12px solid #dccca3;
-    /* Manilla accent top */
     box-shadow: var(--shadow-hard);
     transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: grab; 
+}
+
+.deck-card:active {
+    cursor: grabbing;
+}
+.deck-card.drag-over {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 4px rgba(41, 128, 185, 0.2);
+    transform: scale(1.02) rotate(0deg);
+    z-index: 10;
 }
 
 .deck-card::before {

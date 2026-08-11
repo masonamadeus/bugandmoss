@@ -1,59 +1,102 @@
 const browse = {
   renderGrid: async function() {
-    
     const decks = await db.getAllDecks();
     const grid = document.getElementById('deck-grid');
     grid.innerHTML = ''; // Clear current grid
-         
+          
     if (decks.length === 0) {
-      grid.innerHTML = '<p>No decks found. Create one, import a .qzd file, or load the tutorial!</p>';
+      grid.innerHTML = '<p>No decks found. Create one or import a .qzd file!</p>';
       return;
     }
+
+    // Default sort: newest edited decks first
+    decks.sort((a, b) => (b.lastEdited || 0) - (a.lastEdited || 0));
+
+    // Custom drag-and-drop sort via localStorage
+    try {
+      const savedOrder = JSON.parse(localStorage.getItem('quizdeck_order'));
+      if (savedOrder && Array.isArray(savedOrder)) {
+        decks.sort((a, b) => {
+          let indexA = savedOrder.indexOf(a.id);
+          let indexB = savedOrder.indexOf(b.id);
+          // If a deck is new and not in the array, throw it to the end
+          if (indexA === -1) indexA = 99999;
+          if (indexB === -1) indexB = 99999;
+          return indexA - indexB;
+        });
+      }
+    } catch(e){}
 
     decks.forEach(deck => {
       const card = document.createElement('div');
       card.className = 'deck-card';
-             
+      card.dataset.id = deck.id;
+      card.draggable = true;
+
+      // --- Drag and Drop Logic ---
+      card.ondragstart = (e) => {
+        e.dataTransfer.setData('text/plain', deck.id);
+        card.style.opacity = '0.5';
+      };
+      card.ondragend = () => {
+        card.style.opacity = '1';
+        document.querySelectorAll('.deck-card').forEach(c => c.classList.remove('drag-over'));
+      };
+      card.ondragover = (e) => e.preventDefault(); 
+      card.ondragenter = (e) => {
+        e.preventDefault();
+        card.classList.add('drag-over');
+      };
+      card.ondragleave = (e) => card.classList.remove('drag-over');
+      card.ondrop = (e) => {
+        e.preventDefault();
+        card.classList.remove('drag-over');
+        const draggedId = e.dataTransfer.getData('text/plain');
+        if (draggedId && draggedId !== deck.id) {
+          browse.reorderDecks(draggedId, deck.id);
+        }
+      };
+      // ---------------------------
+      
       const title = document.createElement('h3');
       title.innerText = deck.title || 'Untitled Deck';
-             
+      
+      // NEW: Last Edited Timestamp
+      const dateStr = deck.lastEdited 
+        ? new Date(deck.lastEdited).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) 
+        : 'Never';
+      const dateEl = document.createElement('small');
+      dateEl.innerText = `Last edited: ${dateStr}`;
+      dateEl.style.display = 'block';
+      dateEl.style.opacity = '0.6';
+      dateEl.style.marginBottom = '0.5rem';
+      
       const count = document.createElement('p');
       count.innerText = `${deck.cards ? deck.cards.length : 0} Cards`;
 
       const actions = document.createElement('div');
       actions.className = 'deck-actions';
 
-      // Perform Button
       const btnPerform = document.createElement('button');
       btnPerform.className = 'btn primary';
       btnPerform.innerText = 'Perform';
       btnPerform.onclick = () => perform.start(deck.id);
-             
-      // Edit Button
+      
       const btnEdit = document.createElement('button');
       btnEdit.className = 'btn';
       btnEdit.innerText = 'Edit';
       btnEdit.onclick = () => create.loadDeck(deck.id);
 
-      // Send/Share Button
-      const btnSend = document.createElement('button');
-      btnSend.className = 'btn';
-      btnSend.innerText = 'Share';
-      btnSend.onclick = () => archive.shareDeck(deck.id);
-
-      // Export Button
       const btnExport = document.createElement('button');
       btnExport.className = 'btn';
       btnExport.innerText = 'Export';
       btnExport.onclick = () => archive.exportDeck(deck.id);
 
-      // Delete Button
       const btnDelete = document.createElement('button');
       btnDelete.className = 'btn danger';
       btnDelete.innerText = 'Delete';
       btnDelete.onclick = async () => {
         if(confirm(`Are you sure you want to delete "${deck.title}"?`)) {
-          // Cleanup associated media blobs so they don't leak memory
           if (deck.titleMediaId) await db.deleteMedia(deck.titleMediaId);
           if (deck.cards) {
             for (const c of deck.cards) {
@@ -61,27 +104,52 @@ const browse = {
               if (c.aMediaId) await db.deleteMedia(c.aMediaId);
             }
           }
-          // Delete the actual deck JSON object
           await db.deleteDeck(deck.id);
+
+          // Clean up custom order array so it doesn't leak dead IDs
+          try {
+            let savedOrder = JSON.parse(localStorage.getItem('quizdeck_order'));
+            if (savedOrder) {
+                savedOrder = savedOrder.filter(id => id !== deck.id);
+                localStorage.setItem('quizdeck_order', JSON.stringify(savedOrder));
+            }
+          } catch(e){}
+
           this.renderGrid();
         }
       };
 
-      actions.append(btnPerform, btnEdit, btnSend, btnDelete);
-      card.append(title, count, actions);
+      actions.append(btnPerform, btnEdit, btnExport, btnDelete);
+      card.append(title, dateEl, count, actions); // Injected dateEl here
       grid.appendChild(card);
     });
+  },
+
+  // Helper to visually swap decks and save to local storage
+  reorderDecks: function(draggedId, targetId) {
+    const cards = Array.from(document.querySelectorAll('.deck-card'));
+    let currentOrder = cards.map(c => c.dataset.id);
+    
+    const fromIndex = currentOrder.indexOf(draggedId);
+    const toIndex = currentOrder.indexOf(targetId);
+    
+    if (fromIndex > -1 && toIndex > -1) {
+      currentOrder.splice(fromIndex, 1);
+      currentOrder.splice(toIndex, 0, draggedId);
+      localStorage.setItem('quizdeck_order', JSON.stringify(currentOrder));
+      this.renderGrid();
+    }
   },
 
   handleImport: async function(event) {
     const file = event.target.files[0];
     if (!file) return;
-         
+    
     await archive.importDeck(file);
     event.target.value = ''; // Reset input
     this.renderGrid();
   },
-
+  
   createTutorial: async function() {
     const tutorialDeck = {
       id: 'deck_tutorial',

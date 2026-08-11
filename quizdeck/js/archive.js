@@ -90,6 +90,7 @@ const archive = {
       const deckDataStr = await contents.file('deck.json').async('string');
       const deckObj = JSON.parse(deckDataStr);
       deckObj.id = 'deck_' + Date.now(); 
+      deckObj.lastEdited = Date.now();
               
       const getMimeType = (filename) => {
         const ext = filename.split('.').pop().toLowerCase();

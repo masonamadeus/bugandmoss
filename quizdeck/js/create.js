@@ -26,6 +26,7 @@ const create = {
     clearTimeout(this.autosaveTimer);
     this.autosaveTimer = setTimeout(async () => {
       if (!this.deck.title) this.deck.title = 'Untitled Deck';
+      this.deck.lastEdited = Date.now();
       await db.saveDeck(this.deck);
       this.hasUnsavedChanges = false;
       if (statusEl) {
