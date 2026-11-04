@@ -120,7 +120,7 @@ const scoreboard = {
     },
 
     syncTop10: function(useFlip = false) {
-        const sorted = this.getSortedPlayers();
+        const sorted = this.getSortedPlayers(true);
         const boardTitle = this.board ? this.board.title : 'Scoreboard';
         if (!window.isOBS && typeof window.broadcastToOBS === 'function') {
             window.broadcastToOBS({ type: 'SCOREBOARD_TOP10', visible: this.top10Visible, players: sorted, useFlip: useFlip, title: boardTitle });
@@ -376,7 +376,7 @@ const scoreboard = {
         if (!player) return;
         
         if (Object.keys(this.pendingDeltas).length === 0) {
-            this.initialSnapshot = JSON.parse(JSON.stringify(this.getSortedPlayers()));
+            this.initialSnapshot = JSON.parse(JSON.stringify(this.getSortedPlayers(true)));
         }
 
         player.score += delta;
@@ -404,7 +404,7 @@ const scoreboard = {
     finalizeScoreAction: async function() {
         this.triggerAutosave();
         const oldState = this.initialSnapshot;
-        const newState = this.getSortedPlayers();
+        const newState = this.getSortedPlayers(true);
         const rankChanged = oldState.map(p=>p.id).join(',') !== newState.map(p=>p.id).join(',');
 
         this.renderPanel(true);
@@ -515,13 +515,23 @@ const scoreboard = {
         }
     },
 
-    getSortedPlayers: function() {
+    getSortedPlayers: function(forceLeaderboard = false) {
         let sorted = [...this.board.players];
-        switch(this.settings.sort) {
-            case 'score-high': sorted.sort((a, b) => b.score - a.score); break;
-            case 'score-low': sorted.sort((a, b) => a.score - b.score); break;
-            case 'alpha': sorted.sort((a, b) => a.name.localeCompare(b.name)); break;
-            default: sorted.sort((a, b) => a.addedAt - b.addedAt); break;
+        const mode = forceLeaderboard ? 'score-high' : this.settings.sort;
+
+        switch(mode) {
+            case 'score-high': 
+                sorted.sort((a, b) => (b.score - a.score) || (a.addedAt - b.addedAt)); 
+                break;
+            case 'score-low': 
+                sorted.sort((a, b) => (a.score - b.score) || (a.addedAt - b.addedAt)); 
+                break;
+            case 'alpha': 
+                sorted.sort((a, b) => a.name.localeCompare(b.name)); 
+                break;
+            default: 
+                sorted.sort((a, b) => (a.addedAt || 0) - (b.addedAt || 0)); 
+                break;
         }
         return sorted;
     },
