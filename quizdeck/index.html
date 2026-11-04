@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,97 +8,70 @@
     <link rel="stylesheet" href="styles.css">
     <link id="dynamic-font" rel="stylesheet" href="">
 </head>
-
 <body>
-    <!-- Navigation / Header -->
     <header id="app-header">
         <h1>QuizDeck</h1>
         <nav>
             <button id="btn-browse" onclick="navigate('browse')">Browse</button>
-            <button id="btn-create" onclick="create.startNew()">Create</button>
-            <button id="btn-obs-link" onclick="copyOBSLink()" style="border-color: var(--accent-blue); color: var(--accent-blue);">Copy
-                OBS Link</button>
+            <button id="btn-create-deck" onclick="create.startNew()">Create Quiz</button>
+            <button id="btn-create-sb" onclick="scoreboard.startNew()" style="background: var(--bg-paper-light);">Create Scoreboard</button>
+            <button id="btn-obs-link" onclick="copyOBSLink()" style="border-color: var(--accent-blue); color: var(--accent-blue);">Copy OBS Link</button>
             <button id="btn-settings" onclick="settings.open()">Settings</button>
         </nav>
     </header>
 
-    <!-- Main Views -->
     <main>
+        <!-- Browse View -->
         <section id="view-browse" class="view active">
             <div class="header-actions">
                 <h2>Your Library</h2>
-                <!-- Hidden file input triggered by the label -->
                 <label for="import-file" class="btn primary">Import .qzd</label>
-                <input type="file" id="import-file" accept=".qzd" style="display: none;"
-                    onchange="browse.handleImport(event)">
+                <input type="file" id="import-file" accept=".qzd" style="display: none;" onchange="browse.handleImport(event)">
             </div>
             <div id="deck-grid" class="deck-grid"></div>
         </section>
 
+        <!-- Deck Create View (Reverted to purely Q/A) -->
         <section id="view-create" class="view hidden">
-            <!-- New Cohesive Metadata Header -->
             <div class="deck-header-paper">
                 <div class="deck-title-row">
-                    <input type="text" id="deck-title-input" placeholder="Deck Title" class="title-input"
-                        oninput="create.updateDeckMeta('title', this.value)">
+                    <input type="text" id="deck-title-input" placeholder="Deck Title" class="title-input" oninput="create.updateDeckMeta('title', this.value)">
                     <span class="by-text">by</span>
-                    <input type="text" id="deck-author-input" placeholder="Author Name" class="author-input"
-                        oninput="create.updateDeckMeta('author', this.value)">
-
+                    <input type="text" id="deck-author-input" placeholder="Author Name" class="author-input" oninput="create.updateDeckMeta('author', this.value)">
                     <div style="margin-left: auto; display: flex; align-items: center; gap: 0.75rem;">
                         <span id="autosave-status" class="autosave-badge">✓ Saved</span>
                         <button class="btn primary" onclick="navigate('browse')">Done</button>
                     </div>
                 </div>
-
                 <div class="deck-settings-row">
                     <div style="display: flex; gap: 1rem; align-items: center;">
-                        <label style="display:flex; align-items:center; gap:0.5rem; color: var(--text-ink);">Background:
-                            <input type="color" id="deck-bg-input"
-                                onchange="create.updateDeckStyle('bg', this.value)"></label>
-                        <label style="display:flex; align-items:center; gap:0.5rem; color: var(--text-ink);">Text:
-                            <input type="color" id="deck-text-input"
-                                onchange="create.updateDeckStyle('text', this.value)"></label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; color: var(--text-ink);">Background: <input type="color" id="deck-bg-input" onchange="create.updateDeckStyle('bg', this.value)"></label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; color: var(--text-ink);">Text: <input type="color" id="deck-text-input" onchange="create.updateDeckStyle('text', this.value)"></label>
                     </div>
                     <div style="display: flex; gap: 0.5rem; align-items: center;">
                         <label class="btn" style="margin:0; padding: 0.2rem 0.5rem; font-size: 0.8rem;">
                             <span id="intro-media-label">Upload Intro Media</span>
-                            <input type="file" accept="image/*,audio/*,video/*" style="display:none;"
-                                onchange="create.handleIntroMedia(event)">
+                            <input type="file" accept="image/*,audio/*,video/*" style="display:none;" onchange="create.handleIntroMedia(event)">
                         </label>
-                        <button class="btn" id="btn-remove-intro-media"
-                            style="display:none; padding: 0.2rem 0.5rem; font-size: 0.8rem; color:var(--accent-ink);"
-                            onclick="create.removeIntroMedia()">Remove</button>
-                        <small class="text-truncate" id="intro-media-filename"
-                            style="max-width: 150px; font-weight: normal; color: var(--text-ink);"></small>
+                        <button class="btn" id="btn-remove-intro-media" style="display:none; padding: 0.2rem 0.5rem; font-size: 0.8rem; color:var(--accent-ink);" onclick="create.removeIntroMedia()">Remove</button>
+                        <small class="text-truncate" id="intro-media-filename" style="max-width: 150px; font-weight: normal; color: var(--text-ink);"></small>
                     </div>
                 </div>
             </div>
-
             <div class="create-layout">
-                <aside id="card-list-sidebar" class="sidebar">
-                    <!-- Card thumbnails injected here -->
-                </aside>
-                <section id="card-editor" class="editor">
-                    <!-- Q/A Editor injected here -->
-                </section>
+                <aside id="card-list-sidebar" class="sidebar"></aside>
+                <section id="card-editor" class="editor"></section>
             </div>
         </section>
 
+        <!-- Deck Perform View (Reverted to purely Q/A) -->
         <section id="view-perform" class="view hidden">
             <div class="perform-layout">
-                <!-- Minimal Header -->
                 <div class="perform-header">
                     <span id="perf-progress">Card 1 / 10</span>
                     <button class="btn" onclick="perform.exit()">Exit Quiz</button>
                 </div>
-
-                <!-- Main Content Area -->
-                <div id="perf-content" class="perf-content">
-                    <!-- Text and Media will be injected here -->
-                </div>
-
-                <!-- On-Screen Backup Controls -->
+                <div id="perf-content" class="perf-content"></div>
                 <div class="perform-controls">
                     <button id="btn-perf-wrong" class="btn" onclick="perform.mark(false)">❌ Wrong</button>
                     <button id="btn-perf-next" class="btn primary" onclick="perform.next()">Show Answer</button>
@@ -108,6 +80,28 @@
             </div>
         </section>
 
+        <!-- NEW: Dedicated Scoreboard Control Room -->
+        <section id="view-scoreboard" class="view hidden">
+            <div class="deck-header-paper" style="margin-bottom: 2rem;">
+                <div class="deck-title-row">
+                    <input type="text" id="sb-title-input" placeholder="Scoreboard Title" class="title-input" oninput="scoreboard.updateTitle(this.value)">
+                    <div style="margin-left: auto; display: flex; align-items: center; gap: 0.75rem;">
+                        <span id="sb-autosave-status" class="autosave-badge">✓ Saved</span>
+                        <button class="btn primary" onclick="navigate('browse')">Close Panel</button>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; align-items: center; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 1rem;">
+                    <button class="btn" onclick="scoreboard.toggleTop10()" id="btn-toggle-top10">Show Top 10 Overlay</button>
+                    <button class="btn" onclick="scoreboard.toggleHoldMode()" id="btn-toggle-hold">Buffer Scores: OFF</button>
+                    <button class="btn" onclick="scoreboard.toggleSort()">Sort: <span id="sb-sort-label">Oldest First</span></button>
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;"><input type="checkbox" id="sb-sfx-toggle" onchange="scoreboard.saveSettings()"> Click SFX</label>
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;"><input type="checkbox" id="sb-overlay-toggle" onchange="scoreboard.saveSettings()"> Overlay Toasts</label>
+                    <button class="btn primary" style="margin-left:auto;" onclick="scoreboard.openEditor()">+ Add Player</button>
+                    <button class="btn danger" onclick="scoreboard.resetScores()">Reset Scores</button>
+                </div>
+            </div>
+            <div id="scoreboard-list" style="display: flex; flex-direction: column; gap: 1rem; max-width: 800px; margin: 0 auto; position: relative;"></div>
+        </section>
     </main>
 
     <!-- Settings Modal -->
@@ -120,9 +114,11 @@
             <div class="settings-grid">
                 <!-- Appearance Panel -->
                 <div class="settings-group">
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
                         <h3 style="margin: 0; border: none; padding: 0;">Appearance (Perform Mode)</h3>
-                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="settings.resetSection('appearance')">Reset Section</button>
+                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;"
+                            onclick="settings.resetSection('appearance')">Reset Section</button>
                     </div>
                     <label>Background Color: <input type="color" id="set-bg" onchange="settings.save()"></label>
                     <label>Text Color: <input type="color" id="set-text" onchange="settings.save()"></label>
@@ -133,9 +129,11 @@
                 </div>
                 <!-- Hotkeys Panel -->
                 <div class="settings-group">
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
                         <h3 style="margin: 0; border: none; padding: 0;">Hotkeys & Controls</h3>
-                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="settings.resetSection('hotkeys')">Reset Section</button>
+                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;"
+                            onclick="settings.resetSection('hotkeys')">Reset Section</button>
                     </div>
                     <label style="flex-direction: row; align-items: center; cursor: pointer;">
                         <input type="checkbox" id="set-show-controls" onchange="settings.save()">
@@ -151,9 +149,11 @@
                 </div>
                 <!-- Custom Audio Panel -->
                 <div class="settings-group">
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
                         <h3 style="margin: 0; border: none; padding: 0;">Custom Sound Effects</h3>
-                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="settings.resetSection('sfx')">Reset Section</button>
+                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;"
+                            onclick="settings.resetSection('sfx')">Reset Section</button>
                     </div>
                     <p><small>Override the default synthesized sounds with your own audio files. Leave blank to use
                             defaults.</small></p>
@@ -170,13 +170,15 @@
                 </div>
                 <!-- OBS Layout Panel -->
                 <div class="settings-group">
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
                         <h3 style="margin: 0; border: none; padding: 0;">OBS Overlay Layout</h3>
-                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="settings.resetSection('obs')">Reset Section</button>
+                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;"
+                            onclick="settings.resetSection('obs')">Reset Section</button>
                     </div>
                     <p><small>The preview box automatically shows in OBS while this menu is open.</small></p>
-                    <label>Background Opacity (%): <input type="range" id="set-obs-opacity" min="0" max="100" step="5" value="0" 
-                            oninput="settings.save()"><span id="set-obs-opacity-val">0%</span></label>
+                    <label>Background Opacity (%): <input type="range" id="set-obs-opacity" min="0" max="100" step="5"
+                            value="0" oninput="settings.save()"><span id="set-obs-opacity-val">0%</span></label>
                     <label>Position X (Horizontal %):
                         <input type="range" id="set-obs-x" min="0" max="100" value="50" oninput="settings.save()">
                         <span id="set-obs-x-val">50%</span>
@@ -190,12 +192,14 @@
                             oninput="settings.save()">
                         <span id="set-obs-scale-val">1.0x</span>
                     </label>
-                    <label>Max Width (px): 
-                        <input type="range" id="set-obs-max-w" min="400" max="1600" step="50" value="1600" oninput="settings.save()">
+                    <label>Max Width (px):
+                        <input type="range" id="set-obs-max-w" min="400" max="1600" step="50" value="1600"
+                            oninput="settings.save()">
                         <span id="set-obs-max-w-val">1600px</span>
                     </label>
-                    <label>Max Height (px): 
-                        <input type="range" id="set-obs-max-h" min="300" max="1200" step="50" value="1200" oninput="settings.save()">
+                    <label>Max Height (px):
+                        <input type="range" id="set-obs-max-h" min="300" max="1200" step="50" value="1200"
+                            oninput="settings.save()">
                         <span id="set-obs-max-h-val">1200px</span>
                     </label>
                 </div>
@@ -203,11 +207,40 @@
         </div>
     </div>
 
-    <!-- PeerJS for OBS Sync -->
+    <!-- Player Editor Modal -->
+    <div id="player-editor-modal" class="modal hidden" onclick="if(event.target === this) scoreboard.closeEditor()">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 id="pe-title" style="margin-top:0;">Add Player</h2>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <input type="text" id="pe-name" placeholder="Player Name" class="title-input" style="width: 100%; max-width: 100%;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <img id="pe-pic-preview" src="" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--text-ink); display: none;">
+                    <label class="btn">Choose Profile Pic <input type="file" id="pe-pic" accept="image/*" style="display:none;" onchange="scoreboard.stagePic(event)"></label>
+                </div>
+                <div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Custom Toast Sound (Optional)</label>
+                    <small style="display: block; margin-bottom: 0.5rem;">Plays automatically 1 second after adding points.</small>
+                    <label class="btn">Upload Audio <input type="file" id="pe-audio" accept="audio/*" style="display:none;" onchange="scoreboard.stageAudio(event)"></label>
+                    <span id="pe-audio-label" style="margin-left: 0.5rem; font-size: 0.85rem; opacity: 0.8;">No file selected</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+                    <button class="btn danger" id="pe-delete-btn" onclick="scoreboard.deleteEditingPlayer()" style="display:none;">Delete Player</button>
+                    <div style="margin-left: auto; display: flex; gap: 0.5rem;">
+                        <button class="btn" onclick="scoreboard.closeEditor()">Cancel</button>
+                        <button class="btn primary" onclick="scoreboard.savePlayer()">Save Player</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scoreboard OBS Overlay Containers -->
+    <div id="scoreboard-top10-container" style="display: none;"></div>
+    <div id="scoreboard-overlay-container"></div>
+
+    <!-- Scripts -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <!-- JSZip via CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <!-- Our Scripts -->
     <script src="js/db.js"></script>
     <script src="js/archive.js"></script>
     <script src="js/browse.js"></script>
@@ -216,6 +249,6 @@
     <script src="js/app.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/perform.js"></script>
+    <script src="js/scoreboard.js"></script>
 </body>
-
 </html>

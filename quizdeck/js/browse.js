@@ -1,25 +1,22 @@
 const browse = {
   renderGrid: async function() {
-    const decks = await db.getAllDecks();
+    const items = await db.getAllDecks(); // Scoreboards share the table
     const grid = document.getElementById('deck-grid');
-    grid.innerHTML = ''; // Clear current grid
-          
-    if (decks.length === 0) {
-      grid.innerHTML = '<p>No decks found. Create one or import a .qzd file!</p>';
+    grid.innerHTML = '';
+    
+    if (items.length === 0) {
+      grid.innerHTML = '<p>No items found. Create a Deck or Scoreboard!</p>';
       return;
     }
 
-    // Default sort: newest edited decks first
-    decks.sort((a, b) => (b.lastEdited || 0) - (a.lastEdited || 0));
+    items.sort((a, b) => (b.lastEdited || 0) - (a.lastEdited || 0));
 
-    // Custom drag-and-drop sort via localStorage
     try {
       const savedOrder = JSON.parse(localStorage.getItem('quizdeck_order'));
       if (savedOrder && Array.isArray(savedOrder)) {
-        decks.sort((a, b) => {
+        items.sort((a, b) => {
           let indexA = savedOrder.indexOf(a.id);
           let indexB = savedOrder.indexOf(b.id);
-          // If a deck is new and not in the array, throw it to the end
           if (indexA === -1) indexA = 99999;
           if (indexB === -1) indexB = 99999;
           return indexA - indexB;
@@ -27,117 +24,99 @@ const browse = {
       }
     } catch(e){}
 
-    decks.forEach(deck => {
+    items.forEach(item => {
       const card = document.createElement('div');
       card.className = 'deck-card';
-      card.dataset.id = deck.id;
+      card.dataset.id = item.id;
       card.draggable = true;
-
-      // --- Drag and Drop Logic ---
-      card.ondragstart = (e) => {
-        e.dataTransfer.setData('text/plain', deck.id);
-        card.style.opacity = '0.5';
-      };
-      card.ondragend = () => {
-        card.style.opacity = '1';
-        document.querySelectorAll('.deck-card').forEach(c => c.classList.remove('drag-over'));
-      };
+      
+      card.ondragstart = (e) => { e.dataTransfer.setData('text/plain', item.id); card.style.opacity = '0.5'; };
+      card.ondragend = () => { card.style.opacity = '1'; document.querySelectorAll('.deck-card').forEach(c => c.classList.remove('drag-over')); };
       card.ondragover = (e) => e.preventDefault(); 
-      card.ondragenter = (e) => {
-        e.preventDefault();
-        card.classList.add('drag-over');
-      };
-      card.ondragleave = (e) => card.classList.remove('drag-over');
+      card.ondragenter = (e) => { e.preventDefault(); card.classList.add('drag-over'); };
+      card.ondragleave = () => card.classList.remove('drag-over');
       card.ondrop = (e) => {
         e.preventDefault();
         card.classList.remove('drag-over');
         const draggedId = e.dataTransfer.getData('text/plain');
-        if (draggedId && draggedId !== deck.id) {
-          browse.reorderDecks(draggedId, deck.id);
-        }
+        if (draggedId && draggedId !== item.id) browse.reorderDecks(draggedId, item.id);
       };
-      // ---------------------------
-      
+
       const title = document.createElement('h3');
-      title.innerText = deck.title || 'Untitled Deck';
+      title.innerText = item.type === 'scoreboard' ? `${ item.title || 'Scoreboard'}` : (item.title || 'Untitled Deck');
       
-      // NEW: Last Edited Timestamp
-      const dateStr = deck.lastEdited 
-        ? new Date(deck.lastEdited).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) 
-        : 'Never';
+      const dateStr = item.lastEdited ? new Date(item.lastEdited).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Never';
       const dateEl = document.createElement('small');
       dateEl.innerText = `Last edited: ${dateStr}`;
-      dateEl.style.display = 'block';
-      dateEl.style.opacity = '0.6';
-      dateEl.style.marginBottom = '0.5rem';
+      dateEl.style.display = 'block'; dateEl.style.opacity = '0.6'; dateEl.style.marginBottom = '0.5rem';
       
       const count = document.createElement('p');
-      count.innerText = `${deck.cards ? deck.cards.length : 0} Cards`;
+      count.innerText = item.type === 'scoreboard' ? `${item.players ? item.players.length : 0} Players` : `${item.cards ? item.cards.length : 0} Cards`;
 
       const actions = document.createElement('div');
       actions.className = 'deck-actions';
 
-      const btnPerform = document.createElement('button');
-      btnPerform.className = 'btn primary';
-      btnPerform.innerText = 'Perform';
-      btnPerform.onclick = () => perform.start(deck.id);
-      
-      const btnEdit = document.createElement('button');
-      btnEdit.className = 'btn';
-      btnEdit.innerText = 'Edit';
-      btnEdit.onclick = () => create.loadDeck(deck.id);
+      if (item.type === 'scoreboard') {
+          const btnOpen = document.createElement('button');
+          btnOpen.className = 'btn primary'; btnOpen.innerText = 'Open Scoreboard';
+          btnOpen.onclick = () => scoreboard.open(item.id);
+          actions.append(btnOpen);
+          card.classList.add('scoreboard-card');
+      } else {
+          const btnPerform = document.createElement('button');
+          btnPerform.className = 'btn primary'; btnPerform.innerText = 'Begin Quiz';
+          btnPerform.onclick = () => perform.start(item.id);
+          
+          const btnEdit = document.createElement('button');
+          btnEdit.className = 'btn'; btnEdit.innerText = 'Edit';
+          btnEdit.onclick = () => create.loadDeck(item.id);
+          actions.append(btnPerform, btnEdit);
+      }
 
       const btnShare = document.createElement('button');
-      btnShare.className = 'btn';
-      btnShare.innerText = 'Share';
-      btnShare.onclick = () => archive.shareDeck(deck.id);
+      btnShare.className = 'btn'; btnShare.innerText = 'Share'; btnShare.onclick = () => archive.shareDeck(item.id);
       
       const btnExport = document.createElement('button');
-      btnExport.className = 'btn';
-      btnExport.innerText = 'Export';
-      btnExport.onclick = () => archive.exportDeck(deck.id);
+      btnExport.className = 'btn'; btnExport.innerText = 'Export'; btnExport.onclick = () => archive.exportDeck(item.id);
 
       const btnDelete = document.createElement('button');
-      btnDelete.className = 'btn danger';
-      btnDelete.innerText = 'Delete';
+      btnDelete.className = 'btn danger'; btnDelete.innerText = 'Delete';
       btnDelete.onclick = async () => {
-        if(confirm(`Are you sure you want to delete "${deck.title}"?`)) {
-          if (deck.titleMediaId) await db.deleteMedia(deck.titleMediaId);
-          if (deck.cards) {
-            for (const c of deck.cards) {
-              if (c.qMediaId) await db.deleteMedia(c.qMediaId);
-              if (c.aMediaId) await db.deleteMedia(c.aMediaId);
-            }
+        if(confirm(`Are you sure you want to delete "${item.title}"?`)) {
+          if (item.type === 'scoreboard' && item.players) {
+              for (const p of item.players) if (p.audioId) await db.deleteMedia(p.audioId);
+          } else {
+              if (item.titleMediaId) await db.deleteMedia(item.titleMediaId);
+              if (item.cards) {
+                  for (const c of item.cards) {
+                      if (c.qMediaId) await db.deleteMedia(c.qMediaId);
+                      if (c.aMediaId) await db.deleteMedia(c.aMediaId);
+                  }
+              }
           }
-          await db.deleteDeck(deck.id);
-
-          // Clean up custom order array so it doesn't leak dead IDs
+          await db.deleteDeck(item.id);
           try {
             let savedOrder = JSON.parse(localStorage.getItem('quizdeck_order'));
             if (savedOrder) {
-                savedOrder = savedOrder.filter(id => id !== deck.id);
+                savedOrder = savedOrder.filter(id => id !== item.id);
                 localStorage.setItem('quizdeck_order', JSON.stringify(savedOrder));
             }
           } catch(e){}
-
           this.renderGrid();
         }
       };
 
-      actions.append(btnPerform, btnEdit, btnShare, btnDelete);
-      card.append(title, dateEl, count, actions); // Injected dateEl here
+      actions.append(btnShare, btnExport, btnDelete);
+      card.append(title, dateEl, count, actions);
       grid.appendChild(card);
     });
   },
 
-  // Helper to visually swap decks and save to local storage
   reorderDecks: function(draggedId, targetId) {
     const cards = Array.from(document.querySelectorAll('.deck-card'));
     let currentOrder = cards.map(c => c.dataset.id);
-    
     const fromIndex = currentOrder.indexOf(draggedId);
     const toIndex = currentOrder.indexOf(targetId);
-    
     if (fromIndex > -1 && toIndex > -1) {
       currentOrder.splice(fromIndex, 1);
       currentOrder.splice(toIndex, 0, draggedId);
@@ -149,12 +128,11 @@ const browse = {
   handleImport: async function(event) {
     const file = event.target.files[0];
     if (!file) return;
-    
     await archive.importDeck(file);
-    event.target.value = ''; // Reset input
+    event.target.value = '';
     this.renderGrid();
   },
-  
+
   createTutorial: async function() {
     const tutorialDeck = {
       id: 'deck_tutorial',
@@ -206,3 +184,5 @@ const browse = {
     this.renderGrid();
   }
 };
+  
+  

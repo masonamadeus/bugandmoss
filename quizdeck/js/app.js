@@ -110,6 +110,18 @@ document.addEventListener('DOMContentLoaded', async () => {
           if (msg.type === 'SYNC') perform.syncOBS(msg.stateData);
           if (msg.type === 'SFX') perform.playSFX(msg.sfxType, true, msg.buffer, msg.mimeType);
           if (msg.type === 'EXIT') perform.exitOBS();
+          if (msg.type === 'SCOREBOARD_TOP10') {
+              scoreboard.renderTop10(msg.visible, msg.players, msg.useFlip, msg.title);
+          }
+          if (msg.type === 'SCOREBOARD_REALTIME_TOAST') {
+              scoreboard.updateOrShowNotification(msg.player, msg.delta);
+          }
+          if (msg.type === 'SCOREBOARD_FINAL_AUDIO') {
+              scoreboard.playToastAudio(msg.buffer, msg.mime);
+          }
+          if (msg.type === 'SCOREBOARD_AUTO_TOP10') {
+              scoreboard.triggerAutoTop10(msg.oldPlayers, msg.newPlayers, msg.title);
+          }
         });
         
         conn.on('close', () => { 

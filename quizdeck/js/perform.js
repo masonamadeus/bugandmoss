@@ -182,14 +182,9 @@ const perform = {
       this.playSFX('wrong');
     }
 
-    if (this.state === 'question') {
-      this.state = 'answer';
-      this.alreadyMarked = true;
-    } else {
-      this.currentIndex++;
-      this.state = 'question';
-      this.alreadyMarked = false;
-    }
+    
+    this.alreadyMarked = true;
+    
 
     this.render();
     this.broadcast();

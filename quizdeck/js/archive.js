@@ -7,21 +7,31 @@ const archive = {
     const zip = new JSZip();
     zip.file('deck.json', JSON.stringify(deck));
     const assets = zip.folder('assets');
-            
-    if (deck.titleMediaId) {
-      const blob = await db.getMedia(deck.titleMediaId);
-      if (blob) assets.file(deck.titleMediaId, blob);
-    }
-
-    if (deck.cards) {
-      for (const card of deck.cards) {
-        if (card.qMediaId) {
-          const blob = await db.getMedia(card.qMediaId);
-          if (blob) assets.file(card.qMediaId, blob);
+    
+    if (deck.type === 'scoreboard') {
+      if (deck.players) {
+        for (const p of deck.players) {
+          if (p.audioId) {
+            const blob = await db.getMedia(p.audioId);
+            if (blob) assets.file(p.audioId, blob);
+          }
         }
-        if (card.aMediaId) {
-          const blob = await db.getMedia(card.aMediaId);
-          if (blob) assets.file(card.aMediaId, blob);
+      }
+    } else {
+      if (deck.titleMediaId) {
+        const blob = await db.getMedia(deck.titleMediaId);
+        if (blob) assets.file(deck.titleMediaId, blob);
+      }
+      if (deck.cards) {
+        for (const card of deck.cards) {
+          if (card.qMediaId) {
+            const blob = await db.getMedia(card.qMediaId);
+            if (blob) assets.file(card.qMediaId, blob);
+          }
+          if (card.aMediaId) {
+            const blob = await db.getMedia(card.aMediaId);
+            if (blob) assets.file(card.aMediaId, blob);
+          }
         }
       }
     }
